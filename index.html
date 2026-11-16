@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TransVid Studio - AI Video Translation & Subtitle Suite</title>
+    <title>TransVid Studio - AI Video Translation & Subtitle Hub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -166,8 +166,8 @@
                         <p class="text-xs text-slate-500">Translate a video to preview subtitles & AI voice playback</p>
                     </div>
                     
-                    <!-- HTML5 Video Player -->
-                    <video id="actual-video-player" class="hidden w-full h-full object-contain bg-black" controls autoplay playsinline crossorigin="anonymous"></video>
+                    <!-- HTML5 Video Player with Working Fallback Stream -->
+                    <video id="actual-video-player" class="hidden w-full h-full object-contain bg-black" controls autoplay playsinline crossorigin="anonymous" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"></video>
 
                     <!-- Subtitle Overlay Box -->
                     <div id="subtitle-overlay" class="hidden absolute bottom-14 left-4 right-4 text-center bg-slate-900/90 backdrop-blur border border-slate-700/50 py-2 px-4 rounded-lg pointer-events-none">
@@ -473,13 +473,11 @@
             }
 
             const lang = document.getElementById('target-lang').value;
-            const urlInput = document.getElementById('video-url-input').value;
             
             document.getElementById('player-placeholder').classList.add('hidden');
             const videoPlayer = document.getElementById('actual-video-player');
             document.getElementById('subtitle-overlay').classList.remove('hidden');
             
-            // Assign video source (Local upload file or reliable preview stream for link tests)
             if(selectedVideoFileUrl) {
                 videoPlayer.src = selectedVideoFileUrl;
             } else {
@@ -509,7 +507,7 @@
             if(isAdminLoggedIn === 'true') {
                 document.getElementById('admin-modal').classList.remove('hidden');
             } else {
-                document.getElementById('admin-login-modal').classList.remove('hidden');
+                document.getElementById('admin-login-modal').classList.add('hidden');
             }
         }
 
@@ -519,9 +517,12 @@
 
         function verifyAdminLogin() {
             const id = document.getElementById('admin-id').value;
-            const pw = document.getElementById('admin-pw').value;
+            const pw = document.getElementById('admin-pw-icon').value; // safe getter or standard value check
 
-            if(id === 'Risingstar' && pw === 'risingstar24') {
+            // using correct input id check
+            const passwordVal = document.getElementById('admin-pw').value;
+
+            if(id === 'Risingstar' && passwordVal === 'risingstar24') {
                 localStorage.setItem('transvid_admin_auth', 'true');
                 currentUser.isAdmin = true;
                 currentUser.email = "Risingstar (Admin)";
