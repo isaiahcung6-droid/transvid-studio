@@ -448,7 +448,7 @@
                 urlSec.classList.add('hidden');
                 fileSec.classList.remove('hidden');
                 fileBtn.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition";
-                urlBtn.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-400 hover:text-slate-700 transition";
+                urlBtn.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 transition";
             }
         }
 
@@ -461,6 +461,7 @@
         }
 
         function startTranslation() {
+            // ADMIN BYPASS: Completely bypass trial limit checks if currentUser is admin
             if(!currentUser.isAdmin) {
                 if(currentUser.videosUsed >= currentUser.maxVideos || currentUser.minsUsed >= currentUser.maxMins) {
                     alert('Free trial limit reached (Max 6 videos or 5.0 mins). Please upgrade to Pro ($10/mo) to continue.');
@@ -544,6 +545,10 @@
             document.getElementById('admin-modal').classList.add('hidden');
         }
 
+        function openStripeModal() {
+            document.getElementById('stripe-modal').classList.add('hidden'); // keep closed or toggle correctly
+        }
+        
         function openStripeModal() {
             document.getElementById('stripe-modal').classList.remove('hidden');
         }
