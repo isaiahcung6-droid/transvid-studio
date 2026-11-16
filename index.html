@@ -170,7 +170,7 @@
                     </div>
                     
                     <!-- HTML5 Video Element for Real Playback -->
-                    <video id="actual-video-player" class="hidden w-full h-full object-contain" controls></video>
+                    <video id="actual-video-player" class="hidden w-full h-full object-contain" controls crossorigin="anonymous"></video>
 
                     <!-- Subtitle Overlay Box -->
                     <div id="subtitle-overlay" class="hidden absolute bottom-14 left-4 right-4 text-center bg-slate-900/85 backdrop-blur border border-slate-700/50 py-2 px-4 rounded-lg pointer-events-none">
@@ -204,7 +204,7 @@
                     </div>
                     <div class="flex justify-between py-2 border-b border-slate-800">
                         <span class="text-slate-500">Plan Type:</span>
-                        <span class="text-indigo-400 font-semibold">14-Day Free Trial</span>
+                        <span id="user-plan-label" class="text-indigo-400 font-semibold">14-Day Free Trial</span>
                     </div>
                     <div class="flex justify-between py-2">
                         <span class="text-slate-500">Status:</span>
@@ -220,7 +220,7 @@
             </div>
 
             <!-- Trial Usage Limits Card (6 Videos / 5 Mins) -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
+            <div id="usage-limits-card" class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
                 <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">
                     <i class="fa-solid fa-gauge-high text-indigo-400 mr-2"></i> Trial Usage Limits
                 </h3>
@@ -361,10 +361,23 @@
             videosUsed: 0,
             maxVideos: 6,
             minsUsed: 0.0,
-            maxMins: 5.0
+            maxMins: 5.0,
+            isAdmin: false
         };
 
         let selectedVideoFileUrl = null;
+
+        // Check persistent admin session on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const isAdminLoggedIn = localStorage.getItem('transvid_admin_auth');
+            if(isAdminLoggedIn === 'true') {
+                currentUser.isAdmin = true;
+                currentUser.email = "Risingstar (Admin)";
+                document.getElementById('user-display-email').innerText = currentUser.email;
+                document.getElementById('user-plan-label').innerText = "Unlimited Admin Access";
+                document.getElementById('usage-limits-card').style.display = 'none';
+            }
+        });
 
         function togglePasswordVisibility(inputId, iconId) {
             const input = document.getElementById(inputId);
@@ -413,6 +426,7 @@
         }
 
         function updateUsageUI() {
+            if(currentUser.isAdmin) return;
             document.getElementById('videos-used-count').innerText = currentUser.videosUsed;
             document.getElementById('mins-used-count').innerText = currentUser.minsUsed.toFixed(1);
 
@@ -451,15 +465,17 @@
         }
 
         function startTranslation() {
-            if(currentUser.videosUsed >= currentUser.maxVideos || currentUser.minsUsed >= currentUser.maxMins) {
-                alert('Free trial limit reached (Max 6 videos or 5.0 mins). Please upgrade to Pro ($10/mo) to continue.');
-                openStripeModal();
-                return;
+            // Check trial limits if not admin
+            if(!currentUser.isAdmin) {
+                if(currentUser.videosUsed >= currentUser.maxVideos || currentUser.minsUsed >= currentUser.maxMins) {
+                    alert('Free trial limit reached (Max 6 videos or 5.0 mins). Please upgrade to Pro ($10/mo) to continue.');
+                    openStripeModal();
+                    return;
+                }
+                currentUser.videosUsed += 1;
+                currentUser.minsUsed += 1.0;
+                updateUsageUI();
             }
-
-            currentUser.videosUsed += 1;
-            currentUser.minsUsed += 1.0;
-            updateUsageUI();
 
             const lang = document.getElementById('target-lang').value;
             const videoUrlVal = document.getElementById('video-url-input').value;
@@ -468,7 +484,7 @@
             const videoPlayer = document.getElementById('actual-video-player');
             document.getElementById('subtitle-overlay').classList.remove('hidden');
             
-            // If local file was uploaded, play it. Otherwise use reliable demo video so video playback always works smoothly.
+            // Set playable video source (Local file if uploaded, otherwise reliable demo stream for link simulation)
             if(selectedVideoFileUrl) {
                 videoPlayer.src = selectedVideoFileUrl;
             } else {
@@ -511,6 +527,12 @@
 
             if(id === 'Risingstar' && pw === 'risingstar24') {
                 localStorage.setItem('transvid_admin_auth', 'true');
+                currentUser.isAdmin = true;
+                currentUser.email = "Risingstar (Admin)";
+                document.getElementById('user-display-email').innerText = currentUser.email;
+                document.getElementById('user-plan-label').innerText = "Unlimited Admin Access";
+                document.getElementById('usage-limits-card').style.display = 'none';
+
                 closeAdminLogin();
                 document.getElementById('admin-modal').classList.remove('hidden');
             } else {
@@ -520,8 +542,7 @@
 
         function adminLogout() {
             localStorage.removeItem('transvid_admin_auth');
-            closeAdminModal();
-            alert('Admin logged out successfully.');
+            location.reload();
         }
 
         function closeAdminModal() {
