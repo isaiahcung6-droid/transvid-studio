@@ -68,7 +68,7 @@
             </div>
 
             <div class="flex items-center space-x-4">
-                <div class="hidden sm:flex items-center space-x-2 bg-indigo-950/80 border border-indigo-500/30 px-3 py-1.5 rounded-full text-xs">
+                <div id="trial-badge-box" class="hidden sm:flex items-center space-x-2 bg-indigo-950/80 border border-indigo-500/30 px-3 py-1.5 rounded-full text-xs">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span class="text-indigo-200">Free Trial: <strong id="trial-days">14</strong> Days Left</span>
                 </div>
@@ -170,7 +170,7 @@
                     </div>
                     
                     <!-- HTML5 Video Element for Real Playback -->
-                    <video id="actual-video-player" class="hidden w-full h-full object-contain" controls crossorigin="anonymous"></video>
+                    <video id="actual-video-player" class="hidden w-full h-full object-contain" controls autoplay playsinline crossorigin="anonymous"></video>
 
                     <!-- Subtitle Overlay Box -->
                     <div id="subtitle-overlay" class="hidden absolute bottom-14 left-4 right-4 text-center bg-slate-900/85 backdrop-blur border border-slate-700/50 py-2 px-4 rounded-lg pointer-events-none">
@@ -367,7 +367,6 @@
 
         let selectedVideoFileUrl = null;
 
-        // Check persistent admin session on load
         window.addEventListener('DOMContentLoaded', () => {
             const isAdminLoggedIn = localStorage.getItem('transvid_admin_auth');
             if(isAdminLoggedIn === 'true') {
@@ -376,6 +375,7 @@
                 document.getElementById('user-display-email').innerText = currentUser.email;
                 document.getElementById('user-plan-label').innerText = "Unlimited Admin Access";
                 document.getElementById('usage-limits-card').style.display = 'none';
+                document.getElementById('trial-badge-box').style.display = 'none';
             }
         });
 
@@ -465,7 +465,6 @@
         }
 
         function startTranslation() {
-            // Check trial limits if not admin
             if(!currentUser.isAdmin) {
                 if(currentUser.videosUsed >= currentUser.maxVideos || currentUser.minsUsed >= currentUser.maxMins) {
                     alert('Free trial limit reached (Max 6 videos or 5.0 mins). Please upgrade to Pro ($10/mo) to continue.');
@@ -478,13 +477,11 @@
             }
 
             const lang = document.getElementById('target-lang').value;
-            const videoUrlVal = document.getElementById('video-url-input').value;
             
             document.getElementById('player-placeholder').classList.add('hidden');
             const videoPlayer = document.getElementById('actual-video-player');
             document.getElementById('subtitle-overlay').classList.remove('hidden');
             
-            // Set playable video source (Local file if uploaded, otherwise reliable demo stream for link simulation)
             if(selectedVideoFileUrl) {
                 videoPlayer.src = selectedVideoFileUrl;
             } else {
@@ -492,7 +489,7 @@
             }
             
             videoPlayer.classList.remove('hidden');
-            videoPlayer.play().catch(e => console.log("Autoplay prevented:", e));
+            videoPlayer.play().catch(e => console.log("Autoplay blocked:", e));
 
             document.getElementById('preview-status').innerText = "Translation Complete";
             document.getElementById('preview-status').className = "text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded";
@@ -532,6 +529,7 @@
                 document.getElementById('user-display-email').innerText = currentUser.email;
                 document.getElementById('user-plan-label').innerText = "Unlimited Admin Access";
                 document.getElementById('usage-limits-card').style.display = 'none';
+                document.getElementById('trial-badge-box').style.display = 'none';
 
                 closeAdminLogin();
                 document.getElementById('admin-modal').classList.remove('hidden');
