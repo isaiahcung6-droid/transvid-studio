@@ -37,7 +37,12 @@
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-400 mb-1">Password</label>
-                    <input type="password" id="auth-password" placeholder="At least 6 characters" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                    <div class="relative">
+                        <input type="password" id="auth-password" placeholder="At least 6 characters" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 pr-10 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                        <button type="button" onclick="togglePasswordVisibility('auth-password', 'auth-pw-icon')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white">
+                            <i id="auth-pw-icon" class="fa-solid fa-eye text-xs"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <button onclick="handleAuthSubmit()" id="auth-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-lg text-xs font-bold transition shadow-lg">
@@ -63,19 +68,16 @@
             </div>
 
             <div class="flex items-center space-x-4">
-                <!-- Trial Badge -->
                 <div class="hidden sm:flex items-center space-x-2 bg-indigo-950/80 border border-indigo-500/30 px-3 py-1.5 rounded-full text-xs">
                     <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                     <span class="text-indigo-200">Free Trial: <strong id="trial-days">14</strong> Days Left</span>
                 </div>
 
-                <!-- Upgrade Button -->
                 <button onclick="openStripeModal()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-lg transition">
                     <i class="fa-solid fa-crown mr-1"></i> Upgrade ($10/mo)
                 </button>
 
-                <!-- Admin Login Button -->
-                <button onclick="openAdminLogin()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-medium transition border border-slate-700">
+                <button onclick="handleAdminAccess()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-medium transition border border-slate-700">
                     <i class="fa-solid fa-lock mr-1"></i> Admin
                 </button>
             </div>
@@ -94,29 +96,26 @@
                     <i class="fa-solid fa-link text-indigo-400 mr-2"></i> 1. Select Video Source
                 </h2>
 
-                <!-- Tabs -->
                 <div class="flex space-x-2 border-b border-slate-800 pb-3 mb-4">
                     <button onclick="switchTab('url')" id="tab-url-btn" class="px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition">YouTube / FB Link</button>
                     <button onclick="switchTab('file')" id="tab-file-btn" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 transition">Local File Upload</button>
                 </div>
 
-                <!-- URL Input -->
                 <div id="input-url-section" class="space-y-3">
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
                             <i class="fa-solid fa-globe"></i>
                         </span>
-                        <input type="text" id="video-url" placeholder="Paste YouTube or Facebook Video URL here..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-10 pr-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
+                        <input type="text" id="video-url-input" placeholder="Paste YouTube or Facebook Video URL here..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-10 pr-4 py-2.5 text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
                     </div>
                 </div>
 
-                <!-- File Input -->
                 <div id="input-file-section" class="hidden space-y-3">
-                    <div class="border-2 border-dashed border-slate-800 hover:border-indigo-500/50 rounded-xl p-6 text-center cursor-pointer transition bg-slate-950/50">
+                    <div class="border-2 border-dashed border-slate-800 hover:border-indigo-500/50 rounded-xl p-6 text-center cursor-pointer transition bg-slate-950/50" onclick="document.getElementById('video-file-input').click()">
                         <i class="fa-solid fa-cloud-arrow-up text-3xl text-indigo-400 mb-2"></i>
-                        <p class="text-xs text-slate-300">Drag & drop your video file here, or <span class="text-indigo-400 font-medium">Browse</span></p>
+                        <p id="file-label-text" class="text-xs text-slate-300">Drag & drop your video file here, or <span class="text-indigo-400 font-medium">Browse</span></p>
                         <p class="text-[10px] text-slate-500 mt-1">Supports MP4, MOV, AVI (Max 500MB)</p>
-                        <input type="file" id="video-file" class="hidden" accept="video/*">
+                        <input type="file" id="video-file-input" class="hidden" accept="video/*" onchange="handleFileSelect(event)">
                     </div>
                 </div>
             </div>
@@ -128,7 +127,6 @@
                 </h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Target Language -->
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-2">Target Language (3 Supported)</label>
                         <select id="target-lang" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
@@ -138,7 +136,6 @@
                         </select>
                     </div>
 
-                    <!-- AI Voice Gender -->
                     <div>
                         <label class="block text-xs font-medium text-slate-400 mb-2">AI Voice Gender (TTS)</label>
                         <select id="voice-gender" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
@@ -165,36 +162,19 @@
                     <span id="preview-status" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded">Ready</span>
                 </div>
 
-                <!-- Video Mock Player -->
+                <!-- Video Player Container -->
                 <div class="relative bg-slate-950 rounded-lg overflow-hidden aspect-video flex items-center justify-center border border-slate-800">
                     <div id="player-placeholder" class="text-center p-6">
                         <i class="fa-solid fa-film text-4xl text-slate-700 mb-2"></i>
                         <p class="text-xs text-slate-500">Translate a video to preview subtitles & AI voice playback</p>
                     </div>
                     
-                    <!-- Simulated Active Player -->
-                    <div id="active-player" class="hidden absolute inset-0 flex flex-col justify-between p-4 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/40">
-                        <div class="flex justify-between items-center">
-                            <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] px-2 py-0.5 rounded font-medium">Live Playback Active</span>
-                            <span id="current-time-code" class="text-xs text-slate-300 font-mono">00:12 / 01:00</span>
-                        </div>
-                        
-                        <!-- Subtitle Overlay Box -->
-                        <div class="text-center bg-slate-900/80 backdrop-blur border border-slate-700/50 py-2 px-4 rounded-lg">
-                            <p id="preview-subtitle-text" class="text-xs md:text-sm font-semibold text-white tracking-wide">"တပေါင်ဘာသာစကားဖြင့် အသံထွက်ဘာသာပြန်ဆိုခြင်း..."</p>
-                        </div>
+                    <!-- HTML5 Video Element for Real Playback -->
+                    <video id="actual-video-player" class="hidden w-full h-full object-contain" controls></video>
 
-                        <!-- Player Controls Bar -->
-                        <div class="flex items-center justify-between bg-slate-900/90 p-2 rounded-lg border border-slate-800">
-                            <div class="flex items-center space-x-3">
-                                <button onclick="togglePlayPause()" id="play-btn" class="text-indigo-400 hover:text-indigo-300 text-lg"><i class="fa-solid fa-pause"></i></button>
-                                <button onclick="replayAudio()" class="text-slate-400 hover:text-slate-200 text-sm"><i class="fa-solid fa-rotate-left"></i></button>
-                            </div>
-                            <div class="text-[10px] text-slate-400 flex items-center space-x-2">
-                                <i class="fa-solid fa-volume-high text-indigo-400"></i>
-                                <span id="active-voice-label">Female Voice (Myanmar)</span>
-                            </div>
-                        </div>
+                    <!-- Subtitle Overlay Box -->
+                    <div id="subtitle-overlay" class="hidden absolute bottom-14 left-4 right-4 text-center bg-slate-900/85 backdrop-blur border border-slate-700/50 py-2 px-4 rounded-lg pointer-events-none">
+                        <p id="preview-subtitle-text" class="text-xs md:text-sm font-semibold text-white tracking-wide">"မြန်မာဘာသာပြန်ချက် အသင့်ဖြစ်ပါပြီ..."</p>
                     </div>
                 </div>
 
@@ -212,7 +192,6 @@
         <!-- Right Column: User Settings & Account Management -->
         <div class="space-y-6">
             
-            <!-- Account & Profile Card -->
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
                 <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">
                     <i class="fa-solid fa-user-gear text-indigo-400 mr-2"></i> Account Settings
@@ -272,7 +251,7 @@
 
     </main>
 
-    <!-- Admin Panel Modal (Hidden by default, triggered by Login ID/PW) -->
+    <!-- Admin Panel Modal -->
     <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-4xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6 pb-3 border-b border-slate-800">
@@ -285,12 +264,15 @@
                         <p class="text-[10px] text-slate-400">Restricted Access - Rising Star Music Studio</p>
                     </div>
                 </div>
-                <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <div class="flex items-center space-x-3">
+                    <button onclick="adminLogout()" class="bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-500/30 px-3 py-1.5 rounded-lg text-xs font-semibold transition">
+                        <i class="fa-solid fa-right-from-bracket mr-1"></i> Logout Admin
+                    </button>
+                    <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                </div>
             </div>
 
-            <!-- Admin Content Tabs -->
             <div class="space-y-6">
-                <!-- Registered Users List -->
                 <div>
                     <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Registered Users & Trial Usage</h4>
                     <div class="bg-slate-950 rounded-lg border border-slate-800 overflow-hidden">
@@ -329,7 +311,12 @@
                 </div>
                 <div>
                     <label class="block text-[10px] text-slate-400 mb-1">Password</label>
-                    <input type="password" id="admin-pw" placeholder="Enter password" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                    <div class="relative">
+                        <input type="password" id="admin-pw" placeholder="Enter password" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 pr-10 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                        <button type="button" onclick="togglePasswordVisibility('admin-pw', 'admin-pw-icon')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white">
+                            <i id="admin-pw-icon" class="fa-solid fa-eye text-xs"></i>
+                        </button>
+                    </div>
                 </div>
                 <div class="pt-2 flex justify-end space-x-2">
                     <button onclick="closeAdminLogin()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs">Cancel</button>
@@ -376,6 +363,20 @@
             minsUsed: 0.0,
             maxMins: 5.0
         };
+
+        let selectedVideoFileUrl = null;
+
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if(input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash text-xs';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye text-xs';
+            }
+        }
 
         function switchAuthTab(type) {
             const regTab = document.getElementById('auth-reg-tab');
@@ -441,6 +442,14 @@
             }
         }
 
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if(file) {
+                selectedVideoFileUrl = URL.createObjectURL(file);
+                document.getElementById('file-label-text').innerHTML = `<span class="text-emerald-400 font-semibold"><i class="fa-solid fa-check-circle mr-1"></i> ${file.name} loaded</span>`;
+            }
+        }
+
         function startTranslation() {
             if(currentUser.videosUsed >= currentUser.maxVideos || currentUser.minsUsed >= currentUser.maxMins) {
                 alert('Free trial limit reached (Max 6 videos or 5.0 mins). Please upgrade to Pro ($10/mo) to continue.');
@@ -448,20 +457,32 @@
                 return;
             }
 
-            // Increment usage for trial simulation (e.g. 1 video, 1.0 min)
             currentUser.videosUsed += 1;
             currentUser.minsUsed += 1.0;
             updateUsageUI();
 
             const lang = document.getElementById('target-lang').value;
-            const voice = document.getElementById('voice-gender').value;
+            const videoUrlVal = document.getElementById('video-url-input').value;
             
             document.getElementById('player-placeholder').classList.add('hidden');
-            document.getElementById('active-player').classList.remove('hidden');
+            const videoPlayer = document.getElementById('actual-video-player');
+            document.getElementById('subtitle-overlay').classList.remove('hidden');
+            
+            // If local file was uploaded, play it directly in HTML5 player
+            if(selectedVideoFileUrl) {
+                videoPlayer.src = selectedVideoFileUrl;
+                videoPlayer.classList.remove('hidden');
+                videoPlayer.play();
+            } else {
+                // Fallback demo video for URL input or test
+                videoPlayer.src = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+                videoPlayer.classList.remove('hidden');
+                videoPlayer.play();
+            }
+
             document.getElementById('preview-status').innerText = "Translation Complete";
             document.getElementById('preview-status').className = "text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded";
             
-            document.getElementById('active-voice-label').innerText = `${voice.toUpperCase()} Voice (${lang.toUpperCase()})`;
             document.getElementById('preview-subtitle-text').innerText = `"${lang === 'myanmar' ? 'မြန်မာဘာသာပြန်ချက် အသင့်ဖြစ်ပါပြီ...' : lang === 'mizo' ? 'Mizo tawnglet a peih ta...' : 'English translation ready...'}"`;
 
             const dlBtn = document.getElementById('download-btn');
@@ -469,23 +490,17 @@
             dlBtn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-2 cursor-pointer shadow-lg";
         }
 
-        let isPlaying = true;
-        function togglePlayPause() {
-            isPlaying = !isPlaying;
-            const btn = document.getElementById('play-btn');
-            btn.innerHTML = isPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
-        }
-
-        function replayAudio() {
-            alert('Replaying audio preview from start...');
-        }
-
         function downloadTranslatedVideo() {
             alert('Downloading translated video with subtitles and AI voiceover...');
         }
 
-        function openAdminLogin() {
-            document.getElementById('admin-login-modal').classList.remove('hidden');
+        function handleAdminAccess() {
+            const isAdminLoggedIn = localStorage.getItem('transvid_admin_auth');
+            if(isAdminLoggedIn === 'true') {
+                document.getElementById('admin-modal').classList.remove('hidden');
+            } else {
+                document.getElementById('admin-login-modal').classList.remove('hidden');
+            }
         }
 
         function closeAdminLogin() {
@@ -497,11 +512,18 @@
             const pw = document.getElementById('admin-pw').value;
 
             if(id === 'Risingstar' && pw === 'risingstar24') {
+                localStorage.setItem('transvid_admin_auth', 'true');
                 closeAdminLogin();
                 document.getElementById('admin-modal').classList.remove('hidden');
             } else {
                 alert('Invalid Admin ID or Password!');
             }
+        }
+
+        function adminLogout() {
+            localStorage.removeItem('transvid_admin_auth');
+            closeAdminModal();
+            alert('Admin logged out successfully.');
         }
 
         function closeAdminModal() {
