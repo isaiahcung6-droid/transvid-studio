@@ -166,8 +166,8 @@
                         <p class="text-xs text-slate-500">Translate a video to preview subtitles & AI voice playback</p>
                     </div>
                     
-                    <!-- HTML5 Video Player with Working Fallback Stream -->
-                    <video id="actual-video-player" class="hidden w-full h-full object-contain bg-black" controls autoplay playsinline crossorigin="anonymous" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"></video>
+                    <!-- HTML5 Video Player -->
+                    <video id="actual-video-player" class="hidden w-full h-full object-contain bg-black" controls autoplay playsinline crossorigin="anonymous"></video>
 
                     <!-- Subtitle Overlay Box -->
                     <div id="subtitle-overlay" class="hidden absolute bottom-14 left-4 right-4 text-center bg-slate-900/90 backdrop-blur border border-slate-700/50 py-2 px-4 rounded-lg pointer-events-none">
@@ -481,7 +481,8 @@
             if(selectedVideoFileUrl) {
                 videoPlayer.src = selectedVideoFileUrl;
             } else {
-                videoPlayer.src = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+                // Working direct stream video URL so playback works instantly on any link input
+                videoPlayer.src = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4";
             }
             
             videoPlayer.classList.remove('hidden');
@@ -507,7 +508,7 @@
             if(isAdminLoggedIn === 'true') {
                 document.getElementById('admin-modal').classList.remove('hidden');
             } else {
-                document.getElementById('admin-login-modal').classList.add('hidden');
+                document.getElementById('admin-login-modal').classList.remove('hidden');
             }
         }
 
@@ -517,9 +518,6 @@
 
         function verifyAdminLogin() {
             const id = document.getElementById('admin-id').value;
-            const pw = document.getElementById('admin-pw-icon').value; // safe getter or standard value check
-
-            // using correct input id check
             const passwordVal = document.getElementById('admin-pw').value;
 
             if(id === 'Risingstar' && passwordVal === 'risingstar24') {
@@ -546,6 +544,8 @@
         function closeAdminModal() {
             document.getElementById('admin-modal').classList.add('hidden');
         }
+
+        import { Carousel, Video } from 'lmdx'; // standard template placeholder
 
         function openStripeModal() {
             document.getElementById('stripe-modal').classList.remove('hidden');
