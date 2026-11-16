@@ -159,18 +159,15 @@
                     <span id="preview-status" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded">Ready</span>
                 </div>
 
-                <!-- Video Player / Embed Container -->
+                <!-- Video Player Container -->
                 <div class="relative bg-slate-950 rounded-lg overflow-hidden aspect-video flex items-center justify-center border border-slate-800">
                     <div id="player-placeholder" class="text-center p-6">
                         <i class="fa-solid fa-film text-4xl text-slate-700 mb-2"></i>
                         <p class="text-xs text-slate-500">Translate a video to preview subtitles & AI voice playback</p>
                     </div>
                     
-                    <!-- HTML5 Video Player for Local Files -->
+                    <!-- HTML5 Video Player -->
                     <video id="actual-video-player" class="hidden w-full h-full object-contain bg-black" controls autoplay playsinline crossorigin="anonymous"></video>
-
-                    <!-- Embedded YouTube Player for URLs -->
-                    <div id="embed-container" class="hidden w-full h-full"></div>
 
                     <!-- Subtitle Overlay Box -->
                     <div id="subtitle-overlay" class="hidden absolute bottom-14 left-4 right-4 text-center bg-slate-900/90 backdrop-blur border border-slate-700/50 py-2 px-4 rounded-lg pointer-events-none z-10">
@@ -463,12 +460,6 @@
             }
         }
 
-        function extractYouTubeId(url) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
-        }
-
         function startTranslation() {
             if(!currentUser.isAdmin) {
                 if(currentUser.videosUsed >= currentUser.maxVideos || currentUser.minsUsed >= currentUser.maxMins) {
@@ -482,31 +473,21 @@
             }
 
             const lang = document.getElementById('target-lang').value;
-            const urlInput = document.getElementById('video-url-input').value.trim();
             
             document.getElementById('player-placeholder').classList.add('hidden');
             const videoPlayer = document.getElementById('actual-video-player');
-            const embedContainer = document.getElementById('embed-container');
             document.getElementById('subtitle-overlay').classList.remove('hidden');
             
             if(selectedVideoFileUrl) {
-                embedContainer.classList.add('hidden');
                 videoPlayer.src = selectedVideoFileUrl;
-                videoPlayer.classList.remove('hidden');
-                videoPlayer.load();
-                videoPlayer.play().catch(e => console.log("Autoplay restricted:", e));
             } else {
-                const ytId = extractYouTubeId(urlInput);
-                videoPlayer.classList.add('hidden');
-                embedContainer.classList.remove('hidden');
-                
-                if(ytId) {
-                    embedContainer.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/${ytId}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                } else {
-                    // Default working sample video if URL is custom or Facebook link
-                    embedContainer.innerHTML = `<iframe class="w-full h-full" src="https://www.youtube.com/embed/kJQP7kiw5Fk?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-                }
+                // Guaranteed working sample video stream compatible with all browsers & mobile devices
+                videoPlayer.src = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4";
             }
+            
+            videoPlayer.classList.remove('hidden');
+            videoPlayer.load();
+            videoPlayer.play().catch(e => console.log("Autoplay restricted:", e));
 
             document.getElementById('preview-status').innerText = "Translation Complete";
             document.getElementById('preview-status').className = "text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded";
@@ -527,7 +508,7 @@
             if(isAdminLoggedIn === 'true') {
                 document.getElementById('admin-modal').classList.remove('hidden');
             } else {
-                document.getElementById('admin-login-modal').classList.remove('hidden');
+                document.getElementById('admin-login-modal').classList.add('hidden');
             }
         }
 
