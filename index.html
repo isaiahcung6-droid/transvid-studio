@@ -9,8 +9,48 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
 
+    <!-- Auth Modal (Forces Register / Login First) -->
+    <div id="auth-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-8 shadow-2xl space-y-6">
+            <div class="text-center">
+                <div class="bg-indigo-600 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3 text-white shadow-lg">
+                    <i class="fa-solid fa-video-slash text-xl"></i>
+                </div>
+                <h2 class="text-xl font-bold text-white tracking-wide">Welcome to TransVid Studio</h2>
+                <p class="text-xs text-slate-400 mt-1">Please register or sign in to start your 14-day free trial</p>
+            </div>
+
+            <!-- Auth Form Tabs -->
+            <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
+                <button onclick="switchAuthTab('register')" id="auth-reg-tab" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition">Register</button>
+                <button onclick="switchAuthTab('login')" id="auth-log-tab" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">Sign In</button>
+            </div>
+
+            <div class="space-y-4">
+                <div id="name-field-box">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Full Name</label>
+                    <input type="text" id="auth-name" placeholder="Enter your full name" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Email Address</label>
+                    <input type="email" id="auth-email" placeholder="name@example.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Password</label>
+                    <input type="password" id="auth-password" placeholder="At least 6 characters" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                </div>
+
+                <button onclick="handleAuthSubmit()" id="auth-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-lg text-xs font-bold transition shadow-lg">
+                    Create Free Account (14 Days Trial)
+                </button>
+            </div>
+
+            <p class="text-[10px] text-center text-slate-500">Free trial includes up to 6 videos & 5 mins total processing time.</p>
+        </div>
+    </div>
+
     <!-- Top Navigation -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50">
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <div class="bg-indigo-600 p-2 rounded-lg text-white">
@@ -136,7 +176,7 @@
                     <div id="active-player" class="hidden absolute inset-0 flex flex-col justify-between p-4 bg-gradient-to-t from-slate-950/90 via-transparent to-slate-950/40">
                         <div class="flex justify-between items-center">
                             <span class="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[10px] px-2 py-0.5 rounded font-medium">Live Playback Active</span>
-                            <span id="current-time-code" class="text-xs text-slate-300 font-mono">00:12 / 02:45</span>
+                            <span id="current-time-code" class="text-xs text-slate-300 font-mono">00:12 / 01:00</span>
                         </div>
                         
                         <!-- Subtitle Overlay Box -->
@@ -181,7 +221,7 @@
                 <div class="space-y-3 text-xs text-slate-300">
                     <div class="flex justify-between py-2 border-b border-slate-800">
                         <span class="text-slate-500">Email:</span>
-                        <span class="font-medium text-slate-200">user@transvid.studio</span>
+                        <span id="user-display-email" class="font-medium text-slate-200">user@transvid.studio</span>
                     </div>
                     <div class="flex justify-between py-2 border-b border-slate-800">
                         <span class="text-slate-500">Plan Type:</span>
@@ -200,20 +240,31 @@
                 </div>
             </div>
 
-            <!-- Quick Stats Card -->
+            <!-- Trial Usage Limits Card (6 Videos / 5 Mins) -->
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
                 <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">
-                    <i class="fa-solid fa-chart-pie text-indigo-400 mr-2"></i> Usage Statistics
+                    <i class="fa-solid fa-gauge-high text-indigo-400 mr-2"></i> Trial Usage Limits
                 </h3>
-                <div class="grid grid-cols-2 gap-3 text-center">
-                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-                        <p class="text-lg font-bold text-indigo-400">4</p>
-                        <p class="text-[10px] text-slate-500 mt-1">Videos Translated</p>
+                <div class="space-y-4 text-xs">
+                    <div>
+                        <div class="flex justify-between text-slate-400 mb-1">
+                            <span>Videos Translated:</span>
+                            <span class="font-bold text-white"><span id="videos-used-count">0</span> / 6 Videos</span>
+                        </div>
+                        <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+                            <div id="videos-progress-bar" class="bg-indigo-500 h-full w-0 transition-all duration-300"></div>
+                        </div>
                     </div>
-                    <div class="bg-slate-950 p-3 rounded-lg border border-slate-800">
-                        <p class="text-lg font-bold text-emerald-400">12 Mins</p>
-                        <p class="text-[10px] text-slate-500 mt-1">Audio Processed</p>
+                    <div>
+                        <div class="flex justify-between text-slate-400 mb-1">
+                            <span>Audio Processed:</span>
+                            <span class="font-bold text-white"><span id="mins-used-count">0</span> / 5.0 Mins</span>
+                        </div>
+                        <div class="w-full bg-slate-950 rounded-full h-2 overflow-hidden border border-slate-800">
+                            <div id="mins-progress-bar" class="bg-emerald-500 h-full w-0 transition-all duration-300"></div>
+                        </div>
                     </div>
+                    <p class="text-[10px] text-amber-400/90 italic">* Upgrade to Pro ($10/mo) for unlimited videos & duration.</p>
                 </div>
             </div>
 
@@ -241,52 +292,23 @@
             <div class="space-y-6">
                 <!-- Registered Users List -->
                 <div>
-                    <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Registered Users & Trial Status</h4>
+                    <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Registered Users & Trial Usage</h4>
                     <div class="bg-slate-950 rounded-lg border border-slate-800 overflow-hidden">
                         <table class="w-full text-left text-xs">
                             <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
                                 <tr>
                                     <th class="p-3">User Email</th>
-                                    <th class="p-3">Registered Date</th>
-                                    <th class="p-3">Plan / Trial</th>
-                                    <th class="p-3">Status</th>
+                                    <th class="p-3">Videos Used</th>
+                                    <th class="p-3">Mins Used</th>
+                                    <th class="p-3">Plan / Status</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-slate-800/50 text-slate-300">
+                            <tbody id="admin-users-table" class="divide-y divide-slate-800/50 text-slate-300">
                                 <tr>
                                     <td class="p-3">isaiah.cung@gmail.com</td>
-                                    <td class="p-3">2026-11-01</td>
-                                    <td class="p-3 text-indigo-400 font-medium">Free Trial (14 Days)</td>
-                                    <td class="p-3"><span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-[10px]">Active</span></td>
-                                </tr>
-                                <tr>
-                                    <td class="p-3">salai.dev@gmail.com</td>
-                                    <td class="p-3">2026-10-15</td>
-                                    <td class="p-3 text-emerald-400 font-medium">$10/mo Paid Subscriber</td>
-                                    <td class="p-3"><span class="bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded text-[10px]">Active</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <!-- Deleted / Cancelled Accounts Log -->
-                <div>
-                    <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-3">Deleted / Cancelled Accounts Log</h4>
-                    <div class="bg-slate-950 rounded-lg border border-slate-800 overflow-hidden">
-                        <table class="w-full text-left text-xs">
-                            <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
-                                <tr>
-                                    <th class="p-3">User Email</th>
-                                    <th class="p-3">Deleted Date</th>
-                                    <th class="p-3">Reason / Action</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-800/50 text-slate-400">
-                                <tr>
-                                    <td class="p-3">temp.user99@gmail.com</td>
-                                    <td class="p-3">2026-11-10</td>
-                                    <td class="p-3 text-rose-400">Self-Deleted (Trial Expired)</td>
+                                    <td class="p-3">2 / 6</td>
+                                    <td class="p-3">1.5 / 5.0 Mins</td>
+                                    <td class="p-3 text-indigo-400 font-medium">Free Trial (Active)</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -347,6 +369,59 @@
 
     <!-- JavaScript Logic -->
     <script>
+        let currentUser = {
+            email: "user@transvid.studio",
+            videosUsed: 0,
+            maxVideos: 6,
+            minsUsed: 0.0,
+            maxMins: 5.0
+        };
+
+        function switchAuthTab(type) {
+            const regTab = document.getElementById('auth-reg-tab');
+            const logTab = document.getElementById('auth-log-tab');
+            const nameBox = document.getElementById('name-field-box');
+            const submitBtn = document.getElementById('auth-submit-btn');
+
+            if(type === 'register') {
+                regTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition";
+                logTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition";
+                nameBox.classList.remove('hidden');
+                submitBtn.innerText = "Create Free Account (14 Days Trial)";
+            } else {
+                logTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition";
+                regTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition";
+                nameBox.classList.add('hidden');
+                submitBtn.innerText = "Sign In to Studio";
+            }
+        }
+
+        function handleAuthSubmit() {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+
+            if(!email || !password) {
+                alert('Please enter your email and password.');
+                return;
+            }
+
+            currentUser.email = email;
+            document.getElementById('user-display-email').innerText = email;
+            document.getElementById('auth-modal').classList.add('hidden');
+            updateUsageUI();
+        }
+
+        function updateUsageUI() {
+            document.getElementById('videos-used-count').innerText = currentUser.videosUsed;
+            document.getElementById('mins-used-count').innerText = currentUser.minsUsed.toFixed(1);
+
+            const videoPct = (currentUser.videosUsed / currentUser.maxVideos) * 100;
+            const minsPct = (currentUser.minsUsed / currentUser.maxMins) * 100;
+
+            document.getElementById('videos-progress-bar').style.width = `${videoPct}%`;
+            document.getElementById('mins-progress-bar').style.width = `${minsPct}%`;
+        }
+
         function switchTab(type) {
             const urlSec = document.getElementById('input-url-section');
             const fileSec = document.getElementById('input-file-section');
@@ -367,6 +442,17 @@
         }
 
         function startTranslation() {
+            if(currentUser.videosUsed >= currentUser.maxVideos || currentUser.minsUsed >= currentUser.maxMins) {
+                alert('Free trial limit reached (Max 6 videos or 5.0 mins). Please upgrade to Pro ($10/mo) to continue.');
+                openStripeModal();
+                return;
+            }
+
+            // Increment usage for trial simulation (e.g. 1 video, 1.0 min)
+            currentUser.videosUsed += 1;
+            currentUser.minsUsed += 1.0;
+            updateUsageUI();
+
             const lang = document.getElementById('target-lang').value;
             const voice = document.getElementById('voice-gender').value;
             
