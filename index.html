@@ -468,17 +468,15 @@
             const videoPlayer = document.getElementById('actual-video-player');
             document.getElementById('subtitle-overlay').classList.remove('hidden');
             
-            // If local file was uploaded, play it directly in HTML5 player
+            // If local file was uploaded, play it. Otherwise use reliable demo video so video playback always works smoothly.
             if(selectedVideoFileUrl) {
                 videoPlayer.src = selectedVideoFileUrl;
-                videoPlayer.classList.remove('hidden');
-                videoPlayer.play();
             } else {
-                // Fallback demo video for URL input or test
                 videoPlayer.src = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-                videoPlayer.classList.remove('hidden');
-                videoPlayer.play();
             }
+            
+            videoPlayer.classList.remove('hidden');
+            videoPlayer.play().catch(e => console.log("Autoplay prevented:", e));
 
             document.getElementById('preview-status').innerText = "Translation Complete";
             document.getElementById('preview-status').className = "text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded";
