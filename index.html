@@ -31,8 +31,8 @@
                     <input type="text" id="auth-name" placeholder="Enter your full name" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Email Address</label>
-                    <input type="email" id="auth-email" placeholder="name@example.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Email Address or Admin ID</label>
+                    <input type="text" id="auth-email" placeholder="name@example.com or Risingstar" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-400 mb-1">Password</label>
@@ -154,7 +154,7 @@
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">
-                        <i class="fa-solid fa-play-circle text-emerald-400 mr-2"></i> 3. Playback & Review (Export Before Check)
+                        <i class="fa-solid fa-play-circle text-emerald-400 mr-2"></i> 3. Playback & Review
                     </h2>
                     <span id="preview-status" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-1 rounded">Ready</span>
                 </div>
@@ -166,12 +166,27 @@
                         <p class="text-xs text-slate-500">Translate a video to preview subtitles & AI voice playback</p>
                     </div>
                     
-                    <!-- HTML5 Video Player -->
                     <video id="actual-video-player" class="hidden w-full h-full object-contain bg-black" controls autoplay playsinline crossorigin="anonymous"></video>
 
                     <!-- Subtitle Overlay Box -->
-                    <div id="subtitle-overlay" class="hidden absolute bottom-14 left-4 right-4 text-center bg-slate-900/90 backdrop-blur border border-slate-700/50 py-2 px-4 rounded-lg pointer-events-none z-10">
+                    <div id="subtitle-overlay" class="hidden absolute bottom-14 left-4 right-4 text-center bg-slate-900/90 backdrop-blur border border-slate-700/50 py-2 px-4 rounded-lg z-10">
                         <p id="preview-subtitle-text" class="text-xs md:text-sm font-semibold text-white tracking-wide">"ဘာသာပြန်ချက် အသင့်ဖြစ်ပါပြီ..."</p>
+                        <button onclick="replayAudio()" class="mt-2 text-[10px] bg-indigo-600 hover:bg-indigo-500 text-white px-2.5 py-1 rounded-md transition">
+                            <i class="fa-solid fa-rotate-right mr-1"></i> Replay Synced Audio
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Editable Subtitle Transcript Section -->
+                <div id="transcript-section" class="hidden mt-5 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                            <i class="fa-solid fa-closed-captioning text-indigo-400 mr-1"></i> Editable Subtitle Transcript (Click line to jump)
+                        </h3>
+                        <span id="transcript-count" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded">6 lines</span>
+                    </div>
+                    <div id="transcript-list" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                        <!-- Dynamically generated rows -->
                     </div>
                 </div>
 
@@ -196,7 +211,7 @@
                 
                 <div class="space-y-3 text-xs text-slate-300">
                     <div class="flex justify-between py-2 border-b border-slate-800">
-                        <span class="text-slate-500">Email:</span>
+                        <span class="text-slate-500">Email/ID:</span>
                         <span id="user-display-email" class="font-medium text-slate-200">user@transvid.studio</span>
                     </div>
                     <div class="flex justify-between py-2 border-b border-slate-800">
@@ -275,7 +290,7 @@
                         <table class="w-full text-left text-xs">
                             <thead class="bg-slate-900 text-slate-400 border-b border-slate-800">
                                 <tr>
-                                    <th class="p-3">User Email</th>
+                                    <th class="p-3">User Email / ID</th>
                                     <th class="p-3">Videos Used</th>
                                     <th class="p-3">Mins Used</th>
                                     <th class="p-3">Plan / Status</th>
@@ -283,40 +298,20 @@
                             </thead>
                             <tbody id="admin-users-table" class="divide-y divide-slate-800/50 text-slate-300">
                                 <tr>
+                                    <td class="p-3">Risingstar (Admin)</td>
+                                    <td class="p-3">Unlimited</td>
+                                    <td class="p-3">Unlimited</td>
+                                    <td class="p-3 text-indigo-400 font-medium">Admin Access</td>
+                                </tr>
+                                <tr>
                                     <td class="p-3">isaiah.cung@gmail.com</td>
                                     <td class="p-3">2 / 6</td>
                                     <td class="p-3">1.5 / 5.0 Mins</td>
-                                    <td class="p-3 text-indigo-400 font-medium">Free Trial (Active)</td>
+                                    <td class="p-3 text-emerald-400 font-medium">Free Trial (Active)</td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Admin Login Modal -->
-    <div id="admin-login-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-sm w-full p-6 shadow-2xl">
-            <h3 class="text-sm font-bold text-white mb-4"><i class="fa-solid fa-lock text-indigo-400 mr-2"></i> Admin Authentication</h3>
-            <div class="space-y-3">
-                <div>
-                    <label class="block text-[10px] text-slate-400 mb-1">Admin ID</label>
-                    <input type="text" id="admin-id" value="Risingstar" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-[10px] text-slate-400 mb-1">Password</label>
-                    <div class="relative">
-                        <input type="password" id="admin-pw" placeholder="Enter password" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 pr-10 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                        <button type="button" onclick="togglePasswordVisibility('admin-pw', 'admin-pw-icon')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white">
-                            <i id="admin-pw-icon" class="fa-solid fa-eye text-xs"></i>
-                        </button>
-                    </div>
-                </div>
-                <div class="pt-2 flex justify-end space-x-2">
-                    <button onclick="closeAdminLogin()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs">Cancel</button>
-                    <button onclick="verifyAdminLogin()" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-1.5 rounded-lg text-xs font-semibold">Login</button>
                 </div>
             </div>
         </div>
@@ -362,18 +357,24 @@
         };
 
         let selectedVideoFileUrl = null;
+        let sampleSubtitles = [];
 
         window.addEventListener('DOMContentLoaded', () => {
             const isAdminLoggedIn = localStorage.getItem('transvid_admin_auth');
             if(isAdminLoggedIn === 'true') {
-                currentUser.isAdmin = true;
-                currentUser.email = "Risingstar (Admin)";
-                document.getElementById('user-display-email').innerText = currentUser.email;
-                document.getElementById('user-plan-label').innerText = "Unlimited Admin Access";
-                document.getElementById('usage-limits-card').style.display = 'none';
-                document.getElementById('trial-badge-box').style.display = 'none';
+                setAdminMode();
             }
         });
+
+        function setAdminMode() {
+            currentUser.isAdmin = true;
+            currentUser.email = "Risingstar (Admin)";
+            document.getElementById('user-display-email').innerText = currentUser.email;
+            document.getElementById('user-plan-label').innerText = "Unlimited Admin Access";
+            document.getElementById('usage-limits-card').style.display = 'none';
+            document.getElementById('trial-badge-box').style.display = 'none';
+            document.getElementById('auth-modal').classList.add('hidden');
+        }
 
         function togglePasswordVisibility(inputId, iconId) {
             const input = document.getElementById(inputId);
@@ -407,16 +408,23 @@
         }
 
         function handleAuthSubmit() {
-            const email = document.getElementById('auth-email').value;
+            const emailInput = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
 
-            if(!email || !password) {
-                alert('Please enter your email and password.');
+            if(!emailInput || !password) {
+                alert('Please enter your email/ID and password.');
                 return;
             }
 
-            currentUser.email = email;
-            document.getElementById('user-display-email').innerText = email;
+            // Check if Admin
+            if(emailInput.toLowerCase() === 'risingstar' && password === 'risingstar24') {
+                localStorage.setItem('transvid_admin_auth', 'true');
+                setAdminMode();
+                return;
+            }
+
+            currentUser.email = emailInput;
+            document.getElementById('user-display-email').innerText = emailInput;
             document.getElementById('auth-modal').classList.add('hidden');
             updateUsageUI();
         }
@@ -477,11 +485,11 @@
             document.getElementById('player-placeholder').classList.add('hidden');
             const videoPlayer = document.getElementById('actual-video-player');
             document.getElementById('subtitle-overlay').classList.remove('hidden');
+            document.getElementById('transcript-section').classList.remove('hidden');
             
             if(selectedVideoFileUrl) {
                 videoPlayer.src = selectedVideoFileUrl;
             } else {
-                // Guaranteed working sample video stream compatible with all browsers & mobile devices
                 videoPlayer.src = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4";
             }
             
@@ -492,15 +500,82 @@
             document.getElementById('preview-status').innerText = "Translation Complete";
             document.getElementById('preview-status').className = "text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-1 rounded";
             
-            document.getElementById('preview-subtitle-text').innerText = `"${lang === 'myanmar' ? 'မြန်မာဘာသာပြန်ချက် အသင့်ဖြစ်ပါပြီ...' : lang === 'mizo' ? 'Mizo tawnglet a peih ta...' : 'English translation ready...'}"`;
+            // Populate Subtitles based on language
+            if(lang === 'myanmar') {
+                sampleSubtitles = [
+                    { start: 0, end: 4, text: "အောင်မြင်မှုဆိုတာ တစ်ခါတလေ လုပ်လို့ရတာ မဟုတ်ပါဘူး။" },
+                    { start: 4, end: 9, text: "နေ့စဉ်ရက်ဆက် မပြတ်မကွာ ကြိုးစားအားထုတ်မှုကနေ လာတာပါ။" },
+                    { start: 9, end: 14, text: "ဒီပေမယ့် ထိပ်ဆုံးကို ရောက်တဲ့သူတွေကတော့ ဘယ်လိုပင်ပန်းပါစေ ဆက်လက်ကြိုးစားနေသူတွေပဲ ဖြစ်ပါတယ်။" }
+                ];
+            } else if(lang === 'mizo') {
+                sampleSubtitles = [
+                    { start: 0, end: 4, text: "Hlawhtlinna hi vawi khat thil thu a ni lo." },
+                    { start: 4, end: 9, text: "Ni tin a thawh rimna leh tumruhna atanga lo kal a ni." },
+                    { start: 9, end: 14, text: "Mahse chhip thleng tute chu hrehawm tuar chhuak zel tute an ni." }
+                ];
+            } else {
+                sampleSubtitles = [
+                    { start: 0, end: 4, text: "Success is not something you do occasionally." },
+                    { start: 4, end: 9, text: "It comes from what you do consistently every single day." },
+                    { start: 9, end: 14, text: "But those who reach the top are the ones who keep going despite the pain." }
+                ];
+            }
+
+            renderTranscriptList(videoPlayer);
+
+            // Subtitle sync listener
+            videoPlayer.ontimeupdate = () => {
+                const currentTime = videoPlayer.currentTime;
+                const activeSub = sampleSubtitles.find(s => currentTime >= s.start && currentTime <= s.end);
+                const subTextEl = document.getElementById('preview-subtitle-text');
+                if(activeSub) {
+                    subTextEl.innerText = `"${activeSub.text}"`;
+                } else {
+                    subTextEl.innerText = `"..."`;
+                }
+            };
 
             const dlBtn = document.getElementById('download-btn');
             dlBtn.disabled = false;
             dlBtn.className = "bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-semibold transition flex items-center space-x-2 cursor-pointer shadow-lg";
         }
 
+        function renderTranscriptList(videoPlayer) {
+            const listContainer = document.getElementById('transcript-list');
+            listContainer.innerHTML = '';
+            document.getElementById('transcript-count').innerText = `${sampleSubtitles.length} lines`;
+
+            sampleSubtitles.forEach((sub, idx) => {
+                const item = document.createElement('div');
+                item.className = "bg-slate-950 border border-slate-800/80 rounded-lg p-2.5 flex items-center space-x-3 hover:border-indigo-500/50 transition";
+                item.innerHTML = `
+                    <button onclick="jumpToTime(${sub.start})" class="bg-indigo-950/80 text-indigo-300 border border-indigo-500/30 px-2 py-1 rounded text-[10px] font-mono hover:bg-indigo-900 transition">
+                        00:0${sub.start} - 00:0${sub.end}
+                    </button>
+                    <input type="text" value="${sub.text}" onchange="updateSubText(${idx}, this.value)" class="w-full bg-transparent text-xs text-slate-200 focus:outline-none focus:border-b focus:border-indigo-500">
+                `;
+                listContainer.appendChild(item);
+            });
+        }
+
+        function jumpToTime(seconds) {
+            const videoPlayer = document.getElementById('actual-video-player');
+            videoPlayer.currentTime = seconds;
+            videoPlayer.play();
+        }
+
+        function updateSubText(index, newText) {
+            sampleSubtitles[index].text = newText;
+        }
+
+        function replayAudio() {
+            const videoPlayer = document.getElementById('actual-video-player');
+            videoPlayer.currentTime = 0;
+            videoPlayer.play();
+        }
+
         function downloadTranslatedVideo() {
-            alert('Downloading translated video with subtitles and AI voiceover...');
+            alert('Downloading translated video with synchronized subtitles & AI voiceover (.SRT & .MP4 package)...');
         }
 
         function handleAdminAccess() {
@@ -508,31 +583,15 @@
             if(isAdminLoggedIn === 'true') {
                 document.getElementById('admin-modal').classList.remove('hidden');
             } else {
-                document.getElementById('admin-login-modal').classList.add('hidden');
-            }
-        }
-
-        function closeAdminLogin() {
-            document.getElementById('admin-login-modal').classList.add('hidden');
-        }
-
-        function verifyAdminLogin() {
-            const id = document.getElementById('admin-id').value;
-            const passwordVal = document.getElementById('admin-pw').value;
-
-            if(id === 'Risingstar' && passwordVal === 'risingstar24') {
-                localStorage.setItem('transvid_admin_auth', 'true');
-                currentUser.isAdmin = true;
-                currentUser.email = "Risingstar (Admin)";
-                document.getElementById('user-display-email').innerText = currentUser.email;
-                document.getElementById('user-plan-label').innerText = "Unlimited Admin Access";
-                document.getElementById('usage-limits-card').style.display = 'none';
-                document.getElementById('trial-badge-box').style.display = 'none';
-
-                closeAdminLogin();
-                document.getElementById('admin-modal').classList.remove('hidden');
-            } else {
-                alert('Invalid Admin ID or Password!');
+                const adminIdInput = prompt("Enter Admin ID:");
+                const adminPwInput = prompt("Enter Admin Password:");
+                if(adminIdInput === 'Risingstar' && adminPwInput === 'risingstar24') {
+                    localStorage.setItem('transvid_admin_auth', 'true');
+                    setAdminMode();
+                    document.getElementById('admin-modal').classList.remove('hidden');
+                } else if(adminIdInput !== null) {
+                    alert('Invalid Admin Credentials!');
+                }
             }
         }
 
