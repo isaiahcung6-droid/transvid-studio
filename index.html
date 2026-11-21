@@ -69,21 +69,21 @@
                 <div class="bg-slate-950/80 border border-indigo-500/30 rounded-xl p-3.5 space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-indigo-300">
-                            <i class="fa-solid fa-closed-captioning mr-1"></i> Subtitle Option (စာတန်းထိုး)
+                            <i class="fa-solid fa-closed-captioning mr-1"></i> Subtitle Option
                         </span>
                     </div>
 
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Target Language (ဘာသာပြန်မည့် ၃ ဘာသာ)</label>
+                        <label class="block text-xs text-slate-400 mb-1">Target Language</label>
                         <select id="target-lang" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs sm:text-sm text-white">
-                            <option value="myanmar">မြန်မာ (Myanmar)</option>
-                            <option value="mizo">Mizo (မီဇို)</option>
+                            <option value="myanmar">Myanmar</option>
+                            <option value="mizo">Mizo</option>
                             <option value="english">English</option>
                         </select>
                     </div>
 
                     <label class="flex items-center justify-between text-xs text-slate-300 pt-1 cursor-pointer">
-                        <span>Auto Show Subtitles (အလိုအလျောက် စာတန်းထိုး)</span>
+                        <span>Auto Show Subtitles</span>
                         <input type="checkbox" id="show-subtitle-option" checked onchange="toggleSubtitleOption()" class="w-4 h-4 accent-indigo-500">
                     </label>
                 </div>
@@ -92,20 +92,20 @@
                 <div class="bg-slate-950/80 border border-emerald-500/30 rounded-xl p-3.5 space-y-3">
                     <div class="flex items-center justify-between">
                         <span class="text-xs font-bold text-emerald-300">
-                            <i class="fa-solid fa-microphone-lines mr-1"></i> Voice Option (ဘာသာစကားပြော)
+                            <i class="fa-solid fa-microphone-lines mr-1"></i> Voice Option
                         </span>
                     </div>
 
                     <div>
                         <label class="block text-xs text-slate-400 mb-1">Voice Gender</label>
                         <select id="voice-gender" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs sm:text-sm text-white">
-                            <option value="female">Female Voice (မသံ)</option>
-                            <option value="male">Male Voice (ကျားသံ)</option>
+                            <option value="female">Female Voice</option>
+                            <option value="male">Male Voice</option>
                         </select>
                     </div>
 
                     <label class="flex items-center justify-between text-xs text-slate-300 pt-1 cursor-pointer">
-                        <span>Auto Speak Voice (အလိုအလျောက် စကားပြော)</span>
+                        <span>Auto Speak Voice</span>
                         <input type="checkbox" id="auto-speak-option" checked class="w-4 h-4 accent-emerald-500">
                     </label>
                 </div>
@@ -113,7 +113,7 @@
 
             <button type="button" id="translate-btn" onclick="startTranslation()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-lg text-xs sm:text-sm font-bold transition flex items-center justify-center space-x-2">
                 <i class="fa-solid fa-wand-magic-sparkles"></i>
-                <span>START TRANSLATION (AUTO SUBTITLE & VOICE)</span>
+                <span>START TRANSLATION</span>
             </button>
         </section>
 
@@ -132,6 +132,15 @@
                     <p class="text-xs text-slate-500">Select video and press Start Translation</p>
                 </div>
 
+                <div id="fb-share-card" class="hidden text-center p-4 space-y-2.5 max-w-sm">
+                    <i class="fa-brands fa-facebook text-3xl text-blue-500"></i>
+                    <p class="text-xs font-semibold text-white">Facebook Share Link Loaded</p>
+                    <p class="text-[11px] text-slate-400">Open on Facebook to watch, while subtitles and voice run below.</p>
+                    <a id="fb-external-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg text-xs font-bold">
+                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Open on Facebook
+                    </a>
+                </div>
+
                 <video id="actual-video-player" class="hidden w-full h-full object-contain bg-black" controls playsinline webkit-playsinline></video>
                 <iframe id="youtube-iframe-player" class="hidden w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
             </div>
@@ -139,7 +148,7 @@
             <!-- [SUBTITLE FUNCTION UI] -->
             <div id="subtitle-overlay" class="hidden bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-center space-y-2.5">
                 <div id="subtitle-text-box" class="space-y-1">
-                    <p class="text-[10px] uppercase tracking-wider text-indigo-400 font-semibold">Auto Subtitle Output (စာတန်းထိုး)</p>
+                    <p id="subtitle-lang-badge" class="text-[10px] uppercase tracking-wider text-indigo-400 font-semibold">Subtitle Output</p>
                     <p id="preview-subtitle-text" class="text-sm font-semibold text-white break-words">""</p>
                     <p id="original-heard-text" class="text-[11px] text-slate-400 break-words"></p>
                 </div>
@@ -147,7 +156,7 @@
                 <!-- [VOICE FUNCTION UI] -->
                 <div class="flex justify-center gap-2 pt-1">
                     <button type="button" onclick="speakAllSubtitlesAuto(0)" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-bold">
-                        <i class="fa-solid fa-volume-high mr-1"></i> Auto Speak All (ပြန်ပြောမည်)
+                        <i class="fa-solid fa-volume-high mr-1"></i> Auto Speak All
                     </button>
                     <button type="button" onclick="stopAudio()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg text-xs font-semibold">
                         <i class="fa-solid fa-stop mr-1"></i> Stop
@@ -157,7 +166,7 @@
 
             <!-- [SUBTITLE FUNCTION UI] Editable Subtitle List -->
             <div id="transcript-section" class="hidden space-y-2 pt-2">
-                <h3 class="text-xs font-bold text-slate-400 uppercase">Editable Subtitles (စာတန်းပြင်ရန်)</h3>
+                <h3 class="text-xs font-bold text-slate-400 uppercase">Editable Subtitles</h3>
                 <div id="transcript-list" class="space-y-2"></div>
             </div>
         </section>
@@ -188,9 +197,19 @@
         let speechRecognizer = null;
         const autoSourceLang = 'auto';
 
-        const mizoDefaults = {
-            welcome: "TransVid Studio-ah kan lawm a che.",
-            active: "Subtitle leh aw chhuah chu amahin a kal mek a ni."
+        const languageSamples = {
+            english: [
+                "Welcome to TransVid Studio.",
+                "Auto subtitles and voice dubbing are now active."
+            ],
+            mizo: [
+                "TransVid Studio-ah kan lawm a che.",
+                "Subtitle leh aw chhuah chu amahin a kal mek a ni."
+            ],
+            myanmar: [
+                "TransVid Studio မှ ကြိုဆိုပါတယ်။",
+                "အလိုအလျောက် စာတန်းထိုးနှင့် အသံထွက်စနစ် စတင်နေပါပြီ။"
+            ]
         };
 
         // ============================================================
@@ -231,19 +250,23 @@
             return /(?:facebook\.com|fb\.watch|m\.facebook\.com)/i.test(url);
         }
 
+        function isFacebookShareUrl(url) {
+            return /facebook\.com\/share\//i.test(url);
+        }
+
         function buildEmbedUrl(url) {
             const ytId = extractYouTubeId(url);
             if (ytId) {
                 return `https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1`;
             }
-            if (isFacebookUrl(url)) {
+            if (isFacebookUrl(url) && !isFacebookShareUrl(url)) {
                 return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true&t=0`;
             }
             return null;
         }
 
         // ============================================================
-        // SUBTITLE & TRANSLATION FUNCTIONS (၃ ဘာသာ တိတိကျကျ ဘာသာပြန်)
+        // SUBTITLE & TRANSLATION FUNCTIONS (Mizo & Myanmar သီးသန့်ခွဲခြား)
         // ============================================================
         function toggleSubtitleOption() {
             const showSub = document.getElementById('show-subtitle-option').checked;
@@ -255,8 +278,25 @@
             return /[\u1000-\u109F]/.test(str || '');
         }
 
-        function hasLatinScript(str) {
-            return /[A-Za-z]/.test(str || '');
+        function stripMyanmarScript(str) {
+            return (str || '').replace(/[\u1000-\u109F]+/g, ' ').replace(/\s+/g, ' ').trim();
+        }
+
+        function extractMyanmarOnly(str) {
+            const matches = (str || '').match(/[\u1000-\u109F\s။၊?!]+/g);
+            return matches ? matches.join(' ').replace(/\s+/g, ' ').trim() : '';
+        }
+
+        function updateLanguageBadge(targetLang) {
+            const badge = document.getElementById('subtitle-lang-badge');
+            if (!badge) return;
+            if (targetLang === 'myanmar') {
+                badge.innerText = 'Subtitle Output • Myanmar';
+            } else if (targetLang === 'mizo') {
+                badge.innerText = 'Subtitle Output • Mizo';
+            } else {
+                badge.innerText = 'Subtitle Output • English';
+            }
         }
 
         async function fetchMyMemoryPair(text, langpair) {
@@ -266,39 +306,46 @@
             return (translated && typeof translated === 'string') ? translated.trim() : '';
         }
 
-        async function translateAnyToTarget(text, targetLang) {
+        async function translateLineStrict(text, targetLang, fallbackLine) {
             const cleanText = (text || '').trim();
-            if (!cleanText) return '';
+            if (!cleanText) return fallbackLine || '';
 
             if (targetLang === 'myanmar') {
-                if (hasMyanmarScript(cleanText) && !hasLatinScript(cleanText)) {
-                    return cleanText;
+                if (hasMyanmarScript(cleanText)) {
+                    const pureMy = extractMyanmarOnly(cleanText);
+                    return pureMy || cleanText;
                 }
                 const myOut = await fetchMyMemoryPair(cleanText, 'autodetect|my');
-                return myOut || cleanText;
+                const pureMy = extractMyanmarOnly(myOut);
+                return pureMy || fallbackLine || languageSamples.myanmar[0];
             }
 
             if (targetLang === 'english') {
-                const enOut = await fetchMyMemoryPair(cleanText, 'autodetect|en');
-                return enOut || cleanText;
+                const cleanedInput = stripMyanmarScript(cleanText);
+                if (cleanedInput && /^[A-Za-z0-9\s.,!?'":;-]+$/.test(cleanedInput)) {
+                    return cleanedInput;
+                }
+                const enOut = await fetchMyMemoryPair(cleanedInput || cleanText, 'autodetect|en');
+                const pureEn = stripMyanmarScript(enOut);
+                return pureEn || fallbackLine || languageSamples.english[0];
             }
 
             if (targetLang === 'mizo') {
-                const bridgeEnglish = hasMyanmarScript(cleanText)
-                    ? (await fetchMyMemoryPair(cleanText, 'my|en') || cleanText)
-                    : (await fetchMyMemoryPair(cleanText, 'autodetect|en') || cleanText);
+                const cleanedInput = stripMyanmarScript(cleanText);
+                const sourceForMizo = cleanedInput || languageSamples.english[0];
 
-                let mizoOut = await fetchMyMemoryPair(bridgeEnglish, 'en|lus');
-                if (!mizoOut || hasMyanmarScript(mizoOut)) {
-                    mizoOut = await fetchMyMemoryPair(bridgeEnglish, 'autodetect|lus');
+                let mizoOut = await fetchMyMemoryPair(sourceForMizo, 'en|lus');
+                if (!mizoOut) {
+                    mizoOut = await fetchMyMemoryPair(sourceForMizo, 'autodetect|lus');
                 }
-                if (!mizoOut || hasMyanmarScript(mizoOut)) {
-                    return mizoDefaults.welcome;
+                const pureMizo = stripMyanmarScript(mizoOut);
+                if (!pureMizo) {
+                    return fallbackLine || languageSamples.mizo[0];
                 }
-                return mizoOut;
+                return pureMizo;
             }
 
-            return cleanText;
+            return fallbackLine || cleanText;
         }
 
         function startLiveVideoSpeechListener() {
@@ -322,8 +369,9 @@
                 const heard = last && last[0] ? last[0].transcript.trim() : '';
                 if (!heard) return;
 
+                const fallback = (languageSamples[targetLang] && languageSamples[targetLang][0]) || '';
                 document.getElementById('original-heard-text').innerText = `Original: "${heard}"`;
-                const translated = await translateAnyToTarget(heard, targetLang);
+                const translated = await translateLineStrict(heard, targetLang, fallback);
                 document.getElementById('preview-subtitle-text').innerText = translated;
 
                 const videoEl = document.getElementById('actual-video-player');
@@ -352,11 +400,14 @@
             const statusEl = document.getElementById('preview-status');
             const btnEl = document.getElementById('translate-btn');
             const placeholder = document.getElementById('player-placeholder');
+            const fbShareCard = document.getElementById('fb-share-card');
             const videoPlayer = document.getElementById('actual-video-player');
             const ytPlayer = document.getElementById('youtube-iframe-player');
 
             stopAudio();
+            updateLanguageBadge(lang);
             placeholder.classList.add('hidden');
+            fbShareCard.classList.add('hidden');
             videoPlayer.classList.add('hidden');
             ytPlayer.classList.add('hidden');
 
@@ -372,30 +423,33 @@
                 videoPlayer.play().catch(() => {});
             } else {
                 const urlVal = document.getElementById('video-url-input').value.trim();
-                const embedUrl = buildEmbedUrl(urlVal);
-                if (!embedUrl) {
-                    alert('မှန်ကန်တဲ့ YouTube သို့မဟုတ် Facebook link ထည့်ပါ (သို့မဟုတ် Local Video File ရွေးပါ)။');
-                    placeholder.classList.remove('hidden');
-                    return;
+                if (isFacebookShareUrl(urlVal)) {
+                    document.getElementById('fb-external-link').href = urlVal;
+                    fbShareCard.classList.remove('hidden');
+                } else {
+                    const embedUrl = buildEmbedUrl(urlVal);
+                    if (!embedUrl) {
+                        alert('မှန်ကန်တဲ့ YouTube သို့မဟုတ် Facebook link ထည့်ပါ (သို့မဟုတ် Local Video File ရွေးပါ)။');
+                        placeholder.classList.remove('hidden');
+                        return;
+                    }
+                    ytPlayer.src = embedUrl;
+                    ytPlayer.classList.remove('hidden');
                 }
-                ytPlayer.src = embedUrl;
-                ytPlayer.classList.remove('hidden');
             }
 
             btnEl.disabled = true;
             statusEl.innerText = 'Translating...';
 
-            const sourceLines = [
-                "Welcome to TransVid Studio.",
-                "Auto subtitles and voice dubbing are now active."
-            ];
+            const sourceLines = languageSamples.english;
+            const targetFallbacks = languageSamples[lang] || languageSamples.english;
 
             const translatedItems = [];
             for (let i = 0; i < sourceLines.length; i++) {
                 const sec = i * 4;
                 const mins = String(Math.floor(sec / 60)).padStart(2, '0');
                 const secs = String(sec % 60).padStart(2, '0');
-                const translatedText = await translateAnyToTarget(sourceLines[i], lang);
+                const translatedText = await translateLineStrict(sourceLines[i], lang, targetFallbacks[i]);
                 translatedItems.push({
                     time: `${mins}:${secs}`,
                     sec,
