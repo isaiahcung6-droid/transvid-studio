@@ -64,14 +64,6 @@
                 <i class="fa-solid fa-sliders text-indigo-400 mr-1.5"></i> 2. Subtitle & Voice Options
             </h2>
 
-            <!-- Source Text Input (Accepts ANY language) -->
-            <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 space-y-2">
-                <label class="block text-xs font-semibold text-slate-300">
-                    <i class="fa-solid fa-keyboard text-indigo-400 mr-1"></i> Input Text (ဘယ်ဘာသာစကားမဆို ရိုက်ထည့်ပါ — Auto Detect)
-                </label>
-                <textarea id="source-text-input" rows="2" placeholder="ဘယ်ဘာသာစကားနဲ့မဆို ရေးထည့်ပြီး မြန်မာ / Mizo / English ၃ ဘာသာထဲက တစ်ခုခုဆီ တိတိကျကျ ပြန်ဆိုပါ..." class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500"></textarea>
-            </div>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <!-- SUBTITLE OPTIONS BOX -->
                 <div class="bg-slate-950/80 border border-indigo-500/30 rounded-xl p-3.5 space-y-3">
@@ -82,7 +74,17 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Target Language (၃ ဘာသာ)</label>
+                        <label class="block text-xs text-slate-400 mb-1">Video Original Language (ဗီဒီယို မူရင်းဘာသာ)</label>
+                        <select id="source-lang" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs sm:text-sm text-white">
+                            <option value="auto">Auto Detect (အလိုအလျောက်)</option>
+                            <option value="en-US">English</option>
+                            <option value="my-MM">မြန်မာ (Myanmar)</option>
+                            <option value="hi-IN">Mizo / Hindi</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs text-slate-400 mb-1">Target Language (ဘာသာပြန်မည့် ၃ ဘာသာ)</label>
                         <select id="target-lang" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs sm:text-sm text-white">
                             <option value="myanmar">မြန်မာ (Myanmar)</option>
                             <option value="mizo">Mizo (မီဇို)</option>
@@ -137,7 +139,7 @@
             <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden aspect-video flex items-center justify-center">
                 <div id="player-placeholder" class="text-center p-4">
                     <i class="fa-solid fa-clapperboard text-3xl text-slate-700 mb-1.5"></i>
-                    <p class="text-xs text-slate-500">Select video or text and press Start Translation</p>
+                    <p class="text-xs text-slate-500">Select video and press Start Translation</p>
                 </div>
 
                 <video id="actual-video-player" class="hidden w-full h-full object-contain bg-black" controls playsinline webkit-playsinline></video>
@@ -149,6 +151,7 @@
                 <div id="subtitle-text-box" class="space-y-1">
                     <p class="text-[10px] uppercase tracking-wider text-indigo-400 font-semibold">Auto Subtitle Output (စာတန်းထိုး)</p>
                     <p id="preview-subtitle-text" class="text-sm font-semibold text-white break-words">""</p>
+                    <p id="original-heard-text" class="text-[11px] text-slate-400 break-words"></p>
                 </div>
 
                 <!-- [VOICE FUNCTION UI] -->
@@ -192,6 +195,7 @@
         let currentTtsAudio = null;
         let isAutoSpeaking = false;
         let currentLineIndex = 0;
+        let speechRecognizer = null;
 
         const mizoDefaults = {
             welcome: "TransVid Studio-ah kan lawm a che.",
@@ -289,7 +293,6 @@
             }
 
             if (targetLang === 'mizo') {
-                // First convert any source language into clean English so Mizo translation stays accurate
                 const bridgeEnglish = hasMyanmarScript(cleanText)
                     ? (await fetchMyMemoryPair(cleanText, 'my|en') || cleanText)
                     : (await fetchMyMemoryPair(cleanText, 'autodetect|en') || cleanText);
@@ -307,10 +310,55 @@
             return cleanText;
         }
 
+        function startLiveVideoSpeechListener() {
+            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRec) return;
+
+            if (speechRecognizer) {
+                try { speechRecognizer.stop(); } catch (_) {}
+            }
+
+            const srcLang = document.getElementById('source-lang').value;
+            const targetLang = document.getElementById('target-lang').value;
+            const autoSpeak = document.getElementById('auto-speak-option').checked;
+
+            const rec = new SpeechRec();
+            rec.lang = srcLang === 'auto' ? 'en-US' : srcLang;
+            rec.interimResults = false;
+            rec.continuous = true;
+
+            rec.onresult = async (event) => {
+                const last = event.results[event.results.length - 1];
+                const heard = last && last[0] ? last[0].transcript.trim() : '';
+                if (!heard) return;
+
+                document.getElementById('original-heard-text').innerText = `Original: "${heard}"`;
+                const translated = await translateAnyToTarget(heard, targetLang);
+                document.getElementById('preview-subtitle-text').innerText = translated;
+
+                const videoEl = document.getElementById('actual-video-player');
+                const sec = Math.floor((videoEl && !videoEl.classList.contains('hidden')) ? videoEl.currentTime : subtitlesData.length * 4);
+                const mins = String(Math.floor(sec / 60)).padStart(2, '0');
+                const secs = String(sec % 60).padStart(2, '0');
+
+                subtitlesData.push({ time: `${mins}:${secs}`, sec, text: translated });
+                renderTranscriptList();
+
+                if (autoSpeak && !isAutoSpeaking) {
+                    speakSingleLine(translated);
+                }
+            };
+
+            rec.onerror = () => {};
+            try {
+                rec.start();
+                speechRecognizer = rec;
+            } catch (_) {}
+        }
+
         async function startTranslation() {
             const lang = document.getElementById('target-lang').value;
             const autoSpeak = document.getElementById('auto-speak-option').checked;
-            const customInput = document.getElementById('source-text-input').value.trim();
             const statusEl = document.getElementById('preview-status');
             const btnEl = document.getElementById('translate-btn');
             const placeholder = document.getElementById('player-placeholder');
@@ -318,34 +366,39 @@
             const ytPlayer = document.getElementById('youtube-iframe-player');
 
             stopAudio();
+            placeholder.classList.add('hidden');
+            videoPlayer.classList.add('hidden');
+            ytPlayer.classList.add('hidden');
 
-            if (activeSourceTab === 'file' && selectedVideoFileUrl) {
-                placeholder.classList.add('hidden');
-                ytPlayer.classList.add('hidden');
+            if (activeSourceTab === 'file') {
+                if (!selectedVideoFileUrl) {
+                    alert('ဗီဒီယိုဖိုင် အရင်ရွေးပါ။');
+                    placeholder.classList.remove('hidden');
+                    return;
+                }
                 videoPlayer.src = selectedVideoFileUrl;
                 videoPlayer.classList.remove('hidden');
                 videoPlayer.load();
                 videoPlayer.play().catch(() => {});
-            } else if (activeSourceTab === 'url') {
+            } else {
                 const urlVal = document.getElementById('video-url-input').value.trim();
                 const embedUrl = buildEmbedUrl(urlVal);
-                if (embedUrl) {
-                    placeholder.classList.add('hidden');
-                    videoPlayer.classList.add('hidden');
-                    ytPlayer.src = embedUrl;
-                    ytPlayer.classList.remove('hidden');
+                if (!embedUrl) {
+                    alert('မှန်ကန်တဲ့ YouTube သို့မဟုတ် Facebook link ထည့်ပါ (သို့မဟုတ် Local Video File ရွေးပါ)။');
+                    placeholder.classList.remove('hidden');
+                    return;
                 }
+                ytPlayer.src = embedUrl;
+                ytPlayer.classList.remove('hidden');
             }
 
             btnEl.disabled = true;
             statusEl.innerText = 'Translating...';
 
-            const sourceLines = customInput
-                ? customInput.split(/\n+/).map(s => s.trim()).filter(Boolean)
-                : [
-                    "Welcome to TransVid Studio.",
-                    "Auto subtitles and voice dubbing are now active."
-                  ];
+            const sourceLines = [
+                "Welcome to TransVid Studio.",
+                "Auto subtitles and voice dubbing are now active."
+            ];
 
             const translatedItems = [];
             for (let i = 0; i < sourceLines.length; i++) {
@@ -365,6 +418,7 @@
             document.getElementById('preview-subtitle-text').innerText = subtitlesData[0]?.text || '';
             document.getElementById('subtitle-overlay').classList.remove('hidden');
             toggleSubtitleOption();
+            startLiveVideoSpeechListener();
 
             statusEl.innerText = 'Auto Active';
             btnEl.disabled = false;
@@ -443,6 +497,10 @@
 
         function stopAudio() {
             isAutoSpeaking = false;
+            if (speechRecognizer) {
+                try { speechRecognizer.stop(); } catch (_) {}
+                speechRecognizer = null;
+            }
             if (currentTtsAudio) {
                 currentTtsAudio.pause();
                 currentTtsAudio = null;
