@@ -9,604 +9,341 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
 
-    <!-- Auth Modal (Optional sign-in / switch account) -->
-    <div id="auth-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-7 shadow-2xl space-y-5">
-            <div class="text-center">
-                <div class="bg-indigo-600 w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-3 text-white shadow-lg">
-                    <i class="fa-solid fa-video text-xl"></i>
+    <!-- Header -->
+    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30">
+        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center gap-2">
+            <div class="flex items-center space-x-2.5 min-w-0">
+                <div class="bg-indigo-600 p-2 rounded-lg text-white shrink-0">
+                    <i class="fa-solid fa-video text-base"></i>
                 </div>
-                <h2 class="text-xl font-bold text-white tracking-wide">TransVid Studio</h2>
-                <p class="text-[11px] text-indigo-400 font-semibold mt-0.5">Powered By @Rising Star Music Studio</p>
-                <p class="text-xs text-slate-400 mt-1">Unlimited Free Access · No Usage Limits</p>
-            </div>
-
-            <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
-                <button type="button" onclick="switchAuthTab('register')" id="auth-reg-tab" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition">Register</button>
-                <button type="button" onclick="switchAuthTab('login')" id="auth-log-tab" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">Sign In</button>
-            </div>
-
-            <div class="space-y-3.5">
-                <div id="name-field-box">
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Full Name</label>
-                    <input type="text" id="auth-name" placeholder="Enter your full name" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Email Address</label>
-                    <input type="text" id="auth-email" placeholder="name@example.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Password</label>
-                    <div class="relative">
-                        <input type="password" id="auth-password" placeholder="Enter password" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 pr-10 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
-                        <button type="button" onclick="togglePasswordVisibility('auth-password', 'auth-pw-icon')" class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-white">
-                            <i id="auth-pw-icon" class="fa-solid fa-eye text-xs"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <button type="button" onclick="handleAuthSubmit()" id="auth-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-lg text-xs font-bold transition shadow-lg">
-                    Continue to Studio
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Top Navigation -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-2.5">
-                <div class="bg-indigo-600 p-2 rounded-lg text-white">
-                    <i class="fa-solid fa-video text-lg"></i>
-                </div>
-                <div>
-                    <h1 class="text-base sm:text-lg font-bold tracking-wide text-white">TransVid Studio</h1>
-                    <p class="text-[10px] sm:text-xs text-indigo-400 font-medium">AI Video Translation & Dubbing · Powered By @Rising Star Music Studio</p>
+                <div class="min-w-0">
+                    <h1 class="text-sm sm:text-base font-bold text-white truncate">TransVid Studio</h1>
+                    <p class="text-[11px] text-indigo-400 font-medium truncate">Powered By @Rising Star Music Studio</p>
                 </div>
             </div>
-
-            <div class="flex items-center space-x-2 sm:space-x-3">
-                <div id="trial-badge-box" class="hidden md:flex items-center space-x-2 bg-indigo-950/80 border border-indigo-500/30 px-3 py-1.5 rounded-full text-xs">
-                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                    <span class="text-indigo-200">Access: <strong id="trial-days">Unlimited</strong></span>
-                </div>
-
-                <button type="button" onclick="openStripeModal()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-lg transition">
-                    <i class="fa-solid fa-crown mr-1"></i> Pro ($10/mo)
-                </button>
-            </div>
+            <span class="text-[11px] bg-emerald-950 text-emerald-300 border border-emerald-700/40 px-2.5 py-1 rounded-full font-semibold shrink-0">
+                Unlimited Free
+            </span>
         </div>
     </header>
 
-    <!-- Main Container -->
-    <main class="flex-grow max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Content -->
+    <main class="flex-grow max-w-4xl w-full mx-auto p-3 sm:p-5 space-y-4">
 
-        <div class="lg:col-span-2 space-y-6">
-            
-            <!-- 1. Video Source Card -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">
-                    <i class="fa-solid fa-film text-indigo-400 mr-2"></i> 1. Select Video Source
+        <!-- 1. Video Source -->
+        <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                <i class="fa-solid fa-film text-indigo-400 mr-1.5"></i> 1. Video Source
+            </h2>
+
+            <div class="grid grid-cols-2 gap-2">
+                <button type="button" id="tab-url-btn" onclick="switchTab('url')" class="py-2 px-3 rounded-lg text-xs font-semibold bg-indigo-600 text-white">
+                    <i class="fa-solid fa-link mr-1"></i> YouTube / FB Link
+                </button>
+                <button type="button" id="tab-file-btn" onclick="switchTab('file')" class="py-2 px-3 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300">
+                    <i class="fa-solid fa-upload mr-1"></i> Local Video File
+                </button>
+            </div>
+
+            <div id="input-url-section">
+                <input type="text" id="video-url-input" placeholder="Paste YouTube or Facebook video URL..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500">
+            </div>
+
+            <div id="input-file-section" class="hidden">
+                <div onclick="document.getElementById('video-file-input').click()" class="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-4 text-center cursor-pointer bg-slate-950/60">
+                    <i class="fa-solid fa-cloud-arrow-up text-2xl text-indigo-400 mb-1.5"></i>
+                    <p id="file-label-text" class="text-xs text-slate-300">Tap to choose video from phone or PC</p>
+                    <input type="file" id="video-file-input" accept="video/*" class="hidden" onchange="handleFileSelect(event)">
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Language & Voice -->
+        <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                <i class="fa-solid fa-language text-indigo-400 mr-1.5"></i> 2. Language & Voice
+            </h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Target Language</label>
+                    <select id="target-lang" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs sm:text-sm text-white">
+                        <option value="myanmar">မြန်မာ (Myanmar)</option>
+                        <option value="mizo">Mizo (မီဇို)</option>
+                        <option value="english">English</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs text-slate-400 mb-1">Voice Gender</label>
+                    <select id="voice-gender" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs sm:text-sm text-white">
+                        <option value="female">Female Voice (မသံ)</option>
+                        <option value="male">Male Voice (ကျားသံ)</option>
+                    </select>
+                </div>
+            </div>
+
+            <button type="button" id="translate-btn" onclick="startTranslation()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-lg text-xs sm:text-sm font-bold transition flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                <span>START TRANSLATION</span>
+            </button>
+        </section>
+
+        <!-- 3. Player & Audio -->
+        <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
+                    <i class="fa-solid fa-play-circle text-emerald-400 mr-1.5"></i> 3. Playback & Audio
                 </h2>
-
-                <div class="flex space-x-2 border-b border-slate-800 pb-3 mb-4">
-                    <button type="button" onclick="switchTab('url')" id="tab-url-btn" class="px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition">
-                        <i class="fa-solid fa-link mr-1"></i> YouTube / FB Link
-                    </button>
-                    <button type="button" onclick="switchTab('file')" id="tab-file-btn" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 transition">
-                        <i class="fa-solid fa-upload mr-1"></i> Local Video File
-                    </button>
-                </div>
-
-                <!-- URL Section -->
-                <div id="input-url-section" class="space-y-2">
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-500">
-                            <i class="fa-solid fa-globe"></i>
-                        </span>
-                        <input type="text" id="video-url-input" placeholder="Paste YouTube or Facebook Video URL here..." class="w-full bg-slate-950 border border-slate-800 rounded-lg pl-10 pr-4 py-2.5 text-xs sm:text-sm text-slate-200 focus:outline-none focus:border-indigo-500">
-                    </div>
-                </div>
-
-                <!-- File Upload Section -->
-                <div id="input-file-section" class="hidden space-y-2">
-                    <div class="border-2 border-dashed border-slate-800 hover:border-indigo-500/60 rounded-xl p-6 text-center cursor-pointer transition bg-slate-950/50" onclick="document.getElementById('video-file-input').click()">
-                        <i class="fa-solid fa-cloud-arrow-up text-3xl text-indigo-400 mb-2"></i>
-                        <p id="file-label-text" class="text-xs text-slate-300">Tap to choose video from phone or PC (<span class="text-indigo-400 font-medium">Browse</span>)</p>
-                        <input type="file" id="video-file-input" class="hidden" accept="video/*" onchange="handleFileSelect(event)">
-                    </div>
-                </div>
+                <span id="preview-status" class="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full">Ready</span>
             </div>
 
-            <!-- 2. Translation & Voice Settings -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-                <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">
-                    <i class="fa-solid fa-language text-indigo-400 mr-2"></i> 2. Language & AI Voice Settings
-                </h2>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">Target Language</label>
-                        <select id="target-lang" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200">
-                            <option value="myanmar">မြန်မာ (Myanmar)</option>
-                            <option value="mizo">Mizo (မီဇို)</option>
-                            <option value="english">English</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1.5">AI Voice Gender</label>
-                        <select id="voice-gender" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200">
-                            <option value="female">Female Voice (မသံ)</option>
-                            <option value="male">Male Voice (ကျားသံ)</option>
-                        </select>
-                    </div>
+            <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden aspect-video flex items-center justify-center">
+                <div id="player-placeholder" class="text-center p-4">
+                    <i class="fa-solid fa-clapperboard text-3xl text-slate-700 mb-1.5"></i>
+                    <p class="text-xs text-slate-500">Select video and press Start Translation</p>
                 </div>
 
-                <div class="mt-5 pt-4 border-t border-slate-800 flex justify-end">
-                    <button type="button" onclick="startTranslation()" id="translate-btn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-lg text-xs font-bold transition shadow-lg flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        <span>START TRANSLATION</span>
+                <video id="actual-video-player" class="hidden w-full h-full object-contain bg-black" controls playsinline webkit-playsinline></video>
+                <iframe id="youtube-iframe-player" class="hidden w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+
+            <div id="subtitle-overlay" class="hidden bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-center space-y-2.5">
+                <p id="preview-subtitle-text" class="text-sm font-semibold text-white break-words">""</p>
+                <div class="flex justify-center gap-2">
+                    <button type="button" onclick="speakCurrentSubtitle()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-bold">
+                        <i class="fa-solid fa-volume-high mr-1"></i> Speak Audio
+                    </button>
+                    <button type="button" onclick="stopAudio()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg text-xs font-semibold">
+                        <i class="fa-solid fa-stop mr-1"></i> Stop
                     </button>
                 </div>
             </div>
 
-            <!-- 3. Playback & Review -->
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-sm font-semibold text-slate-300 uppercase tracking-wider">
-                        <i class="fa-solid fa-play-circle text-emerald-400 mr-2"></i> 3. Playback & Review
-                    </h2>
-                    <span id="preview-status" class="text-[10px] bg-slate-800 text-slate-400 px-2.5 py-1 rounded-full">Ready</span>
-                </div>
-
-                <div class="relative bg-slate-950 rounded-lg overflow-hidden aspect-video flex items-center justify-center border border-slate-800">
-                    <div id="player-placeholder" class="text-center p-6">
-                        <i class="fa-solid fa-clapperboard text-4xl text-slate-700 mb-2"></i>
-                        <p class="text-xs text-slate-500">Paste video link or upload file, then click Start Translation</p>
-                    </div>
-                    
-                    <video id="actual-video-player" class="hidden w-full h-full object-contain bg-black" controls playsinline webkit-playsinline></video>
-                    <iframe id="youtube-iframe-player" class="hidden w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-
-                    <div id="subtitle-overlay" class="hidden absolute bottom-3 left-3 right-3 text-center bg-slate-900/95 backdrop-blur border border-slate-700/70 py-2.5 px-3 rounded-xl z-10 shadow-2xl">
-                        <p id="preview-subtitle-text" class="text-xs sm:text-sm font-semibold text-white tracking-wide">"..."</p>
-                        <div class="mt-2 flex justify-center items-center space-x-2">
-                            <button type="button" onclick="speakCurrentSubtitle()" class="text-[10px] bg-emerald-600 text-white px-3 py-1 rounded-md font-semibold">
-                                <i class="fa-solid fa-volume-high mr-1"></i> Speak Audio
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="transcript-section" class="hidden mt-5 space-y-3">
-                    <h3 class="text-xs font-semibold text-slate-300 uppercase tracking-wider">Editable Subtitles</h3>
-                    <div id="transcript-list" class="space-y-2 max-h-56 overflow-y-auto pr-1"></div>
-                </div>
+            <div id="transcript-section" class="hidden space-y-2 pt-2">
+                <h3 class="text-xs font-bold text-slate-400 uppercase">Editable Subtitles</h3>
+                <div id="transcript-list" class="space-y-2"></div>
             </div>
+        </section>
 
-        </div>
-
-        <!-- Right Sidebar -->
-        <div class="space-y-6">
-            <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-xl">
-                <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4">
-                    <i class="fa-solid fa-user-circle text-indigo-400 mr-2"></i> Account & Billing
-                </h3>
-                <div class="space-y-3 text-xs text-slate-300">
-                    <div class="flex justify-between py-2 border-b border-slate-800">
-                        <span class="text-slate-500">User:</span>
-                        <span id="user-display-email" class="font-medium text-slate-200">Risingstar</span>
-                    </div>
-                    <div class="flex justify-between py-2 border-b border-slate-800">
-                        <span class="text-slate-500">Current Plan:</span>
-                        <span id="user-plan-label" class="text-emerald-400 font-semibold">Unlimited Free Access</span>
-                    </div>
-                </div>
-                <div class="mt-5 pt-4 border-t border-slate-800">
-                    <button type="button" onclick="logoutUser()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-xs font-medium transition">
-                        <i class="fa-solid fa-right-from-bracket mr-1"></i> Sign Out / Switch Account
-                    </button>
-                </div>
+        <!-- Account Info -->
+        <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-wrap justify-between items-center gap-2 text-xs">
+            <div>
+                <span class="text-slate-400">Studio:</span>
+                <span id="user-display-email" class="font-semibold text-white ml-1">Risingstar</span>
+                <span class="text-slate-500 mx-2">•</span>
+                <span id="user-plan-label" class="text-emerald-400 font-semibold">Unlimited Free Access</span>
             </div>
-        </div>
+            <span class="text-slate-400">Powered By @Rising Star Music Studio</span>
+        </section>
 
     </main>
 
-    <!-- Stripe Modal -->
-    <div id="stripe-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-md w-full p-6 text-center space-y-4">
-            <h3 class="text-base font-bold text-white">TransVid Studio Pro ($10/mo)</h3>
-            <p class="text-xs text-slate-400">Unlock unlimited video translations.</p>
-            <button type="button" onclick="activateProDemo()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-lg text-xs font-bold">Subscribe Now</button>
-            <button type="button" onclick="closeStripeModal()" class="w-full bg-slate-800 text-slate-300 py-2 rounded-lg text-xs">Cancel</button>
-        </div>
-    </div>
-
-    <!-- Script -->
     <script>
-        let currentUser = { email: "Risingstar", isPro: true };
         let activeSourceTab = 'url';
         let selectedVideoFileUrl = null;
         let subtitlesData = [];
         let currentTtsAudio = null;
-        let activeSpeechRecognizer = null;
 
-        window.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('auth-modal').classList.add('hidden');
-            if ('speechSynthesis' in window) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.getVoices();
+            window.speechSynthesis.onvoiceschanged = () => {
                 window.speechSynthesis.getVoices();
-            }
-        });
-
-        function togglePasswordVisibility(inputId, iconId) {
-            const input = document.getElementById(inputId);
-            const icon = document.getElementById(iconId);
-            if(input.type === 'password') {
-                input.type = 'text';
-                icon.className = 'fa-solid fa-eye-slash text-xs';
-            } else {
-                input.type = 'password';
-                icon.className = 'fa-solid fa-eye text-xs';
-            }
-        }
-
-        function switchAuthTab(mode) {
-            const regTab = document.getElementById('auth-reg-tab');
-            const logTab = document.getElementById('auth-log-tab');
-            const nameBox = document.getElementById('name-field-box');
-            const btn = document.getElementById('auth-submit-btn');
-
-            if(mode === 'register') {
-                regTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition";
-                logTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition";
-                nameBox.classList.remove('hidden');
-                btn.innerText = "Continue to Studio";
-            } else {
-                logTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition";
-                regTab.className = "flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition";
-                nameBox.classList.add('hidden');
-                btn.innerText = "Sign In to Studio";
-            }
-        }
-
-        function handleAuthSubmit() {
-            const idVal = document.getElementById('auth-email').value.trim() || document.getElementById('auth-name').value.trim() || "Risingstar";
-            currentUser.email = idVal;
-            document.getElementById('user-display-email').innerText = idVal;
-            document.getElementById('auth-modal').classList.add('hidden');
-        }
-
-        function logoutUser() {
-            document.getElementById('auth-modal').classList.remove('hidden');
+            };
         }
 
         function switchTab(tab) {
             activeSourceTab = tab;
-            const urlSec = document.getElementById('input-url-section');
-            const fileSec = document.getElementById('input-file-section');
-            const urlBtn = document.getElementById('tab-url-btn');
-            const fileBtn = document.getElementById('tab-file-btn');
+            const isUrl = tab === 'url';
+            document.getElementById('input-url-section').classList.toggle('hidden', !isUrl);
+            document.getElementById('input-file-section').classList.toggle('hidden', isUrl);
 
-            if(tab === 'url') {
-                urlSec.classList.remove('hidden');
-                fileSec.classList.add('hidden');
-                urlBtn.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition";
-                fileBtn.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 transition";
-            } else {
-                urlSec.classList.add('hidden');
-                fileSec.classList.remove('hidden');
-                fileBtn.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition";
-                urlBtn.className = "px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 transition";
-            }
+            document.getElementById('tab-url-btn').className = isUrl
+                ? "py-2 px-3 rounded-lg text-xs font-semibold bg-indigo-600 text-white"
+                : "py-2 px-3 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300";
+
+            document.getElementById('tab-file-btn').className = !isUrl
+                ? "py-2 px-3 rounded-lg text-xs font-semibold bg-indigo-600 text-white"
+                : "py-2 px-3 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300";
         }
 
         function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if(file) {
-                selectedVideoFileUrl = URL.createObjectURL(file);
-                document.getElementById('file-label-text').innerHTML = `<span class="text-emerald-400 font-semibold"><i class="fa-solid fa-check-circle mr-1"></i> ${file.name} ready</span>`;
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            if (selectedVideoFileUrl) {
+                URL.revokeObjectURL(selectedVideoFileUrl);
             }
+            selectedVideoFileUrl = URL.createObjectURL(file);
+            document.getElementById('file-label-text').innerHTML =
+                `<span class="text-emerald-400 font-semibold"><i class="fa-solid fa-check-circle mr-1"></i> ${file.name}</span>`;
+        }
+
+        function extractYouTubeId(url) {
+            const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([\w-]{11})/);
+            return match ? match[1] : null;
         }
 
         async function translateTextWithMyMemory(text, targetLang) {
             if (!text || targetLang === 'english') return text;
 
-            const langPairMap = {
+            const pairMap = {
                 myanmar: 'en|my',
                 mizo: 'en|lus'
             };
-            const langpair = langPairMap[targetLang];
+            const langpair = pairMap[targetLang];
             if (!langpair) return text;
 
             try {
-                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(langpair)}`;
-                const res = await fetch(url);
+                const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(langpair)}`);
                 const data = await res.json();
-                const translatedText = data?.responseData?.translatedText;
-                if (translatedText && typeof translatedText === 'string') {
-                    return translatedText;
+                const translated = data && data.responseData && data.responseData.translatedText;
+                if (translated && typeof translated === 'string') {
+                    return translated;
                 }
-            } catch (err) {
-                console.warn('Translation error:', err);
+            } catch (e) {
+                console.warn('MyMemory fallback:', e);
             }
-
             return text;
         }
 
-        async function translateSampleLines(targetLang) {
-            const sourceLines = [
-                "Hello, welcome to video translation and dubbing.",
-                "You can review and edit the subtitles here."
-            ];
-
-            const line1 = await translateTextWithMyMemory(sourceLines[0], targetLang);
-            const line2 = await translateTextWithMyMemory(sourceLines[1], targetLang);
-
-            return [
-                { start: 0, end: 4, text: line1 },
-                { start: 4, end: 9, text: line2 }
-            ];
-        }
-
-        function listenFromVideoAndTranslate(targetLang, onLineTranslated) {
-            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRec) return null;
-
-            if (activeSpeechRecognizer) {
-                try { activeSpeechRecognizer.stop(); } catch (e) {}
-                activeSpeechRecognizer = null;
-            }
-
-            const recognizer = new SpeechRec();
-            recognizer.lang = 'en-US';
-            recognizer.continuous = true;
-            recognizer.interimResults = false;
-
-            recognizer.onresult = async (event) => {
-                for (let i = event.resultIndex; i < event.results.length; i++) {
-                    if (event.results[i].isFinal) {
-                        const spokenText = event.results[i][0].transcript.trim();
-                        if (spokenText) {
-                            const translated = await translateTextWithMyMemory(spokenText, targetLang);
-                            onLineTranslated(translated);
-                        }
-                    }
-                }
-            };
-
-            recognizer.onerror = (err) => {
-                console.warn('Speech recognition notice:', err);
-            };
-
-            try {
-                recognizer.start();
-                activeSpeechRecognizer = recognizer;
-                return recognizer;
-            } catch (e) {
-                console.warn('Could not start speech recognition:', e);
-                return null;
-            }
-        }
-
         async function startTranslation() {
-            const urlVal = document.getElementById('video-url-input').value.trim();
-            if(activeSourceTab === 'url' && !urlVal) {
-                alert('ကျေးဇူးပြု၍ YouTube လင့်ခ် အရင်ထည့်ပါ။');
-                return;
-            }
-            if(activeSourceTab === 'file' && !selectedVideoFileUrl) {
-                alert('ကျေးဇူးပြု၍ ဗီဒီယိုဖိုင် အရင်ရွေးပါ။');
-                return;
-            }
-
             const lang = document.getElementById('target-lang').value;
+            const statusEl = document.getElementById('preview-status');
+            const btnEl = document.getElementById('translate-btn');
             const placeholder = document.getElementById('player-placeholder');
             const videoPlayer = document.getElementById('actual-video-player');
             const ytPlayer = document.getElementById('youtube-iframe-player');
-            const statusEl = document.getElementById('preview-status');
-            const btnEl = document.getElementById('translate-btn');
 
             placeholder.classList.add('hidden');
             videoPlayer.classList.add('hidden');
             ytPlayer.classList.add('hidden');
 
-            if(activeSourceTab === 'file') {
+            if (activeSourceTab === 'file') {
+                if (!selectedVideoFileUrl) {
+                    alert('ဗီဒီယိုဖိုင် အရင်ရွေးပါ။');
+                    placeholder.classList.remove('hidden');
+                    return;
+                }
                 videoPlayer.src = selectedVideoFileUrl;
                 videoPlayer.classList.remove('hidden');
                 videoPlayer.load();
             } else {
-                const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-                const match = urlVal.match(regExp);
-                const ytId = (match && match[7].length === 11) ? match[7] : false;
-                if(ytId) {
-                    ytPlayer.src = `https://www.youtube.com/embed/${ytId}?playsinline=1`;
-                    ytPlayer.classList.remove('hidden');
-                } else {
-                    alert('Invalid YouTube URL');
+                const urlVal = document.getElementById('video-url-input').value.trim();
+                const ytId = extractYouTubeId(urlVal);
+                if (!ytId) {
+                    alert('မှန်ကန်တဲ့ YouTube link ထည့်ပါ (သို့မဟုတ် Local Video File ရွေးပါ)။');
                     placeholder.classList.remove('hidden');
                     return;
                 }
+                ytPlayer.src = `https://www.youtube.com/embed/${ytId}?playsinline=1`;
+                ytPlayer.classList.remove('hidden');
             }
 
-            if (statusEl) statusEl.innerText = 'Translating...';
-            if (btnEl) btnEl.disabled = true;
+            btnEl.disabled = true;
+            statusEl.innerText = 'Translating...';
 
-            subtitlesData = await translateSampleLines(lang);
+            const lines = [
+                "Welcome to TransVid Studio.",
+                "Edit any subtitle line below and tap Speak Audio."
+            ];
 
-            if (btnEl) btnEl.disabled = false;
-            if (statusEl) statusEl.innerText = 'Ready';
+            const t1 = await translateTextWithMyMemory(lines[0], lang);
+            const t2 = await translateTextWithMyMemory(lines[1], lang);
 
+            subtitlesData = [
+                { time: "00:00", text: t1 },
+                { time: "00:04", text: t2 }
+            ];
+
+            renderTranscriptList();
+            document.getElementById('preview-subtitle-text').innerText = subtitlesData[0].text;
             document.getElementById('subtitle-overlay').classList.remove('hidden');
             document.getElementById('transcript-section').classList.remove('hidden');
-            
-            renderTranscriptList();
-            document.getElementById('preview-subtitle-text').innerText = `"${subtitlesData[0].text}"`;
 
-            if (activeSourceTab === 'file') {
-                listenFromVideoAndTranslate(lang, (translatedLine) => {
-                    const currentSec = Math.floor(videoPlayer.currentTime || 0);
-                    subtitlesData.push({
-                        start: currentSec,
-                        end: currentSec + 4,
-                        text: translatedLine
-                    });
-                    renderTranscriptList();
-                    document.getElementById('preview-subtitle-text').innerText = `"${translatedLine}"`;
-                });
-            }
+            statusEl.innerText = 'Ready';
+            btnEl.disabled = false;
         }
 
         function renderTranscriptList() {
             const list = document.getElementById('transcript-list');
             list.innerHTML = '';
-            subtitlesData.forEach((sub, idx) => {
-                const row = document.createElement('div');
-                row.className = "bg-slate-950 border border-slate-800 rounded-lg p-2.5 flex items-center space-x-2";
-                row.innerHTML = `
-                    <span class="bg-indigo-950 text-indigo-300 px-2 py-1 rounded text-[10px] font-mono">00:0${sub.start}</span>
-                    <input type="text" value="${sub.text}" oninput="updateSubtitleText(${idx}, this.value)" class="w-full bg-transparent text-xs text-slate-200 focus:outline-none">
+            subtitlesData.forEach((item, idx) => {
+                const div = document.createElement('div');
+                div.className = "bg-slate-950 border border-slate-800 rounded-lg p-2.5 flex items-center gap-2";
+                div.innerHTML = `
+                    <span class="text-[11px] font-mono bg-indigo-950 text-indigo-300 px-2 py-1 rounded shrink-0">${item.time}</span>
+                    <input type="text" value="${item.text.replace(/"/g, '&quot;')}" oninput="updateSubtitle(${idx}, this.value)" class="w-full bg-transparent text-xs sm:text-sm text-white focus:outline-none">
                 `;
-                list.appendChild(row);
+                list.appendChild(div);
             });
         }
 
-        function updateSubtitleText(idx, val) {
-            if (subtitlesData[idx]) {
-                subtitlesData[idx].text = val;
-                if (idx === 0) {
-                    document.getElementById('preview-subtitle-text').innerText = `"${val}"`;
-                }
+        function updateSubtitle(idx, val) {
+            if (!subtitlesData[idx]) return;
+            subtitlesData[idx].text = val;
+            if (idx === 0) {
+                document.getElementById('preview-subtitle-text').innerText = val;
+            }
+        }
+
+        function stopAudio() {
+            if (currentTtsAudio) {
+                currentTtsAudio.pause();
+                currentTtsAudio = null;
+            }
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
             }
         }
 
         function pickVoiceByGender(voices, lang, gender) {
+            if (!voices || !voices.length) return null;
             const isFemale = gender === 'female';
-            const femaleHints = ['female', 'zira', 'aria', 'samantha', 'victoria', 'google uk english female', 'google us english'];
-            const maleHints = ['male', 'david', 'mark', 'guy', 'george', 'google uk english male'];
-            const hints = isFemale ? femaleHints : maleHints;
+            const femaleWords = ['female', 'zira', 'aria', 'samantha', 'victoria', 'google uk english female'];
+            const maleWords = ['male', 'david', 'mark', 'guy', 'george', 'google uk english male'];
+            const keywords = isFemale ? femaleWords : maleWords;
 
-            const langVoices = voices.filter(v => {
+            const matchingLang = voices.filter(v => {
                 const l = (v.lang || '').toLowerCase();
                 if (lang === 'myanmar') return l.includes('my');
                 if (lang === 'mizo') return l.startsWith('hi') || l.startsWith('en');
                 return l.startsWith('en');
             });
 
-            const pool = langVoices.length ? langVoices : voices;
-
-            const hinted = pool.find(v => {
-                const name = (v.name || '').toLowerCase();
-                return hints.some(h => name.includes(h));
-            });
-            if (hinted) return hinted;
-
-            if (!isFemale && pool.length > 1) {
-                return pool[pool.length - 1];
-            }
-            return pool[0] || null;
-        }
-
-        function playFallbackAudio(txt, lang) {
-            if (currentTtsAudio) {
-                currentTtsAudio.pause();
-                currentTtsAudio = null;
-            }
-
-            const tl = lang === 'myanmar' ? 'my' : (lang === 'mizo' ? 'hi' : 'en');
-            const gender = document.getElementById('voice-gender')?.value || 'female';
-
-            const ttsUrls = [
-                `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(txt)}&tl=${tl}&client=tw-ob`,
-                `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(txt)}&tl=${tl}&client=gtx`
-            ];
-
-            let idx = 0;
-
-            function runSpeechSynthesisFallback() {
-                if (!('speechSynthesis' in window)) return;
-                window.speechSynthesis.cancel();
-
-                const voices = window.speechSynthesis.getVoices();
-                const u = new SpeechSynthesisUtterance(txt);
-                const chosen = pickVoiceByGender(voices, lang, gender);
-
-                if (chosen) {
-                    u.voice = chosen;
-                    u.lang = chosen.lang;
-                } else {
-                    u.lang = lang === 'myanmar' ? 'my-MM' : 'en-US';
-                }
-
-                if (gender === 'female') {
-                    u.pitch = 1.35;
-                    u.rate = 1.02;
-                } else {
-                    u.pitch = 0.78;
-                    u.rate = 0.92;
-                }
-
-                window.speechSynthesis.speak(u);
-            }
-
-            function tryNextAudioUrl() {
-                if (idx >= ttsUrls.length) {
-                    runSpeechSynthesisFallback();
-                    return;
-                }
-                const url = ttsUrls[idx++];
-                currentTtsAudio = new Audio(url);
-                currentTtsAudio.playbackRate = gender === 'female' ? 1.05 : 0.9;
-
-                currentTtsAudio.onended = () => {
-                    currentTtsAudio = null;
-                };
-
-                currentTtsAudio.play().catch(() => {
-                    tryNextAudioUrl();
-                });
-            }
-
-            tryNextAudioUrl();
+            const pool = matchingLang.length ? matchingLang : voices;
+            const matched = pool.find(v => keywords.some(k => (v.name || '').toLowerCase().includes(k)));
+            return matched || pool[0];
         }
 
         function speakCurrentSubtitle() {
-            const txt = document.getElementById('preview-subtitle-text').innerText.replace(/^"|"$/g, '').trim();
-            if (!txt || txt === '...') return;
+            const text = document.getElementById('preview-subtitle-text').innerText.trim();
+            if (!text) return;
 
             const lang = document.getElementById('target-lang').value;
-            const gender = document.getElementById('voice-gender')?.value || 'female';
-
-            if (lang === 'english' && 'speechSynthesis' in window) {
-                if (currentTtsAudio) {
-                    currentTtsAudio.pause();
-                    currentTtsAudio = null;
-                }
-                window.speechSynthesis.cancel();
-                const voices = window.speechSynthesis.getVoices();
-                const u = new SpeechSynthesisUtterance(txt);
-                const chosen = pickVoiceByGender(voices, 'english', gender);
-                if (chosen) {
-                    u.voice = chosen;
-                    u.lang = chosen.lang;
-                } else {
-                    u.lang = 'en-US';
-                }
-                u.pitch = gender === 'female' ? 1.35 : 0.78;
-                u.rate = gender === 'female' ? 1.02 : 0.92;
-                window.speechSynthesis.speak(u);
-                return;
-            }
+            const gender = document.getElementById('voice-gender').value;
+            stopAudio();
 
             if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
+                const voices = window.speechSynthesis.getVoices();
+                const voice = pickVoiceByGender(voices, lang, gender);
+                const utter = new SpeechSynthesisUtterance(text);
+                if (voice) {
+                    utter.voice = voice;
+                    utter.lang = voice.lang;
+                } else {
+                    utter.lang = lang === 'myanmar' ? 'my-MM' : 'en-US';
+                }
+                utter.pitch = gender === 'female' ? 1.3 : 0.82;
+                utter.rate = gender === 'female' ? 1.0 : 0.92;
+                window.speechSynthesis.speak(utter);
             }
-            playFallbackAudio(txt, lang);
-        }
 
-        function openStripeModal() { document.getElementById('stripe-modal').classList.remove('hidden'); }
-        function closeStripeModal() { document.getElementById('stripe-modal').classList.add('hidden'); }
-        function activateProDemo() { alert('Pro Plan Activated ($10/mo)!'); closeStripeModal(); }
+            const tl = lang === 'myanmar' ? 'my' : (lang === 'mizo' ? 'hi' : 'en');
+            const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${tl}&client=tw-ob`;
+            currentTtsAudio = new Audio(ttsUrl);
+            currentTtsAudio.playbackRate = gender === 'female' ? 1.05 : 0.92;
+            currentTtsAudio.play().catch(() => {});
+        }
     </script>
 </body>
 </html>
