@@ -74,16 +74,6 @@
                     </div>
 
                     <div>
-                        <label class="block text-xs text-slate-400 mb-1">Video Original Language (ဗီဒီယို မူရင်းဘာသာ)</label>
-                        <select id="source-lang" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs sm:text-sm text-white">
-                            <option value="auto">Auto Detect (အလိုအလျောက်)</option>
-                            <option value="en-US">English</option>
-                            <option value="my-MM">မြန်မာ (Myanmar)</option>
-                            <option value="hi-IN">Mizo / Hindi</option>
-                        </select>
-                    </div>
-
-                    <div>
                         <label class="block text-xs text-slate-400 mb-1">Target Language (ဘာသာပြန်မည့် ၃ ဘာသာ)</label>
                         <select id="target-lang" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs sm:text-sm text-white">
                             <option value="myanmar">မြန်မာ (Myanmar)</option>
@@ -196,6 +186,7 @@
         let isAutoSpeaking = false;
         let currentLineIndex = 0;
         let speechRecognizer = null;
+        const autoSourceLang = 'auto';
 
         const mizoDefaults = {
             welcome: "TransVid Studio-ah kan lawm a che.",
@@ -318,12 +309,11 @@
                 try { speechRecognizer.stop(); } catch (_) {}
             }
 
-            const srcLang = document.getElementById('source-lang').value;
             const targetLang = document.getElementById('target-lang').value;
             const autoSpeak = document.getElementById('auto-speak-option').checked;
 
             const rec = new SpeechRec();
-            rec.lang = srcLang === 'auto' ? 'en-US' : srcLang;
+            rec.lang = autoSourceLang === 'auto' ? 'en-US' : autoSourceLang;
             rec.interimResults = false;
             rec.continuous = true;
 
