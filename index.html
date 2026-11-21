@@ -22,7 +22,7 @@
 
             <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
                 <button type="button" onclick="switchAuthTab('register')" id="auth-reg-tab" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition">Register (Free Trial)</button>
-                <button type="button" onclick="switchAuthTab('login')" id="auth-log-tab" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">Sign In / Admin</button>
+                <button type="button" onclick="switchAuthTab('login')" id="auth-log-tab" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">Sign In</button>
             </div>
 
             <div class="space-y-3.5">
@@ -31,8 +31,8 @@
                     <input type="text" id="auth-name" placeholder="Enter your full name" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Email Address or Admin ID</label>
-                    <input type="text" id="auth-email" placeholder="name@example.com or Risingstar" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+                    <label class="block text-xs font-medium text-slate-400 mb-1">Email Address</label>
+                    <input type="text" id="auth-email" placeholder="name@example.com" class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
                 </div>
                 <div>
                     <label class="block text-xs font-medium text-slate-400 mb-1">Password</label>
@@ -48,7 +48,6 @@
                     Start 14-Day Free Trial
                 </button>
             </div>
-            <p class="text-[10px] text-center text-slate-500">Admin Login: Use <b>Risingstar</b> / <b>risingstar24</b></p>
         </div>
     </div>
 
@@ -73,10 +72,6 @@
 
                 <button type="button" onclick="openStripeModal()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-lg transition">
                     <i class="fa-solid fa-crown mr-1"></i> Pro ($10/mo)
-                </button>
-
-                <button type="button" onclick="handleAdminAccess()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-medium transition border border-slate-700">
-                    <i class="fa-solid fa-shield-halved mr-1"></i> Admin
                 </button>
             </div>
         </div>
@@ -199,7 +194,7 @@
                 </h3>
                 <div class="space-y-3 text-xs text-slate-300">
                     <div class="flex justify-between py-2 border-b border-slate-800">
-                        <span class="text-slate-500">User / ID:</span>
+                        <span class="text-slate-500">User:</span>
                         <span id="user-display-email" class="font-medium text-slate-200">Guest</span>
                     </div>
                     <div class="flex justify-between py-2 border-b border-slate-800">
@@ -217,22 +212,6 @@
 
     </main>
 
-    <!-- Admin Dashboard Modal -->
-    <div id="admin-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-lg w-full p-6 shadow-2xl relative space-y-4">
-            <div class="flex justify-between items-center pb-3 border-b border-slate-800">
-                <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-shield-halved text-rose-500 mr-2"></i> Admin Control Center</h3>
-                <button type="button" onclick="closeAdminModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            <div class="space-y-3">
-                <label class="block text-xs text-slate-400">System Gemini API Key (Optional)</label>
-                <input type="password" id="admin-gemini-key" placeholder="AIzaSy..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200">
-                <button type="button" onclick="saveAdminApiKey()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-xs font-bold">Save API Key</button>
-            </div>
-            <button type="button" onclick="closeAdminModal()" class="w-full bg-slate-800 text-slate-300 py-2 rounded-lg text-xs">Close</button>
-        </div>
-    </div>
-
     <!-- Stripe Modal -->
     <div id="stripe-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-md w-full p-6 text-center space-y-4">
@@ -245,7 +224,7 @@
 
     <!-- Script -->
     <script>
-        let currentUser = { email: "", isAdmin: false, isPro: false };
+        let currentUser = { email: "", isPro: false };
         let activeSourceTab = 'url';
         let selectedVideoFileUrl = null;
         let subtitlesData = [];
@@ -254,10 +233,6 @@
         window.addEventListener('DOMContentLoaded', () => {
             // Force show login modal on fresh load / refresh
             document.getElementById('auth-modal').classList.remove('hidden');
-            const savedKey = localStorage.getItem('transvid_system_gemini_key');
-            if (savedKey && document.getElementById('admin-gemini-key')) {
-                document.getElementById('admin-gemini-key').value = savedKey;
-            }
         });
 
         function togglePasswordVisibility(inputId, iconId) {
@@ -296,17 +271,7 @@
             const pwVal = document.getElementById('auth-password').value;
 
             if(!idVal || !pwVal) {
-                alert('Please enter Email / Admin ID and Password.');
-                return;
-            }
-
-            // Admin check
-            if(idVal.toLowerCase() === 'risingstar' && pwVal === 'risingstar24') {
-                currentUser.isAdmin = true;
-                currentUser.email = "Risingstar (Admin)";
-                document.getElementById('user-display-email').innerText = currentUser.email;
-                document.getElementById('user-plan-label').innerText = "Admin Access";
-                document.getElementById('auth-modal').classList.add('hidden');
+                alert('Please enter Email and Password.');
                 return;
             }
 
@@ -347,61 +312,43 @@
             }
         }
 
+        async function translateTextWithMyMemory(text, targetLang) {
+            if (!text || targetLang === 'english') return text;
+
+            const langPairMap = {
+                myanmar: 'en|my',
+                mizo: 'en|lus'
+            };
+            const langpair = langPairMap[targetLang];
+            if (!langpair) return text;
+
+            try {
+                const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(langpair)}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                const translatedText = data?.responseData?.translatedText;
+                if (translatedText && typeof translatedText === 'string') {
+                    return translatedText;
+                }
+            } catch (err) {
+                console.warn('Translation error:', err);
+            }
+
+            return text;
+        }
+
         async function translateSampleLines(targetLang) {
             const sourceLines = [
                 "Hello, welcome to video translation and dubbing.",
                 "You can review and edit the subtitles here."
             ];
 
-            const langCodeMap = {
-                myanmar: "my",
-                mizo: "lus",
-                english: "en"
-            };
-            const tl = langCodeMap[targetLang] || "en";
-
-            const geminiKey = localStorage.getItem("transvid_system_gemini_key");
-            if (geminiKey) {
-                try {
-                    const prompt = `Translate these two lines into ${targetLang}. Return ONLY a JSON array of 2 translated strings:\n${JSON.stringify(sourceLines)}`;
-                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(geminiKey)}`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({
-                            contents: [{ parts: [{ text: prompt }] }]
-                        })
-                    });
-                    const data = await res.json();
-                    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-                    const cleaned = rawText.replace(/```json|```/g, "").trim();
-                    const parsed = JSON.parse(cleaned);
-                    if (Array.isArray(parsed) && parsed.length >= 2) {
-                        return [
-                            { start: 0, end: 4, text: parsed[0] },
-                            { start: 4, end: 9, text: parsed[1] }
-                        ];
-                    }
-                } catch (err) {
-                    console.warn("Gemini translation fallback:", err);
-                }
-            }
-
-            const translated = await Promise.all(sourceLines.map(async (line) => {
-                if (targetLang === "english") return line;
-                try {
-                    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${encodeURIComponent(tl)}&dt=t&q=${encodeURIComponent(line)}`;
-                    const res = await fetch(url);
-                    const json = await res.json();
-                    const textOut = json?.[0]?.map(item => item[0]).join("") || line;
-                    return textOut;
-                } catch (e) {
-                    return line;
-                }
-            }));
+            const line1 = await translateTextWithMyMemory(sourceLines[0], targetLang);
+            const line2 = await translateTextWithMyMemory(sourceLines[1], targetLang);
 
             return [
-                { start: 0, end: 4, text: translated[0] },
-                { start: 4, end: 9, text: translated[1] }
+                { start: 0, end: 4, text: line1 },
+                { start: 4, end: 9, text: line2 }
             ];
         }
 
@@ -488,12 +435,34 @@
                 currentTtsAudio.pause();
                 currentTtsAudio = null;
             }
-            const tl = lang === 'myanmar' ? 'my' : (lang === 'mizo' ? 'lus' : 'en');
+
+            const tl = lang === 'myanmar' ? 'my' : (lang === 'mizo' ? 'hi' : 'en');
+            const gender = document.getElementById('voice-gender')?.value || 'female';
             const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(txt)}&tl=${tl}&client=tw-ob`;
             currentTtsAudio = new Audio(audioUrl);
-            currentTtsAudio.play().catch((err) => {
-                console.warn("Audio playback failed:", err);
-                alert("ဤဘာသာစကားအတွက် အသံဖိုင် ဖွင့်မရပါ။");
+            currentTtsAudio.playbackRate = gender === 'male' ? 0.92 : 1.0;
+
+            currentTtsAudio.play().catch(() => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const u = new SpeechSynthesisUtterance(txt);
+                    const voices = window.speechSynthesis.getVoices();
+
+                    if (lang === 'myanmar') {
+                        const myVoice = voices.find(v => v.lang.toLowerCase().startsWith('my'));
+                        u.lang = myVoice ? myVoice.lang : 'en-US';
+                        if (myVoice) u.voice = myVoice;
+                    } else if (lang === 'mizo') {
+                        const altVoice = voices.find(v => v.lang.toLowerCase().startsWith('hi') || v.lang.toLowerCase().startsWith('en'));
+                        u.lang = altVoice ? altVoice.lang : 'en-US';
+                        if (altVoice) u.voice = altVoice;
+                    } else {
+                        u.lang = 'en-US';
+                    }
+
+                    u.pitch = gender === 'female' ? 1.15 : 0.85;
+                    window.speechSynthesis.speak(u);
+                }
             });
         }
 
@@ -502,18 +471,27 @@
             if (!txt || txt === '...') return;
 
             const lang = document.getElementById('target-lang').value;
-            const langTag = lang === 'myanmar' ? 'my-MM' : (lang === 'mizo' ? 'lus' : 'en-US');
+            const gender = document.getElementById('voice-gender')?.value || 'female';
 
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 const voices = window.speechSynthesis.getVoices();
-                const matchedVoice = voices.find(v => v.lang.toLowerCase().startsWith(langTag.split('-')[0].toLowerCase()));
 
-                if (matchedVoice) {
+                if (lang === 'english') {
                     const u = new SpeechSynthesisUtterance(txt);
-                    u.voice = matchedVoice;
-                    u.lang = matchedVoice.lang;
-                    u.pitch = document.getElementById('voice-gender').value === 'female' ? 1.15 : 0.85;
+                    u.lang = 'en-US';
+                    u.pitch = gender === 'female' ? 1.15 : 0.85;
+                    window.speechSynthesis.speak(u);
+                    return;
+                }
+
+                const targetPrefix = lang === 'myanmar' ? 'my' : 'hi';
+                const matched = voices.find(v => v.lang.toLowerCase().startsWith(targetPrefix));
+                if (matched && lang === 'myanmar') {
+                    const u = new SpeechSynthesisUtterance(txt);
+                    u.voice = matched;
+                    u.lang = matched.lang;
+                    u.pitch = gender === 'female' ? 1.15 : 0.85;
                     window.speechSynthesis.speak(u);
                     return;
                 }
@@ -522,30 +500,6 @@
             playFallbackAudio(txt, lang);
         }
 
-        function handleAdminAccess() {
-            if(currentUser.isAdmin) {
-                document.getElementById('admin-modal').classList.remove('hidden');
-            } else {
-                const id = prompt("Enter Admin ID:");
-                const pw = prompt("Enter Admin Password:");
-                if(id && id.toLowerCase() === 'risingstar' && pw === 'risingstar24') {
-                    currentUser.isAdmin = true;
-                    document.getElementById('admin-modal').classList.remove('hidden');
-                } else if(id !== null) {
-                    alert('Invalid Admin Credentials!');
-                }
-            }
-        }
-
-        function saveAdminApiKey() {
-            const key = document.getElementById('admin-gemini-key').value.trim();
-            if(key) {
-                localStorage.setItem('transvid_system_gemini_key', key);
-                alert('API Key saved successfully!');
-            }
-        }
-
-        function closeAdminModal() { document.getElementById('admin-modal').classList.add('hidden'); }
         function openStripeModal() { document.getElementById('stripe-modal').classList.remove('hidden'); }
         function closeStripeModal() { document.getElementById('stripe-modal').classList.add('hidden'); }
         function activateProDemo() { alert('Pro Plan Activated ($10/mo)!'); closeStripeModal(); }
