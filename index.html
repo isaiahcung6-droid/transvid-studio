@@ -21,8 +21,8 @@
             </div>
 
             <div class="flex bg-slate-950 p-1 rounded-xl border border-slate-800">
-                <button onclick="switchAuthTab('register')" id="auth-reg-tab" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition">Register (Free Trial)</button>
-                <button onclick="switchAuthTab('login')" id="auth-log-tab" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">Sign In / Admin</button>
+                <button type="button" onclick="switchAuthTab('register')" id="auth-reg-tab" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition">Register (Free Trial)</button>
+                <button type="button" onclick="switchAuthTab('login')" id="auth-log-tab" class="flex-1 py-2 text-xs font-semibold rounded-lg text-slate-400 hover:text-white transition">Sign In / Admin</button>
             </div>
 
             <div class="space-y-3.5">
@@ -44,7 +44,7 @@
                     </div>
                 </div>
 
-                <button onclick="handleAuthSubmit()" id="auth-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-lg text-xs font-bold transition shadow-lg">
+                <button type="button" onclick="handleAuthSubmit()" id="auth-submit-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-lg text-xs font-bold transition shadow-lg">
                     Start 14-Day Free Trial
                 </button>
             </div>
@@ -71,11 +71,11 @@
                     <span class="text-indigo-200">Free Trial: <strong id="trial-days">14</strong> Days Left</span>
                 </div>
 
-                <button onclick="openStripeModal()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-lg transition">
+                <button type="button" onclick="openStripeModal()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold shadow-lg transition">
                     <i class="fa-solid fa-crown mr-1"></i> Pro ($10/mo)
                 </button>
 
-                <button onclick="handleAdminAccess()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-medium transition border border-slate-700">
+                <button type="button" onclick="handleAdminAccess()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-xs font-medium transition border border-slate-700">
                     <i class="fa-solid fa-shield-halved mr-1"></i> Admin
                 </button>
             </div>
@@ -94,10 +94,10 @@
                 </h2>
 
                 <div class="flex space-x-2 border-b border-slate-800 pb-3 mb-4">
-                    <button onclick="switchTab('url')" id="tab-url-btn" class="px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition">
+                    <button type="button" onclick="switchTab('url')" id="tab-url-btn" class="px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white transition">
                         <i class="fa-solid fa-link mr-1"></i> YouTube / FB Link
                     </button>
-                    <button onclick="switchTab('file')" id="tab-file-btn" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 transition">
+                    <button type="button" onclick="switchTab('file')" id="tab-file-btn" class="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-800 text-slate-400 hover:bg-slate-700 transition">
                         <i class="fa-solid fa-upload mr-1"></i> Local Video File
                     </button>
                 </div>
@@ -148,7 +148,7 @@
                 </div>
 
                 <div class="mt-5 pt-4 border-t border-slate-800 flex justify-end">
-                    <button onclick="startTranslation()" id="translate-btn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-lg text-xs font-bold transition shadow-lg flex items-center justify-center space-x-2">
+                    <button type="button" onclick="startTranslation()" id="translate-btn" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2.5 rounded-lg text-xs font-bold transition shadow-lg flex items-center justify-center space-x-2">
                         <i class="fa-solid fa-wand-magic-sparkles"></i>
                         <span>START TRANSLATION</span>
                     </button>
@@ -176,7 +176,7 @@
                     <div id="subtitle-overlay" class="hidden absolute bottom-3 left-3 right-3 text-center bg-slate-900/95 backdrop-blur border border-slate-700/70 py-2.5 px-3 rounded-xl z-10 shadow-2xl">
                         <p id="preview-subtitle-text" class="text-xs sm:text-sm font-semibold text-white tracking-wide">"..."</p>
                         <div class="mt-2 flex justify-center items-center space-x-2">
-                            <button onclick="speakCurrentSubtitle()" class="text-[10px] bg-emerald-600 text-white px-3 py-1 rounded-md font-semibold">
+                            <button type="button" onclick="speakCurrentSubtitle()" class="text-[10px] bg-emerald-600 text-white px-3 py-1 rounded-md font-semibold">
                                 <i class="fa-solid fa-volume-high mr-1"></i> Speak Audio
                             </button>
                         </div>
@@ -208,7 +208,7 @@
                     </div>
                 </div>
                 <div class="mt-5 pt-4 border-t border-slate-800">
-                    <button onclick="logoutUser()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-xs font-medium transition">
+                    <button type="button" onclick="logoutUser()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 rounded-lg text-xs font-medium transition">
                         <i class="fa-solid fa-right-from-bracket mr-1"></i> Sign Out / Switch Account
                     </button>
                 </div>
@@ -222,14 +222,14 @@
         <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-lg w-full p-6 shadow-2xl relative space-y-4">
             <div class="flex justify-between items-center pb-3 border-b border-slate-800">
                 <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-shield-halved text-rose-500 mr-2"></i> Admin Control Center</h3>
-                <button onclick="closeAdminModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+                <button type="button" onclick="closeAdminModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
             <div class="space-y-3">
                 <label class="block text-xs text-slate-400">System Gemini API Key (Optional)</label>
                 <input type="password" id="admin-gemini-key" placeholder="AIzaSy..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs text-slate-200">
-                <button onclick="saveAdminApiKey()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-xs font-bold">Save API Key</button>
+                <button type="button" onclick="saveAdminApiKey()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white py-2 rounded-lg text-xs font-bold">Save API Key</button>
             </div>
-            <button onclick="closeAdminModal()" class="w-full bg-slate-800 text-slate-300 py-2 rounded-lg text-xs">Close</button>
+            <button type="button" onclick="closeAdminModal()" class="w-full bg-slate-800 text-slate-300 py-2 rounded-lg text-xs">Close</button>
         </div>
     </div>
 
@@ -238,8 +238,8 @@
         <div class="bg-slate-900 border border-slate-800 rounded-xl max-w-md w-full p-6 text-center space-y-4">
             <h3 class="text-base font-bold text-white">TransVid Studio Pro ($10/mo)</h3>
             <p class="text-xs text-slate-400">Unlock unlimited video translations.</p>
-            <button onclick="activateProDemo()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-lg text-xs font-bold">Subscribe Now</button>
-            <button onclick="closeStripeModal()" class="w-full bg-slate-800 text-slate-300 py-2 rounded-lg text-xs">Cancel</button>
+            <button type="button" onclick="activateProDemo()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 rounded-lg text-xs font-bold">Subscribe Now</button>
+            <button type="button" onclick="closeStripeModal()" class="w-full bg-slate-800 text-slate-300 py-2 rounded-lg text-xs">Cancel</button>
         </div>
     </div>
 
@@ -249,10 +249,15 @@
         let activeSourceTab = 'url';
         let selectedVideoFileUrl = null;
         let subtitlesData = [];
+        let currentTtsAudio = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             // Force show login modal on fresh load / refresh
             document.getElementById('auth-modal').classList.remove('hidden');
+            const savedKey = localStorage.getItem('transvid_system_gemini_key');
+            if (savedKey && document.getElementById('admin-gemini-key')) {
+                document.getElementById('admin-gemini-key').value = savedKey;
+            }
         });
 
         function togglePasswordVisibility(inputId, iconId) {
@@ -342,7 +347,65 @@
             }
         }
 
-        function startTranslation() {
+        async function translateSampleLines(targetLang) {
+            const sourceLines = [
+                "Hello, welcome to video translation and dubbing.",
+                "You can review and edit the subtitles here."
+            ];
+
+            const langCodeMap = {
+                myanmar: "my",
+                mizo: "lus",
+                english: "en"
+            };
+            const tl = langCodeMap[targetLang] || "en";
+
+            const geminiKey = localStorage.getItem("transvid_system_gemini_key");
+            if (geminiKey) {
+                try {
+                    const prompt = `Translate these two lines into ${targetLang}. Return ONLY a JSON array of 2 translated strings:\n${JSON.stringify(sourceLines)}`;
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(geminiKey)}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            contents: [{ parts: [{ text: prompt }] }]
+                        })
+                    });
+                    const data = await res.json();
+                    const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+                    const cleaned = rawText.replace(/```json|```/g, "").trim();
+                    const parsed = JSON.parse(cleaned);
+                    if (Array.isArray(parsed) && parsed.length >= 2) {
+                        return [
+                            { start: 0, end: 4, text: parsed[0] },
+                            { start: 4, end: 9, text: parsed[1] }
+                        ];
+                    }
+                } catch (err) {
+                    console.warn("Gemini translation fallback:", err);
+                }
+            }
+
+            const translated = await Promise.all(sourceLines.map(async (line) => {
+                if (targetLang === "english") return line;
+                try {
+                    const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=${encodeURIComponent(tl)}&dt=t&q=${encodeURIComponent(line)}`;
+                    const res = await fetch(url);
+                    const json = await res.json();
+                    const textOut = json?.[0]?.map(item => item[0]).join("") || line;
+                    return textOut;
+                } catch (e) {
+                    return line;
+                }
+            }));
+
+            return [
+                { start: 0, end: 4, text: translated[0] },
+                { start: 4, end: 9, text: translated[1] }
+            ];
+        }
+
+        async function startTranslation() {
             const urlVal = document.getElementById('video-url-input').value.trim();
             if(activeSourceTab === 'url' && !urlVal) {
                 alert('ကျေးဇူးပြု၍ YouTube လင့်ခ် အရင်ထည့်ပါ။');
@@ -357,6 +420,8 @@
             const placeholder = document.getElementById('player-placeholder');
             const videoPlayer = document.getElementById('actual-video-player');
             const ytPlayer = document.getElementById('youtube-iframe-player');
+            const statusEl = document.getElementById('preview-status');
+            const btnEl = document.getElementById('translate-btn');
 
             placeholder.classList.add('hidden');
             videoPlayer.classList.add('hidden');
@@ -380,13 +445,17 @@
                 }
             }
 
+            if (statusEl) statusEl.innerText = 'Translating...';
+            if (btnEl) btnEl.disabled = true;
+
+            subtitlesData = await translateSampleLines(lang);
+
+            if (btnEl) btnEl.disabled = false;
+            if (statusEl) statusEl.innerText = 'Ready';
+
             document.getElementById('subtitle-overlay').classList.remove('hidden');
             document.getElementById('transcript-section').classList.remove('hidden');
             
-            subtitlesData = [
-                { start: 0, end: 4, text: "မင်္ဂလာပါ၊ ဗီဒီယို ဘာသာပြန်ခြင်း အောင်မြင်ပါသည်။" },
-                { start: 4, end: 9, text: "စာတန်းထိုးများကို ဤနေရာတွင် ကြည့်ရှုနိုင်ပါသည်။" }
-            ];
             renderTranscriptList();
             document.getElementById('preview-subtitle-text').innerText = `"${subtitlesData[0].text}"`;
         }
@@ -399,20 +468,58 @@
                 row.className = "bg-slate-950 border border-slate-800 rounded-lg p-2.5 flex items-center space-x-2";
                 row.innerHTML = `
                     <span class="bg-indigo-950 text-indigo-300 px-2 py-1 rounded text-[10px] font-mono">00:0${sub.start}</span>
-                    <input type="text" value="${sub.text}" class="w-full bg-transparent text-xs text-slate-200 focus:outline-none">
+                    <input type="text" value="${sub.text}" oninput="updateSubtitleText(${idx}, this.value)" class="w-full bg-transparent text-xs text-slate-200 focus:outline-none">
                 `;
                 list.appendChild(row);
             });
         }
 
-        function speakCurrentSubtitle() {
-            const txt = document.getElementById('preview-subtitle-text').innerText.replace(/^"|"$/g, '');
-            if('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const u = new SpeechSynthesisUtterance(txt);
-                u.lang = document.getElementById('target-lang').value === 'myanmar' ? 'my-MM' : 'en-US';
-                window.speechSynthesis.speak(u);
+        function updateSubtitleText(idx, val) {
+            if (subtitlesData[idx]) {
+                subtitlesData[idx].text = val;
+                if (idx === 0) {
+                    document.getElementById('preview-subtitle-text').innerText = `"${val}"`;
+                }
             }
+        }
+
+        function playFallbackAudio(txt, lang) {
+            if (currentTtsAudio) {
+                currentTtsAudio.pause();
+                currentTtsAudio = null;
+            }
+            const tl = lang === 'myanmar' ? 'my' : (lang === 'mizo' ? 'lus' : 'en');
+            const audioUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(txt)}&tl=${tl}&client=tw-ob`;
+            currentTtsAudio = new Audio(audioUrl);
+            currentTtsAudio.play().catch((err) => {
+                console.warn("Audio playback failed:", err);
+                alert("ဤဘာသာစကားအတွက် အသံဖိုင် ဖွင့်မရပါ။");
+            });
+        }
+
+        function speakCurrentSubtitle() {
+            const txt = document.getElementById('preview-subtitle-text').innerText.replace(/^"|"$/g, '').trim();
+            if (!txt || txt === '...') return;
+
+            const lang = document.getElementById('target-lang').value;
+            const langTag = lang === 'myanmar' ? 'my-MM' : (lang === 'mizo' ? 'lus' : 'en-US');
+
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
+                const voices = window.speechSynthesis.getVoices();
+                const matchedVoice = voices.find(v => v.lang.toLowerCase().startsWith(langTag.split('-')[0].toLowerCase()));
+
+                if (matchedVoice) {
+                    const u = new SpeechSynthesisUtterance(txt);
+                    u.voice = matchedVoice;
+                    u.lang = matchedVoice.lang;
+                    u.pitch = document.getElementById('voice-gender').value === 'female' ? 1.15 : 0.85;
+                    window.speechSynthesis.speak(u);
+                    return;
+                }
+            }
+
+            playFallbackAudio(txt, lang);
         }
 
         function handleAdminAccess() {
