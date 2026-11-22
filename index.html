@@ -1,637 +1,281 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TransVid Studio - AI Video Translation & Dubbing</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TransVid Studio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+    body { background: #090d1f; color: #f1f5f9; padding: 16px; display: flex; justify-content: center; }
+    .app { width: 100%; max-width: 440px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .brand-wrap { display: flex; align-items: center; gap: 10px; }
+    .logo-box { width: 38px; height: 38px; border-radius: 10px; background: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: bold; }
+    .brand-title { font-size: 16px; font-weight: 700; }
+    .brand-sub { font-size: 11px; color: #818cf8; }
+    .badge { background: #064e3b; color: #34d399; border: 1px solid #10b981; padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+
+    .card { background: #111833; border: 1px solid #1e2952; border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+    .card-title { font-size: 13px; font-weight: 700; color: #93c5fd; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 6px; }
+    select, input[type="file"] {
+      width: 100%; background: #0b1026; color: #f8fafc; border: 1px solid #263366;
+      border-radius: 10px; padding: 10px; font-size: 13px; margin-bottom: 10px;
+    }
+    .row-check { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 13px; }
+    input[type="checkbox"] { width: 18px; height: 18px; accent-color: #6366f1; }
+
+    .btn-primary {
+      width: 100%; padding: 14px; border: none; border-radius: 12px;
+      background: linear-gradient(90deg, #6366f1, #7c3aed); color: #fff;
+      font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 14px;
+    }
+    .btn-primary:active { transform: scale(0.99); }
+
+    .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; font-weight: 700; }
+    .pill { background: #0f2942; color: #38bdf8; font-size: 11px; padding: 4px 10px; border-radius: 999px; }
+
+    video { width: 100%; border-radius: 12px; background: #000; max-height: 240px; }
+    .output-box { text-align: center; }
+    .output-label { font-size: 11px; letter-spacing: 1px; color: #60a5fa; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
+    .subtitle-text { font-size: 15px; font-weight: 600; line-height: 1.5; min-height: 46px; color: #ffffff; margin-bottom: 12px; }
+    .status-text { font-size: 11px; color: #94a3b8; margin-bottom: 10px; }
+
+    .btn-group { display: flex; gap: 10px; }
+    .btn-speak { flex: 1; background: #10b981; color: #042f2e; border: none; border-radius: 10px; padding: 10px; font-weight: 700; cursor: pointer; font-size: 13px; }
+    .btn-stop { background: #334155; color: #f8fafc; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; cursor: pointer; font-size: 13px; }
+  </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
-
-    <!-- Header -->
-    <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-30">
-        <div class="max-w-4xl mx-auto px-4 py-3 flex justify-between items-center gap-2">
-            <div class="flex items-center space-x-2.5 min-w-0">
-                <div class="bg-indigo-600 p-2 rounded-lg text-white shrink-0">
-                    <i class="fa-solid fa-video text-base"></i>
-                </div>
-                <div class="min-w-0">
-                    <h1 class="text-sm sm:text-base font-bold text-white truncate">TransVid Studio</h1>
-                    <p class="text-[11px] text-indigo-400 font-medium truncate">Powered By @Rising Star Music Studio</p>
-                </div>
-            </div>
-            <span class="text-[11px] bg-emerald-950 text-emerald-300 border border-emerald-700/40 px-2.5 py-1 rounded-full font-semibold shrink-0">
-                Unlimited Free
-            </span>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="brand-wrap">
+        <div class="logo-box">TV</div>
+        <div>
+          <div class="brand-title">TransVid Studio</div>
+          <div class="brand-sub">Powered By @Rising Star Music Studio</div>
         </div>
-    </header>
+      </div>
+      <div class="badge">Unlimited Free</div>
+    </div>
 
-    <!-- Main Content -->
-    <main class="flex-grow max-w-4xl w-full mx-auto p-3 sm:p-5 space-y-4">
+    <div class="card">
+      <div class="card-title">🎬 Video Source</div>
+      <input type="file" id="videoFile" accept="video/*" />
+      <label for="sourceLang">Source Spoken Language</label>
+      <select id="sourceLang">
+        <option value="en-US">English (en-US)</option>
+        <option value="my-MM">Myanmar (my-MM)</option>
+      </select>
+    </div>
 
-        <!-- 1. Video Source -->
-        <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
-            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                <i class="fa-solid fa-film text-indigo-400 mr-1.5"></i> 1. Video Source
-            </h2>
+    <div class="card">
+      <div class="card-title">cc Subtitle Option</div>
+      <label for="targetLang">Target Language</label>
+      <select id="targetLang">
+        <option value="lus" selected>Mizo</option>
+        <option value="my">Myanmar</option>
+        <option value="en">English</option>
+      </select>
+      <div class="row-check">
+        <span>Auto Show Subtitles</span>
+        <input type="checkbox" id="autoShowSubtitles" checked />
+      </div>
+    </div>
 
-            <div class="grid grid-cols-2 gap-2">
-                <button type="button" id="tab-url-btn" onclick="switchTab('url')" class="py-2 px-3 rounded-lg text-xs font-semibold bg-indigo-600 text-white">
-                    <i class="fa-solid fa-link mr-1"></i> YouTube / FB Link
-                </button>
-                <button type="button" id="tab-file-btn" onclick="switchTab('file')" class="py-2 px-3 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300">
-                    <i class="fa-solid fa-upload mr-1"></i> Local Video File
-                </button>
-            </div>
+    <div class="card">
+      <div class="card-title">🎙️ Voice Option</div>
+      <label for="voiceGender">Voice Gender</label>
+      <select id="voiceGender">
+        <option value="male" selected>Male Voice</option>
+        <option value="female">Female Voice</option>
+      </select>
+      <div class="row-check">
+        <span>Auto Speak Voice</span>
+        <input type="checkbox" id="autoSpeakVoice" checked />
+      </div>
+    </div>
 
-            <div id="input-url-section">
-                <input type="text" id="video-url-input" placeholder="Paste YouTube or Facebook video URL..." class="w-full bg-slate-950 border border-slate-800 rounded-lg px-3.5 py-2.5 text-xs sm:text-sm text-white focus:outline-none focus:border-indigo-500">
-            </div>
+    <button class="btn-primary" id="startTranslateBtn">✨ START TRANSLATION</button>
 
-            <div id="input-file-section" class="hidden">
-                <div onclick="document.getElementById('video-file-input').click()" class="border-2 border-dashed border-slate-700 hover:border-indigo-500 rounded-xl p-4 text-center cursor-pointer bg-slate-950/60">
-                    <i class="fa-solid fa-cloud-arrow-up text-2xl text-indigo-400 mb-1.5"></i>
-                    <p id="file-label-text" class="text-xs text-slate-300">Tap to choose video from phone or PC</p>
-                    <input type="file" id="video-file-input" accept="video/*" class="hidden" onchange="handleFileSelect(event)">
-                </div>
-            </div>
-        </section>
+    <div class="card">
+      <div class="section-head">
+        <span>▶ 3. PLAYBACK, SUBTITLES &amp; VOICE</span>
+        <span class="pill" id="modePill">Auto Active</span>
+      </div>
+      <video id="videoPlayer" controls playsinline></video>
+    </div>
 
-        <!-- 2. Separated Options: Subtitle Options vs Voice Options -->
-        <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-4">
-            <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                <i class="fa-solid fa-sliders text-indigo-400 mr-1.5"></i> 2. Subtitle & Voice Options
-            </h2>
+    <div class="card output-box">
+      <div class="output-label" id="outputLabel">SUBTITLE OUTPUT • MIZO</div>
+      <div class="subtitle-text" id="subtitleOutput">Auto subtitles leh voice dubbing te chu tunah hian a hman theih tawh a ni.</div>
+      <div class="status-text" id="statusText">Ready</div>
+      <div class="btn-group">
+        <button class="btn-speak" id="autoSpeakAllBtn">🔊 Auto Speak All</button>
+        <button class="btn-stop" id="stopSpeakBtn">■ Stop</button>
+      </div>
+    </div>
+  </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <!-- SUBTITLE OPTIONS BOX -->
-                <div class="bg-slate-950/80 border border-indigo-500/30 rounded-xl p-3.5 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-indigo-300">
-                            <i class="fa-solid fa-closed-captioning mr-1"></i> Subtitle Option
-                        </span>
-                    </div>
+  <script>
+    const videoFileInput = document.getElementById("videoFile");
+    const videoPlayer = document.getElementById("videoPlayer");
+    const sourceLangSelect = document.getElementById("sourceLang");
+    const targetLangSelect = document.getElementById("targetLang");
+    const autoShowSubtitles = document.getElementById("autoShowSubtitles");
+    const voiceGenderSelect = document.getElementById("voiceGender");
+    const autoSpeakVoice = document.getElementById("autoSpeakVoice");
+    const startTranslateBtn = document.getElementById("startTranslateBtn");
+    const outputLabel = document.getElementById("outputLabel");
+    const subtitleOutput = document.getElementById("subtitleOutput");
+    const statusText = document.getElementById("statusText");
+    const autoSpeakAllBtn = document.getElementById("autoSpeakAllBtn");
+    const stopSpeakBtn = document.getElementById("stopSpeakBtn");
 
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Target Language</label>
-                        <select id="target-lang" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs sm:text-sm text-white">
-                            <option value="myanmar">Myanmar</option>
-                            <option value="mizo">Mizo</option>
-                            <option value="english">English</option>
-                        </select>
-                    </div>
+    let recognition = null;
+    let isTranslating = false;
+    let lastSpokenText = "";
 
-                    <label class="flex items-center justify-between text-xs text-slate-300 pt-1 cursor-pointer">
-                        <span>Auto Show Subtitles</span>
-                        <input type="checkbox" id="show-subtitle-option" checked onchange="toggleSubtitleOption()" class="w-4 h-4 accent-indigo-500">
-                    </label>
-                </div>
+    videoFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const url = URL.createObjectURL(file);
+        videoPlayer.src = url;
+        statusText.textContent = "Video loaded: " + file.name;
+      }
+    });
 
-                <!-- VOICE / SPEECH OPTIONS BOX -->
-                <div class="bg-slate-950/80 border border-emerald-500/30 rounded-xl p-3.5 space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-bold text-emerald-300">
-                            <i class="fa-solid fa-microphone-lines mr-1"></i> Voice Option
-                        </span>
-                    </div>
+    targetLangSelect.addEventListener("change", updateTargetHeader);
+    function updateTargetHeader() {
+      const langName = targetLangSelect.options[targetLangSelect.selectedIndex].text.toUpperCase();
+      outputLabel.textContent = `SUBTITLE OUTPUT • ${langName}`;
+    }
 
-                    <div>
-                        <label class="block text-xs text-slate-400 mb-1">Voice Gender</label>
-                        <select id="voice-gender" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-3 py-2 text-xs sm:text-sm text-white">
-                            <option value="female">Female Voice</option>
-                            <option value="male">Male Voice</option>
-                        </select>
-                    </div>
+    async function translateText(text, targetCode) {
+      if (!text.trim()) return "";
+      const srcMap = { "en-US": "en", "my-MM": "my" };
+      const sourceCode = srcMap[sourceLangSelect.value] || "en";
+      if (sourceCode === targetCode) return text;
 
-                    <label class="flex items-center justify-between text-xs text-slate-300 pt-1 cursor-pointer">
-                        <span>Auto Speak Voice</span>
-                        <input type="checkbox" id="auto-speak-option" checked class="w-4 h-4 accent-emerald-500">
-                    </label>
-                </div>
-            </div>
+      try {
+        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${sourceCode}|${targetCode}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        return data?.responseData?.translatedText || text;
+      } catch (err) {
+        console.error("Translation error:", err);
+        return text;
+      }
+    }
 
-            <button type="button" id="translate-btn" onclick="startTranslation()" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-3 rounded-lg text-xs sm:text-sm font-bold transition flex items-center justify-center space-x-2">
-                <i class="fa-solid fa-wand-magic-sparkles"></i>
-                <span>START TRANSLATION</span>
-            </button>
-        </section>
+    function speakText(text) {
+      if (!("speechSynthesis" in window) || !text.trim()) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      const voices = window.speechSynthesis.getVoices();
+      const gender = voiceGenderSelect.value;
 
-        <!-- 3. Player, Subtitles & Voice -->
-        <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 space-y-3">
-            <div class="flex justify-between items-center">
-                <h2 class="text-xs font-bold text-slate-300 uppercase tracking-wider">
-                    <i class="fa-solid fa-play-circle text-emerald-400 mr-1.5"></i> 3. Playback, Subtitles & Voice
-                </h2>
-                <span id="preview-status" class="text-[11px] bg-slate-800 text-slate-300 px-2.5 py-0.5 rounded-full">Ready</span>
-            </div>
+      if (voices.length > 0) {
+        const matched = voices.find(v =>
+          gender === "female"
+            ? /female|zira|samantha|victoria|google uk english female/i.test(v.name)
+            : /male|david|mark|daniel|google uk english male/i.test(v.name)
+        );
+        if (matched) utter.voice = matched;
+      }
 
-            <div class="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden aspect-video flex items-center justify-center">
-                <div id="player-placeholder" class="text-center p-4">
-                    <i class="fa-solid fa-clapperboard text-3xl text-slate-700 mb-1.5"></i>
-                    <p class="text-xs text-slate-500">Select video and press Start Translation</p>
-                </div>
+      const targetCode = targetLangSelect.value;
+      utter.lang = targetCode === "my" ? "my-MM" : "en-US";
+      window.speechSynthesis.speak(utter);
+    }
 
-                <div id="fb-share-card" class="hidden text-center p-4 space-y-2.5 max-w-sm">
-                    <i class="fa-brands fa-facebook text-3xl text-blue-500"></i>
-                    <p class="text-xs font-semibold text-white">Facebook Share Link Loaded</p>
-                    <p class="text-[11px] text-slate-400">Open on Facebook to watch, while subtitles and voice run below.</p>
-                    <a id="fb-external-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg text-xs font-bold">
-                        <i class="fa-solid fa-arrow-up-right-from-square"></i> Open on Facebook
-                    </a>
-                </div>
+    function startSpeechRecognition() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        statusText.textContent = "SpeechRecognition is not supported on this browser/device.";
+        return;
+      }
 
-                <video id="actual-video-player" class="hidden w-full h-full object-contain bg-black" controls playsinline webkit-playsinline></video>
-                <iframe id="youtube-iframe-player" class="hidden w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-            </div>
+      recognition = new SpeechRecognition();
+      recognition.lang = sourceLangSelect.value;
+      recognition.continuous = true;
+      recognition.interimResults = true;
 
-            <!-- [SUBTITLE FUNCTION UI] -->
-            <div id="subtitle-overlay" class="hidden bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-center space-y-2.5">
-                <div id="subtitle-text-box" class="space-y-1">
-                    <p id="subtitle-lang-badge" class="text-[10px] uppercase tracking-wider text-indigo-400 font-semibold">Subtitle Output</p>
-                    <p id="preview-subtitle-text" class="text-sm font-semibold text-white break-words">""</p>
-                    <p id="original-heard-text" class="text-[11px] text-slate-400 break-words"></p>
-                </div>
+      recognition.onstart = () => {
+        statusText.textContent = "Listening to speech & translating...";
+      };
 
-                <!-- [VOICE FUNCTION UI] -->
-                <div class="flex justify-center gap-2 pt-1">
-                    <button type="button" onclick="speakAllSubtitlesAuto(0)" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-bold">
-                        <i class="fa-solid fa-volume-high mr-1"></i> Auto Speak All
-                    </button>
-                    <button type="button" onclick="stopAudio()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg text-xs font-semibold">
-                        <i class="fa-solid fa-stop mr-1"></i> Stop
-                    </button>
-                </div>
-            </div>
+      recognition.onresult = async (event) => {
+        let finalTranscript = "";
+        let interimTranscript = "";
 
-            <!-- [SUBTITLE FUNCTION UI] Editable Subtitle List -->
-            <div id="transcript-section" class="hidden space-y-2 pt-2">
-                <h3 class="text-xs font-bold text-slate-400 uppercase">Editable Subtitles</h3>
-                <div id="transcript-list" class="space-y-2"></div>
-            </div>
-        </section>
-
-        <!-- Studio Info -->
-        <section class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-wrap justify-between items-center gap-2 text-xs">
-            <div>
-                <span class="text-slate-400">Studio:</span>
-                <span id="user-display-email" class="font-semibold text-white ml-1">Risingstar</span>
-                <span class="text-slate-500 mx-2">•</span>
-                <span id="user-plan-label" class="text-emerald-400 font-semibold">Unlimited Free Access</span>
-            </div>
-            <span class="text-slate-400">Powered By @Rising Star Music Studio</span>
-        </section>
-
-    </main>
-
-    <script>
-        // ============================================================
-        // SHARED STATE
-        // ============================================================
-        let activeSourceTab = 'url';
-        let selectedVideoFileUrl = null;
-        let subtitlesData = [];
-        let currentTtsAudio = null;
-        let isAutoSpeaking = false;
-        let currentLineIndex = 0;
-        let speechRecognizer = null;
-        const autoSourceLang = 'auto';
-
-        const languageSamples = {
-            english: [
-                "Welcome to TransVid Studio.",
-                "Auto subtitles and voice dubbing are now active."
-            ],
-            mizo: [
-                "TransVid Studio-ah kan lawm a che.",
-                "Subtitle leh aw chhuah chu amahin a kal mek a ni."
-            ],
-            myanmar: [
-                "TransVid Studio မှ ကြိုဆိုပါတယ်။",
-                "အလိုအလျောက် စာတန်းထိုးနှင့် အသံထွက်စနစ် စတင်နေပါပြီ။"
-            ]
-        };
-
-        // ============================================================
-        // VIDEO SOURCE FUNCTIONS
-        // ============================================================
-        function switchTab(tab) {
-            activeSourceTab = tab;
-            const isUrl = tab === 'url';
-            document.getElementById('input-url-section').classList.toggle('hidden', !isUrl);
-            document.getElementById('input-file-section').classList.toggle('hidden', isUrl);
-
-            document.getElementById('tab-url-btn').className = isUrl
-                ? "py-2 px-3 rounded-lg text-xs font-semibold bg-indigo-600 text-white"
-                : "py-2 px-3 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300";
-
-            document.getElementById('tab-file-btn').className = !isUrl
-                ? "py-2 px-3 rounded-lg text-xs font-semibold bg-indigo-600 text-white"
-                : "py-2 px-3 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + " ";
+          } else {
+            interimTranscript += transcript;
+          }
         }
 
-        function handleFileSelect(event) {
-            const file = event.target.files && event.target.files[0];
-            if (!file) return;
-            if (selectedVideoFileUrl) {
-                URL.revokeObjectURL(selectedVideoFileUrl);
-            }
-            selectedVideoFileUrl = URL.createObjectURL(file);
-            document.getElementById('file-label-text').innerHTML =
-                `<span class="text-emerald-400 font-semibold"><i class="fa-solid fa-check-circle mr-1"></i> ${file.name}</span>`;
+        const activeText = (finalTranscript || interimTranscript).trim();
+        if (!activeText) return;
+
+        const targetCode = targetLangSelect.value;
+        const translated = await translateText(activeText, targetCode);
+
+        if (autoShowSubtitles.checked && translated) {
+          subtitleOutput.textContent = translated;
         }
 
-        function extractYouTubeId(url) {
-            const match = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/))([\w-]{11})/);
-            return match ? match[1] : null;
+        if (finalTranscript && autoSpeakVoice.checked && translated !== lastSpokenText) {
+          lastSpokenText = translated;
+          speakText(translated);
         }
+      };
 
-        function isFacebookUrl(url) {
-            return /(?:facebook\.com|fb\.watch|m\.facebook\.com)/i.test(url);
+      recognition.onerror = (event) => {
+        statusText.textContent = "Speech error: " + event.error;
+      };
+
+      recognition.onend = () => {
+        if (isTranslating) {
+          try { recognition.start(); } catch (_) {}
+        } else {
+          statusText.textContent = "Stopped";
         }
+      };
 
-        function isFacebookShareUrl(url) {
-            return /facebook\.com\/share\//i.test(url);
-        }
+      recognition.start();
+    }
 
-        function buildEmbedUrl(url) {
-            const ytId = extractYouTubeId(url);
-            if (ytId) {
-                return `https://www.youtube.com/embed/${ytId}?autoplay=1&playsinline=1`;
-            }
-            if (isFacebookUrl(url) && !isFacebookShareUrl(url)) {
-                return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true&t=0`;
-            }
-            return null;
-        }
+    startTranslateBtn.addEventListener("click", async () => {
+      updateTargetHeader();
+      isTranslating = true;
+      startTranslateBtn.textContent = "⏹ STOP TRANSLATION";
 
-        // ============================================================
-        // SUBTITLE & TRANSLATION FUNCTIONS (Mizo & Myanmar သီးသန့်ခွဲခြား)
-        // ============================================================
-        function toggleSubtitleOption() {
-            const showSub = document.getElementById('show-subtitle-option').checked;
-            document.getElementById('subtitle-text-box').classList.toggle('hidden', !showSub);
-            document.getElementById('transcript-section').classList.toggle('hidden', !showSub || subtitlesData.length === 0);
-        }
+      if (videoPlayer.src) {
+        try { await videoPlayer.play(); } catch (_) {}
+      }
 
-        function hasMyanmarScript(str) {
-            return /[\u1000-\u109F]/.test(str || '');
-        }
+      startSpeechRecognition();
+    });
 
-        function stripMyanmarScript(str) {
-            return (str || '').replace(/[\u1000-\u109F]+/g, ' ').replace(/\s+/g, ' ').trim();
-        }
+    autoSpeakAllBtn.addEventListener("click", () => {
+      speakText(subtitleOutput.textContent);
+    });
 
-        function extractMyanmarOnly(str) {
-            const matches = (str || '').match(/[\u1000-\u109F\s။၊?!]+/g);
-            return matches ? matches.join(' ').replace(/\s+/g, ' ').trim() : '';
-        }
-
-        function updateLanguageBadge(targetLang) {
-            const badge = document.getElementById('subtitle-lang-badge');
-            if (!badge) return;
-            if (targetLang === 'myanmar') {
-                badge.innerText = 'Subtitle Output • Myanmar';
-            } else if (targetLang === 'mizo') {
-                badge.innerText = 'Subtitle Output • Mizo';
-            } else {
-                badge.innerText = 'Subtitle Output • English';
-            }
-        }
-
-        async function fetchMyMemoryPair(text, langpair) {
-            const res = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${encodeURIComponent(langpair)}`);
-            const data = await res.json();
-            const translated = data && data.responseData && data.responseData.translatedText;
-            return (translated && typeof translated === 'string') ? translated.trim() : '';
-        }
-
-        async function translateLineStrict(text, targetLang, fallbackLine) {
-            const cleanText = (text || '').trim();
-            if (!cleanText) return fallbackLine || '';
-
-            if (targetLang === 'myanmar') {
-                if (hasMyanmarScript(cleanText)) {
-                    const pureMy = extractMyanmarOnly(cleanText);
-                    return pureMy || cleanText;
-                }
-                const myOut = await fetchMyMemoryPair(cleanText, 'autodetect|my');
-                const pureMy = extractMyanmarOnly(myOut);
-                return pureMy || fallbackLine || languageSamples.myanmar[0];
-            }
-
-            if (targetLang === 'english') {
-                const cleanedInput = stripMyanmarScript(cleanText);
-                if (cleanedInput && /^[A-Za-z0-9\s.,!?'":;-]+$/.test(cleanedInput)) {
-                    return cleanedInput;
-                }
-                const enOut = await fetchMyMemoryPair(cleanedInput || cleanText, 'autodetect|en');
-                const pureEn = stripMyanmarScript(enOut);
-                return pureEn || fallbackLine || languageSamples.english[0];
-            }
-
-            if (targetLang === 'mizo') {
-                const cleanedInput = stripMyanmarScript(cleanText);
-                const sourceForMizo = cleanedInput || languageSamples.english[0];
-
-                let mizoOut = await fetchMyMemoryPair(sourceForMizo, 'en|lus');
-                if (!mizoOut) {
-                    mizoOut = await fetchMyMemoryPair(sourceForMizo, 'autodetect|lus');
-                }
-                const pureMizo = stripMyanmarScript(mizoOut);
-                if (!pureMizo) {
-                    return fallbackLine || languageSamples.mizo[0];
-                }
-                return pureMizo;
-            }
-
-            return fallbackLine || cleanText;
-        }
-
-        function startLiveVideoSpeechListener() {
-            const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SpeechRec) return;
-
-            if (speechRecognizer) {
-                try { speechRecognizer.stop(); } catch (_) {}
-            }
-
-            const targetLang = document.getElementById('target-lang').value;
-            const autoSpeak = document.getElementById('auto-speak-option').checked;
-
-            const rec = new SpeechRec();
-            rec.lang = autoSourceLang === 'auto' ? 'en-US' : autoSourceLang;
-            rec.interimResults = false;
-            rec.continuous = true;
-
-            rec.onresult = async (event) => {
-                const last = event.results[event.results.length - 1];
-                const heard = last && last[0] ? last[0].transcript.trim() : '';
-                if (!heard) return;
-
-                const fallback = (languageSamples[targetLang] && languageSamples[targetLang][0]) || '';
-                document.getElementById('original-heard-text').innerText = `Original: "${heard}"`;
-                const translated = await translateLineStrict(heard, targetLang, fallback);
-                document.getElementById('preview-subtitle-text').innerText = translated;
-
-                const videoEl = document.getElementById('actual-video-player');
-                const sec = Math.floor((videoEl && !videoEl.classList.contains('hidden')) ? videoEl.currentTime : subtitlesData.length * 4);
-                const mins = String(Math.floor(sec / 60)).padStart(2, '0');
-                const secs = String(sec % 60).padStart(2, '0');
-
-                subtitlesData.push({ time: `${mins}:${secs}`, sec, text: translated });
-                renderTranscriptList();
-
-                if (autoSpeak && !isAutoSpeaking) {
-                    speakSingleLine(translated);
-                }
-            };
-
-            rec.onerror = () => {};
-            try {
-                rec.start();
-                speechRecognizer = rec;
-            } catch (_) {}
-        }
-
-        async function startTranslation() {
-            const lang = document.getElementById('target-lang').value;
-            const autoSpeak = document.getElementById('auto-speak-option').checked;
-            const statusEl = document.getElementById('preview-status');
-            const btnEl = document.getElementById('translate-btn');
-            const placeholder = document.getElementById('player-placeholder');
-            const fbShareCard = document.getElementById('fb-share-card');
-            const videoPlayer = document.getElementById('actual-video-player');
-            const ytPlayer = document.getElementById('youtube-iframe-player');
-
-            stopAudio();
-            updateLanguageBadge(lang);
-            placeholder.classList.add('hidden');
-            fbShareCard.classList.add('hidden');
-            videoPlayer.classList.add('hidden');
-            ytPlayer.classList.add('hidden');
-
-            if (activeSourceTab === 'file') {
-                if (!selectedVideoFileUrl) {
-                    alert('ဗီဒီယိုဖိုင် အရင်ရွေးပါ။');
-                    placeholder.classList.remove('hidden');
-                    return;
-                }
-                videoPlayer.src = selectedVideoFileUrl;
-                videoPlayer.classList.remove('hidden');
-                videoPlayer.load();
-                videoPlayer.play().catch(() => {});
-            } else {
-                const urlVal = document.getElementById('video-url-input').value.trim();
-                if (isFacebookShareUrl(urlVal)) {
-                    document.getElementById('fb-external-link').href = urlVal;
-                    fbShareCard.classList.remove('hidden');
-                } else {
-                    const embedUrl = buildEmbedUrl(urlVal);
-                    if (!embedUrl) {
-                        alert('မှန်ကန်တဲ့ YouTube သို့မဟုတ် Facebook link ထည့်ပါ (သို့မဟုတ် Local Video File ရွေးပါ)။');
-                        placeholder.classList.remove('hidden');
-                        return;
-                    }
-                    ytPlayer.src = embedUrl;
-                    ytPlayer.classList.remove('hidden');
-                }
-            }
-
-            btnEl.disabled = true;
-            statusEl.innerText = 'Translating...';
-
-            const sourceLines = languageSamples.english;
-            const targetFallbacks = languageSamples[lang] || languageSamples.english;
-
-            const translatedItems = [];
-            for (let i = 0; i < sourceLines.length; i++) {
-                const sec = i * 4;
-                const mins = String(Math.floor(sec / 60)).padStart(2, '0');
-                const secs = String(sec % 60).padStart(2, '0');
-                const translatedText = await translateLineStrict(sourceLines[i], lang, targetFallbacks[i]);
-                translatedItems.push({
-                    time: `${mins}:${secs}`,
-                    sec,
-                    text: translatedText
-                });
-            }
-
-            subtitlesData = translatedItems;
-            renderTranscriptList();
-            document.getElementById('preview-subtitle-text').innerText = subtitlesData[0]?.text || '';
-            document.getElementById('subtitle-overlay').classList.remove('hidden');
-            toggleSubtitleOption();
-            startLiveVideoSpeechListener();
-
-            statusEl.innerText = 'Auto Active';
-            btnEl.disabled = false;
-
-            if (autoSpeak && subtitlesData.length) {
-                speakAllSubtitlesAuto(0);
-            }
-        }
-
-        function renderTranscriptList() {
-            const list = document.getElementById('transcript-list');
-            list.innerHTML = '';
-            subtitlesData.forEach((item, idx) => {
-                const div = document.createElement('div');
-                div.id = `sub-row-${idx}`;
-                div.className = "bg-slate-950 border border-slate-800 rounded-lg p-2.5 flex items-center gap-2 transition";
-                div.innerHTML = `
-                    <span class="text-[11px] font-mono bg-indigo-950 text-indigo-300 px-2 py-1 rounded shrink-0">${item.time}</span>
-                    <input type="text" value="${item.text.replace(/"/g, '&quot;')}" oninput="updateSubtitle(${idx}, this.value)" class="w-full bg-transparent text-xs sm:text-sm text-white focus:outline-none">
-                    <button type="button" onclick="speakAllSubtitlesAuto(${idx})" class="text-emerald-400 hover:text-emerald-300 px-2 py-1 text-xs shrink-0" title="Speak this line">
-                        <i class="fa-solid fa-play"></i>
-                    </button>
-                `;
-                list.appendChild(div);
-            });
-        }
-
-        function highlightActiveSubtitle(idx) {
-            subtitlesData.forEach((_, i) => {
-                const row = document.getElementById(`sub-row-${i}`);
-                if (!row) return;
-                row.className = i === idx
-                    ? "bg-indigo-950/60 border border-indigo-500 rounded-lg p-2.5 flex items-center gap-2 transition"
-                    : "bg-slate-950 border border-slate-800 rounded-lg p-2.5 flex items-center gap-2 transition";
-            });
-            if (subtitlesData[idx]) {
-                document.getElementById('preview-subtitle-text').innerText = subtitlesData[idx].text;
-            }
-        }
-
-        function updateSubtitle(idx, val) {
-            if (!subtitlesData[idx]) return;
-            subtitlesData[idx].text = val;
-            if (idx === currentLineIndex) {
-                document.getElementById('preview-subtitle-text').innerText = val;
-            }
-        }
-
-        document.getElementById('actual-video-player').addEventListener('timeupdate', function () {
-            if (!subtitlesData.length) return;
-            const t = this.currentTime;
-            let activeIdx = 0;
-            for (let i = 0; i < subtitlesData.length; i++) {
-                if (t >= subtitlesData[i].sec) {
-                    activeIdx = i;
-                }
-            }
-            if (activeIdx !== currentLineIndex) {
-                currentLineIndex = activeIdx;
-                highlightActiveSubtitle(activeIdx);
-                if (document.getElementById('auto-speak-option').checked && !isAutoSpeaking) {
-                    speakSingleLine(subtitlesData[activeIdx].text);
-                }
-            }
-        });
-
-        // ============================================================
-        // VOICE / SPEECH FUNCTIONS (ဘာသာစကားပြော / အသံထွက်ဖတ်ပြ)
-        // ============================================================
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.getVoices();
-            window.speechSynthesis.onvoiceschanged = () => {
-                window.speechSynthesis.getVoices();
-            };
-        }
-
-        function stopAudio() {
-            isAutoSpeaking = false;
-            if (speechRecognizer) {
-                try { speechRecognizer.stop(); } catch (_) {}
-                speechRecognizer = null;
-            }
-            if (currentTtsAudio) {
-                currentTtsAudio.pause();
-                currentTtsAudio = null;
-            }
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-            }
-        }
-
-        function pickVoiceByGender(voices, lang, gender) {
-            if (!voices || !voices.length) return null;
-            const isFemale = gender === 'female';
-            const femaleWords = ['female', 'zira', 'aria', 'samantha', 'victoria', 'google uk english female'];
-            const maleWords = ['male', 'david', 'mark', 'guy', 'george', 'google uk english male'];
-            const keywords = isFemale ? femaleWords : maleWords;
-
-            const matchingLang = voices.filter(v => {
-                const l = (v.lang || '').toLowerCase();
-                if (lang === 'myanmar') return l.includes('my');
-                if (lang === 'mizo') return l.startsWith('en') || l.startsWith('hi');
-                return l.startsWith('en');
-            });
-
-            const pool = matchingLang.length ? matchingLang : voices;
-            const matched = pool.find(v => keywords.some(k => (v.name || '').toLowerCase().includes(k)));
-            return matched || pool[0];
-        }
-
-        function speakSingleLine(text, onDone) {
-            const lang = document.getElementById('target-lang').value;
-            const gender = document.getElementById('voice-gender').value;
-            let finished = false;
-            const finishOnce = () => {
-                if (finished) return;
-                finished = true;
-                if (typeof onDone === 'function') onDone();
-            };
-
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                const voices = window.speechSynthesis.getVoices();
-                const voice = pickVoiceByGender(voices, lang, gender);
-                const utter = new SpeechSynthesisUtterance(text);
-                if (voice) {
-                    utter.voice = voice;
-                    utter.lang = voice.lang;
-                } else {
-                    utter.lang = lang === 'myanmar' ? 'my-MM' : 'en-US';
-                }
-                utter.pitch = gender === 'female' ? 1.3 : 0.82;
-                utter.rate = gender === 'female' ? 1.0 : 0.92;
-                utter.onend = finishOnce;
-                utter.onerror = finishOnce;
-                window.speechSynthesis.speak(utter);
-            }
-
-            const tl = lang === 'myanmar' ? 'my' : 'en';
-            const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=${tl}&client=tw-ob`;
-            currentTtsAudio = new Audio(ttsUrl);
-            currentTtsAudio.playbackRate = gender === 'female' ? 1.05 : 0.92;
-            currentTtsAudio.onended = finishOnce;
-            currentTtsAudio.play().catch(() => {
-                setTimeout(finishOnce, 2500);
-            });
-        }
-
-        function speakAllSubtitlesAuto(startIndex = 0) {
-            if (!subtitlesData.length) return;
-            stopAudio();
-            isAutoSpeaking = true;
-
-            const playNext = (idx) => {
-                if (!isAutoSpeaking || idx >= subtitlesData.length) {
-                    isAutoSpeaking = false;
-                    return;
-                }
-                currentLineIndex = idx;
-                highlightActiveSubtitle(idx);
-                speakSingleLine(subtitlesData[idx].text, () => {
-                    if (isAutoSpeaking) {
-                        setTimeout(() => playNext(idx + 1), 350);
-                    }
-                });
-            };
-
-            playNext(startIndex);
-        }
-    </script>
+    stopSpeakBtn.addEventListener("click", () => {
+      isTranslating = false;
+      startTranslateBtn.textContent = "✨ START TRANSLATION";
+      if (recognition) {
+        try { recognition.stop(); } catch (_) {}
+      }
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.cancel();
+      }
+      statusText.textContent = "Stopped";
+    });
+  </script>
 </body>
 </html>
