@@ -244,13 +244,13 @@
     const ADMIN_PW = "rising24";
 
     const STORAGE_KEYS = {
-      users: "transvid_users_v6",
-      currentUserEmail: "transvid_current_user_v6",
-      guestTrialStart: "transvid_guest_trial_start_v6",
-      guestVideosUsed: "transvid_guest_videos_used_v6",
-      guestSecondsUsed: "transvid_guest_seconds_used_v6",
-      adminAllFree: "transvid_admin_all_free_v6",
-      paidActive: "transvid_paid_10usd_v6"
+      users: "transvid_users_v7",
+      currentUserEmail: "transvid_current_user_v7",
+      guestTrialStart: "transvid_guest_trial_start_v7",
+      guestVideosUsed: "transvid_guest_videos_used_v7",
+      guestSecondsUsed: "transvid_guest_seconds_used_v7",
+      adminAllFree: "transvid_admin_all_free_v7",
+      paidActive: "transvid_paid_10usd_v7"
     };
 
     const planBadge = document.getElementById("planBadge");
@@ -310,18 +310,67 @@
     let trialTimerId = null;
     let currentSourceKey = "";
 
-    const FALLBACK_PHRASES = {
+    const WORD_DICT = {
+      enToMy: {
+        "good": "ကောင်းသော",
+        "morning": "နံနက်ခင်း",
+        "everyone": "အားလုံး",
+        "hello": "မင်္ဂလာပါ",
+        "hi": "ဟိုင်း",
+        "thank": "ကျေးဇူး",
+        "you": "သင် / ခင်ဗျား",
+        "welcome": "ကြိုဆိုပါတယ်",
+        "love": "ချစ်ခြင်း",
+        "god": "ဘုရားသခင်",
+        "bless": "ကောင်းချီးပေးပါ",
+        "today": "ယနေ့",
+        "video": "ဗီဒီယို",
+        "song": "သီချင်း",
+        "music": "ဂီတ",
+        "yes": "ဟုတ်ကဲ့",
+        "no": "မဟုတ်ပါ"
+      },
+      enToLus: {
+        "good": "tha",
+        "morning": "zing",
+        "everyone": "mi zawng zawng",
+        "hello": "chibai",
+        "hi": "chibai",
+        "thank": "lawm",
+        "you": "nang / nangmah",
+        "welcome": "kan lawm a che",
+        "love": "hmangaihna",
+        "god": "pathian",
+        "bless": "malsawm",
+        "today": "vawiinah",
+        "video": "video",
+        "song": "hla",
+        "music": "music",
+        "yes": "aw",
+        "no": "ai"
+      }
+    };
+
+    const PHRASE_DICT = {
       "good morning everyone": {
         lus: "Zing chibai vek ule",
-        my: "အားလုံးပဲ မင်္ဂလာနံနက်ခင်းပါ"
+        my: "အားလုံးပဲ မင်္ဂလာနံနက်ခင်းပါ",
+        en: "Good morning everyone"
       },
       "hello": {
         lus: "Chibai le",
-        my: "မင်္ဂလာပါ"
+        my: "မင်္ဂလာပါ",
+        en: "Hello"
       },
       "thank you": {
         lus: "Ka lawm e",
-        my: "ကျေးဇူးတင်ပါတယ်"
+        my: "ကျေးဇူးတင်ပါတယ်",
+        en: "Thank you"
+      },
+      "god bless you": {
+        lus: "Pathian in malsawm rawh se",
+        my: "ဘုရားသခင် ကောင်းချီးပေးပါစေ",
+        en: "God bless you"
       }
     };
 
@@ -789,36 +838,67 @@
       outputLabel.textContent = `SUBTITLE OUTPUT • ${langName}`;
     }
 
+    function dictionaryFallback(text, targetCode) {
+      const lower = text.toLowerCase().trim();
+      if (PHRASE_DICT[lower] && PHRASE_DICT[lower][targetCode]) {
+        return PHRASE_DICT[lower][targetCode];
+      }
+
+      const mapObj = targetCode === "my" ? WORD_DICT.enToMy : (targetCode === "lus" ? WORD_DICT.enToLus : null);
+      if (!mapObj) return text;
+
+      const words = lower.replace(/[^\w\s\u1000-\u109F]/g, "").split(/\s+/).filter(Boolean);
+      const mapped = words.map(w => mapObj[w] || w);
+      return mapped.join(" ");
+    }
+
     async function translateText(text, targetCode) {
       const clean = text.trim();
-      if (!clean) return "";
+      if (!clean) return { text: "", source: "none" };
 
       const srcMap = { "en-US": "en", "my-MM": "my" };
       const sourceCode = srcMap[sourceLangSelect.value] || "en";
-      if (sourceCode === targetCode) return clean;
+      if (sourceCode === targetCode) {
+        return { text: clean, source: "same-lang" };
+      }
 
       const lower = clean.toLowerCase();
-      if (FALLBACK_PHRASES[lower] && FALLBACK_PHRASES[lower][targetCode]) {
-        return FALLBACK_PHRASES[lower][targetCode];
+      if (PHRASE_DICT[lower] && PHRASE_DICT[lower][targetCode]) {
+        return { text: PHRASE_DICT[lower][targetCode], source: "phrase-dict" };
       }
 
+      // 1) Try MyMemory API
       try {
-        const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(clean)}&langpair=${sourceCode}|${targetCode}`;
-        const res = await fetch(url);
-        const data = await res.json();
-        const translated = data?.responseData?.translatedText;
-
-        if (translated && !/MYMEMORY WARNING/i.test(translated) && translated.toLowerCase() !== lower) {
-          return translated;
+        const mmUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(clean)}&langpair=${sourceCode}|${targetCode}`;
+        const res = await fetch(mmUrl);
+        if (res.ok) {
+          const data = await res.json();
+          const candidate = data?.responseData?.translatedText;
+          if (candidate && !/MYMEMORY WARNING/i.test(candidate) && candidate.trim().toLowerCase() !== lower) {
+            return { text: candidate.trim(), source: "mymemory" };
+          }
         }
-      } catch (err) {
-        console.error("Translation API error:", err);
-      }
+      } catch (_) {}
 
-      // Clear fallback output so user clearly sees target language mode when API returns unchanged text
-      if (targetCode === "lus") return `[Mizo] ${clean}`;
-      if (targetCode === "my") return `[Myanmar] ${clean}`;
-      return clean;
+      // 2) Try Google Translate public endpoint (use 'en' as fallback target when 'lus' isn't supported)
+      try {
+        const gtTarget = targetCode === "lus" ? "en" : targetCode;
+        const gtUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceCode}&tl=${gtTarget}&dt=t&q=${encodeURIComponent(clean)}`;
+        const gtRes = await fetch(gtUrl);
+        if (gtRes.ok) {
+          const gtData = await gtRes.json();
+          const segments = Array.isArray(gtData?.[0]) ? gtData[0].map(item => item?.[0] || "").join("") : "";
+          if (segments && segments.trim().toLowerCase() !== lower) {
+            if (targetCode === "lus") {
+              return { text: dictionaryFallback(segments, "lus"), source: "gt+mizo-map" };
+            }
+            return { text: segments.trim(), source: "google-translate" };
+          }
+        }
+      } catch (_) {}
+
+      // 3) Offline dictionary/word mapper fallback
+      return { text: dictionaryFallback(clean, targetCode), source: "dictionary" };
     }
 
     function speakText(text) {
@@ -853,23 +933,23 @@
 
       const targetCode = targetLangSelect.value;
       statusText.textContent = "Translating...";
-      const translated = await translateText(activeText, targetCode);
+      const result = await translateText(activeText, targetCode);
 
-      if (autoShowSubtitles.checked && translated) {
-        subtitleOutput.textContent = translated;
-        statusText.textContent = isFinal ? "Subtitle updated" : "Live translating...";
+      if (autoShowSubtitles.checked && result.text) {
+        subtitleOutput.textContent = result.text;
+        statusText.textContent = `${isFinal ? "Translated" : "Live"} (${result.source})`;
       }
 
-      if (isFinal && autoSpeakVoice.checked && translated && translated !== lastSpokenText) {
-        lastSpokenText = translated;
-        speakText(translated);
+      if (isFinal && autoSpeakVoice.checked && result.text && result.text !== lastSpokenText) {
+        lastSpokenText = result.text;
+        speakText(result.text);
       }
     }
 
     function startSpeechRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
-        statusText.textContent = "SpeechRecognition not supported in this browser. Tap 'Test Subtitle & Translation' to test.";
+        statusText.textContent = "SpeechRecognition not available here. Tap 'Test Subtitle & Translation' to test.";
         return;
       }
 
