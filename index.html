@@ -8,22 +8,46 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background: #090d1f; color: #f1f5f9; padding: 16px; display: flex; justify-content: center; }
     .app { width: 100%; max-width: 440px; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; }
     .brand-wrap { display: flex; align-items: center; gap: 10px; }
     .logo-box { width: 38px; height: 38px; border-radius: 10px; background: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: bold; }
     .brand-title { font-size: 16px; font-weight: 700; }
     .brand-sub { font-size: 11px; color: #818cf8; }
-    .badge { background: #064e3b; color: #34d399; border: 1px solid #10b981; padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+
+    .badge { background: #064e3b; color: #34d399; border: 1px solid #10b981; padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .badge.admin { background: #312e81; color: #c7d2fe; border-color: #818cf8; }
+    .badge.expired { background: #450a0a; color: #fca5a5; border-color: #ef4444; }
+
+    .plan-bar {
+      background: #111833; border: 1px solid #1e2952; border-radius: 12px;
+      padding: 10px 12px; margin-bottom: 14px; display: flex; justify-content: space-between;
+      align-items: center; gap: 8px; font-size: 12px;
+    }
+    .plan-meta { color: #cbd5e1; line-height: 1.4; }
+    .plan-meta strong { color: #93c5fd; }
+    .btn-mini {
+      background: #1e2952; color: #e2e8f0; border: 1px solid #334155;
+      border-radius: 8px; padding: 6px 10px; font-size: 11px; font-weight: 700; cursor: pointer;
+      white-space: nowrap;
+    }
 
     .card { background: #111833; border: 1px solid #1e2952; border-radius: 14px; padding: 14px; margin-bottom: 14px; }
-    .card-title { font-size: 13px; font-weight: 700; color: #93c5fd; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+    .card-title { font-size: 13px; font-weight: 700; color: #93c5fd; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
     label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 6px; }
-    select, input[type="file"] {
+    select, input[type="file"], input[type="url"], input[type="password"] {
       width: 100%; background: #0b1026; color: #f8fafc; border: 1px solid #263366;
       border-radius: 10px; padding: 10px; font-size: 13px; margin-bottom: 10px;
     }
     .row-check { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 13px; }
     input[type="checkbox"] { width: 18px; height: 18px; accent-color: #6366f1; }
+
+    .admin-box {
+      margin-top: 10px; padding-top: 10px; border-top: 1px dashed #263366;
+      display: none;
+    }
+    .admin-box.open { display: block; }
+    .admin-row { display: flex; gap: 8px; }
+    .admin-row input { margin-bottom: 0; flex: 1; }
 
     .btn-primary {
       width: 100%; padding: 14px; border: none; border-radius: 12px;
@@ -35,7 +59,10 @@
     .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; font-weight: 700; }
     .pill { background: #0f2942; color: #38bdf8; font-size: 11px; padding: 4px 10px; border-radius: 999px; }
 
-    video { width: 100%; border-radius: 12px; background: #000; max-height: 240px; }
+    .player-wrap { width: 100%; border-radius: 12px; overflow: hidden; background: #000; min-height: 200px; }
+    video, iframe { width: 100%; height: 230px; border: none; display: block; background: #000; }
+    .hidden { display: none !important; }
+
     .output-box { text-align: center; }
     .output-label { font-size: 11px; letter-spacing: 1px; color: #60a5fa; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
     .subtitle-text { font-size: 15px; font-weight: 600; line-height: 1.5; min-height: 46px; color: #ffffff; margin-bottom: 12px; }
@@ -56,12 +83,36 @@
           <div class="brand-sub">Powered By @Rising Star Music Studio</div>
         </div>
       </div>
-      <div class="badge">Unlimited Free</div>
+      <div class="badge" id="planBadge">14-Day Trial</div>
+    </div>
+
+    <div class="plan-bar">
+      <div class="plan-meta" id="planInfo">
+        <strong>14-Day Free Trial</strong> • After trial: <strong>$10/mo USD</strong>
+      </div>
+      <button class="btn-mini" id="toggleAdminBtn" type="button">🔐 Admin</button>
+    </div>
+
+    <div class="card admin-box" id="adminPanel">
+      <div class="card-title">
+        <span>🛡️ Admin Access (Unlimited)</span>
+      </div>
+      <div class="admin-row">
+        <input type="password" id="adminPassInput" placeholder="Admin key (default: admin123)" />
+        <button class="btn-mini" id="unlockAdminBtn" type="button">Unlock</button>
+      </div>
+      <div style="margin-top: 8px; display: flex; gap: 8px;">
+        <button class="btn-mini" id="activateSubBtn" type="button">Mark $10/mo Active</button>
+        <button class="btn-mini" id="lockAdminBtn" type="button">Lock Admin</button>
+      </div>
     </div>
 
     <div class="card">
       <div class="card-title">🎬 Video Source</div>
       <input type="file" id="videoFile" accept="video/*" />
+      <label for="socialUrl">Facebook / YouTube Link</label>
+      <input type="url" id="socialUrl" placeholder="https://youtube.com/... or https://facebook.com/..." />
+
       <label for="sourceLang">Source Spoken Language</label>
       <select id="sourceLang">
         <option value="en-US">English (en-US)</option>
@@ -103,7 +154,10 @@
         <span>▶ 3. PLAYBACK, SUBTITLES &amp; VOICE</span>
         <span class="pill" id="modePill">Auto Active</span>
       </div>
-      <video id="videoPlayer" controls playsinline></video>
+      <div class="player-wrap">
+        <video id="videoPlayer" controls playsinline></video>
+        <iframe id="embedPlayer" class="hidden" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>
     </div>
 
     <div class="card output-box">
@@ -118,8 +172,29 @@
   </div>
 
   <script>
+    const TRIAL_DAYS = 14;
+    const MONTHLY_PRICE_USD = 10;
+    const ADMIN_KEY = "admin123";
+
+    const STORAGE_KEYS = {
+      trialStart: "transvid_trial_start_v1",
+      adminUnlimited: "transvid_admin_unlimited_v1",
+      paidActive: "transvid_paid_10usd_v1"
+    };
+
+    const planBadge = document.getElementById("planBadge");
+    const planInfo = document.getElementById("planInfo");
+    const toggleAdminBtn = document.getElementById("toggleAdminBtn");
+    const adminPanel = document.getElementById("adminPanel");
+    const adminPassInput = document.getElementById("adminPassInput");
+    const unlockAdminBtn = document.getElementById("unlockAdminBtn");
+    const activateSubBtn = document.getElementById("activateSubBtn");
+    const lockAdminBtn = document.getElementById("lockAdminBtn");
+
     const videoFileInput = document.getElementById("videoFile");
+    const socialUrlInput = document.getElementById("socialUrl");
     const videoPlayer = document.getElementById("videoPlayer");
+    const embedPlayer = document.getElementById("embedPlayer");
     const sourceLangSelect = document.getElementById("sourceLang");
     const targetLangSelect = document.getElementById("targetLang");
     const autoShowSubtitles = document.getElementById("autoShowSubtitles");
@@ -136,12 +211,143 @@
     let isTranslating = false;
     let lastSpokenText = "";
 
+    function ensureTrialStart() {
+      let start = Number(localStorage.getItem(STORAGE_KEYS.trialStart));
+      if (!start) {
+        start = Date.now();
+        localStorage.setItem(STORAGE_KEYS.trialStart, String(start));
+      }
+      return start;
+    }
+
+    function getDaysLeft() {
+      const start = ensureTrialStart();
+      const elapsedDays = (Date.now() - start) / (1000 * 60 * 60 * 24);
+      return Math.max(0, Math.ceil(TRIAL_DAYS - elapsedDays));
+    }
+
+    function isAdminUnlimited() {
+      return localStorage.getItem(STORAGE_KEYS.adminUnlimited) === "true";
+    }
+
+    function isPaidActive() {
+      return localStorage.getItem(STORAGE_KEYS.paidActive) === "true";
+    }
+
+    function hasAccess() {
+      return isAdminUnlimited() || isPaidActive() || getDaysLeft() > 0;
+    }
+
+    function renderPlanStatus() {
+      planBadge.classList.remove("admin", "expired");
+      if (isAdminUnlimited()) {
+        planBadge.textContent = "ADMIN UNLIMITED";
+        planBadge.classList.add("admin");
+        planInfo.innerHTML = `<strong>Admin Unlimited Access</strong> • No trial or $${MONTHLY_PRICE_USD}/mo USD limit`;
+        return;
+      }
+      if (isPaidActive()) {
+        planBadge.textContent = `$${MONTHLY_PRICE_USD}/mo Active`;
+        planInfo.innerHTML = `<strong>Pro Monthly ($${MONTHLY_PRICE_USD}/mo USD)</strong> • Unlimited translation`;
+        return;
+      }
+      const daysLeft = getDaysLeft();
+      if (daysLeft > 0) {
+        planBadge.textContent = `${daysLeft}d Trial Left`;
+        planInfo.innerHTML = `<strong>14-Day Free Trial</strong> (${daysLeft} day${daysLeft === 1 ? "" : "s"} left) • After: <strong>$${MONTHLY_PRICE_USD}/mo USD</strong>`;
+      } else {
+        planBadge.textContent = "Trial Ended";
+        planBadge.classList.add("expired");
+        planInfo.innerHTML = `14-day trial ended • Plan: <strong>$${MONTHLY_PRICE_USD}/mo USD</strong> or <strong>Admin</strong>`;
+      }
+    }
+
+    toggleAdminBtn.addEventListener("click", () => {
+      adminPanel.classList.toggle("open");
+    });
+
+    unlockAdminBtn.addEventListener("click", () => {
+      if (adminPassInput.value.trim() === ADMIN_KEY) {
+        localStorage.setItem(STORAGE_KEYS.adminUnlimited, "true");
+        adminPassInput.value = "";
+        renderPlanStatus();
+        statusText.textContent = "Admin Unlimited access enabled.";
+      } else {
+        statusText.textContent = "Invalid admin key.";
+      }
+    });
+
+    activateSubBtn.addEventListener("click", () => {
+      localStorage.setItem(STORAGE_KEYS.paidActive, "true");
+      renderPlanStatus();
+      statusText.textContent = `$${MONTHLY_PRICE_USD}/mo USD plan activated.`;
+    });
+
+    lockAdminBtn.addEventListener("click", () => {
+      localStorage.removeItem(STORAGE_KEYS.adminUnlimited);
+      localStorage.removeItem(STORAGE_KEYS.paidActive);
+      renderPlanStatus();
+      statusText.textContent = "Reverted to trial status.";
+    });
+
+    function extractYouTubeId(url) {
+      const match = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+      return match ? match[1] : null;
+    }
+
+    function applyLinkSource(rawUrl) {
+      const url = rawUrl.trim();
+      if (!url) return false;
+
+      const ytId = extractYouTubeId(url);
+      if (ytId) {
+        videoPlayer.pause();
+        videoPlayer.removeAttribute("src");
+        videoPlayer.load();
+        videoPlayer.classList.add("hidden");
+
+        embedPlayer.classList.remove("hidden");
+        embedPlayer.src = `https://www.youtube.com/embed/${ytId}?autoplay=1`;
+        statusText.textContent = "YouTube link loaded (use video file for best audio speech capture).";
+        return true;
+      }
+
+      if (/facebook\.com|fb\.watch/i.test(url)) {
+        videoPlayer.pause();
+        videoPlayer.removeAttribute("src");
+        videoPlayer.load();
+        videoPlayer.classList.add("hidden");
+
+        embedPlayer.classList.remove("hidden");
+        embedPlayer.src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true`;
+        statusText.textContent = "Facebook link loaded (external social audio may not capture in browser).";
+        return true;
+      }
+
+      embedPlayer.classList.add("hidden");
+      embedPlayer.src = "";
+      videoPlayer.classList.remove("hidden");
+      videoPlayer.src = url;
+      statusText.textContent = "Direct video link loaded.";
+      return true;
+    }
+
     videoFileInput.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (file) {
-        const url = URL.createObjectURL(file);
-        videoPlayer.src = url;
+        socialUrlInput.value = "";
+        embedPlayer.classList.add("hidden");
+        embedPlayer.src = "";
+        videoPlayer.classList.remove("hidden");
+        videoPlayer.src = URL.createObjectURL(file);
         statusText.textContent = "Video loaded: " + file.name;
+      }
+    });
+
+    socialUrlInput.addEventListener("change", () => {
+      if (socialUrlInput.value.trim()) {
+        videoFileInput.value = "";
+        applyLinkSource(socialUrlInput.value);
       }
     });
 
@@ -250,11 +456,18 @@
     }
 
     startTranslateBtn.addEventListener("click", async () => {
+      if (!hasAccess()) {
+        statusText.textContent = `14-day free trial ended. $${MONTHLY_PRICE_USD}/mo USD plan or Admin Unlimited required.`;
+        return;
+      }
+
       updateTargetHeader();
       isTranslating = true;
       startTranslateBtn.textContent = "⏹ STOP TRANSLATION";
 
-      if (videoPlayer.src) {
+      if (socialUrlInput.value.trim()) {
+        applyLinkSource(socialUrlInput.value);
+      } else if (!videoPlayer.classList.contains("hidden") && videoPlayer.src) {
         try { await videoPlayer.play(); } catch (_) {}
       }
 
@@ -276,6 +489,8 @@
       }
       statusText.textContent = "Stopped";
     });
+
+    renderPlanStatus();
   </script>
 </body>
 </html>
