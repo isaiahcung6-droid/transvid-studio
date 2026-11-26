@@ -3,25 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TransVid Studio • Mobile & Computer</title>
+  <title>TransVid Studio • Muted Original + Dubbed & Subtitles</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background: #090d1f; color: #f1f5f9; padding: 16px; display: flex; justify-content: center; }
-    .app { width: 100%; max-width: 460px; }
-
-    @media (min-width: 768px) {
-      body { padding: 24px; }
-      .app { max-width: 920px; }
-      .studio-grid {
-        display: grid;
-        grid-template-columns: 1fr 1.15fr;
-        gap: 16px;
-        align-items: start;
-      }
-      .studio-grid .full-span { grid-column: 1 / -1; }
-    }
-
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; flex-wrap: wrap; }
+    .app { width: 100%; max-width: 440px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; }
     .brand-wrap { display: flex; align-items: center; gap: 10px; }
     .logo-box { width: 38px; height: 38px; border-radius: 10px; background: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: bold; }
     .brand-title { font-size: 16px; font-weight: 700; }
@@ -42,8 +29,8 @@
     .quota-line { font-size: 11px; color: #a5b4fc; margin-top: 2px; }
     .btn-mini {
       background: #1e2952; color: #e2e8f0; border: 1px solid #334155;
-      border-radius: 8px; padding: 7px 11px; font-size: 11px; font-weight: 700; cursor: pointer;
-      white-space: nowrap; touch-action: manipulation;
+      border-radius: 8px; padding: 6px 10px; font-size: 11px; font-weight: 700; cursor: pointer;
+      white-space: nowrap;
     }
     .btn-mini.active-tab { background: #4f46e5; border-color: #818cf8; color: #ffffff; }
 
@@ -56,11 +43,11 @@
     }
     .trial-note strong { color: #93c5fd; }
     label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 6px; }
-    select, input[type="file"], input[type="password"], input[type="text"], input[type="email"], textarea {
+    select, input[type="file"], input[type="url"], input[type="password"], input[type="text"], input[type="email"], textarea {
       width: 100%; background: #0b1026; color: #f8fafc; border: 1px solid #263366;
-      border-radius: 10px; padding: 10px; font-size: 14px; margin-bottom: 10px;
+      border-radius: 10px; padding: 10px; font-size: 13px; margin-bottom: 10px;
     }
-    textarea { min-height: 82px; resize: vertical; }
+    textarea { min-height: 76px; resize: vertical; }
     .pw-wrap { position: relative; margin-bottom: 10px; }
     .pw-wrap input { margin-bottom: 0; padding-right: 42px; }
     .eye-btn {
@@ -69,8 +56,8 @@
       font-size: 15px; padding: 4px 6px; line-height: 1;
     }
     .eye-btn:hover { color: #f8fafc; }
-    .row-check { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px; gap: 10px; }
-    input[type="checkbox"] { width: 18px; height: 18px; accent-color: #6366f1; flex-shrink: 0; }
+    .row-check { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 13px; }
+    input[type="checkbox"] { width: 18px; height: 18px; accent-color: #6366f1; }
 
     .auth-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
     .auth-msg { font-size: 12px; color: #38bdf8; margin-top: 8px; min-height: 16px; }
@@ -89,32 +76,28 @@
       width: 100%; padding: 14px; border: none; border-radius: 12px;
       background: linear-gradient(90deg, #6366f1, #7c3aed); color: #fff;
       font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 10px;
-      touch-action: manipulation;
     }
-    .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; font-weight: 700; gap: 8px; flex-wrap: wrap; }
+    .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; font-weight: 700; }
     .pill { background: #0f2942; color: #38bdf8; font-size: 11px; padding: 4px 10px; border-radius: 999px; }
 
-    .player-wrap { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; min-height: 210px; }
+    .player-wrap { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; min-height: 200px; }
     video { width: 100%; height: 230px; border: none; display: block; background: #000; }
-    @media (min-width: 768px) {
-      video { height: 340px; }
-    }
     .video-caption-overlay {
       position: absolute; left: 10px; right: 10px; bottom: 10px;
       background: rgba(2, 6, 23, 0.88); color: #ffffff;
-      padding: 7px 12px; border-radius: 8px; font-size: 14px; line-height: 1.45;
+      padding: 7px 10px; border-radius: 8px; font-size: 13px; line-height: 1.45;
       text-align: center; pointer-events: none;
     }
     .hidden { display: none !important; }
 
     .output-box { text-align: center; }
     .output-label { font-size: 11px; letter-spacing: 1px; color: #60a5fa; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
-    .subtitle-text { font-size: 16px; font-weight: 600; line-height: 1.5; min-height: 46px; color: #ffffff; margin-bottom: 10px; }
-    .status-text { font-size: 12px; color: #38bdf8; margin-bottom: 10px; word-break: break-word; }
+    .subtitle-text { font-size: 15px; font-weight: 600; line-height: 1.5; min-height: 46px; color: #ffffff; margin-bottom: 10px; }
+    .status-text { font-size: 11px; color: #38bdf8; margin-bottom: 10px; word-break: break-word; }
 
     .btn-group { display: flex; gap: 10px; }
-    .btn-speak { flex: 1; background: #10b981; color: #042f2e; border: none; border-radius: 10px; padding: 10px; font-weight: 700; cursor: pointer; font-size: 13px; touch-action: manipulation; }
-    .btn-stop { background: #334155; color: #f8fafc; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; cursor: pointer; font-size: 13px; touch-action: manipulation; }
+    .btn-speak { flex: 1; background: #10b981; color: #042f2e; border: none; border-radius: 10px; padding: 10px; font-weight: 700; cursor: pointer; font-size: 13px; }
+    .btn-stop { background: #334155; color: #f8fafc; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; cursor: pointer; font-size: 13px; }
   </style>
 </head>
 <body>
@@ -203,62 +186,55 @@
       </div>
     </div>
 
-    <div id="studioWorkspace" class="studio-grid hidden">
-      <div>
-        <div class="card">
-          <div class="card-title">🎬 Muted Video &amp; Auto AI Voice</div>
-          <label for="videoFile">Select Video File (Original Audio Muted)</label>
-          <input type="file" id="videoFile" accept="video/*" />
+    <div id="studioWorkspace" class="hidden">
+      <div class="card">
+        <div class="card-title">🎬 Video &amp; Dubbing Audio</div>
+        <label for="videoFile">1. Select Video File (Original Audio Muted)</label>
+        <input type="file" id="videoFile" accept="video/*" />
 
-          <label for="targetLang">Target Language</label>
-          <select id="targetLang">
-            <option value="lus" selected>Mizo</option>
-            <option value="my-MM">Myanmar</option>
-            <option value="en-US">English</option>
-          </select>
+        <label for="dubAudioFile">2. Optional Dubbed Voice File (MP3 / WAV)</label>
+        <input type="file" id="dubAudioFile" accept="audio/*" />
 
-          <div class="row-check">
-            <span>Mute Original Video Audio</span>
-            <input type="checkbox" id="muteOriginalAudio" checked />
-          </div>
-          <div class="row-check">
-            <span>Auto Speak AI Voice on Each Caption</span>
-            <input type="checkbox" id="autoSpeakOnCue" checked />
-          </div>
+        <label for="targetLang">Target Caption / Voice Language</label>
+        <select id="targetLang">
+          <option value="lus" selected>Mizo</option>
+          <option value="my-MM">Myanmar</option>
+          <option value="en-US">English</option>
+        </select>
+
+        <div class="row-check">
+          <span>Mute Original Video Audio</span>
+          <input type="checkbox" id="muteOriginalAudio" checked />
         </div>
-
-        <div class="card">
-          <div class="card-title">📝 Timed Lines / SRT Captions</div>
-          <label for="srtInput">Paste SRT or lines (one line = 3.5 sec auto-timed)</label>
-          <textarea id="srtInput">Zing chibai vek ule
-Ka lawm lutuk e
-Good morning everyone</textarea>
-          <button class="btn-mini" id="loadLinesBtn" type="button">Load Timed Captions</button>
-        </div>
-
-        <button class="btn-primary" id="startDubBtn" type="button">▶ PLAY MUTED VIDEO + AUTO AI VOICE</button>
       </div>
 
-      <div>
-        <div class="card">
-          <div class="section-head">
-            <span>▶ PLAYBACK</span>
-            <span class="pill" id="modePill">Original Muted • AI Voice</span>
-          </div>
-          <div class="player-wrap">
-            <video id="videoPlayer" controls playsinline muted></video>
-            <div class="video-caption-overlay" id="videoOverlay">Zing chibai vek ule</div>
-          </div>
-        </div>
+      <div class="card">
+        <div class="card-title">📝 Timed Lines / SRT Captions</div>
+        <label for="srtInput">Paste SRT or lines (one line = 3 sec auto-timed)</label>
+        <textarea id="srtInput" placeholder="Zing chibai vek ule&#10;Ka lawm lutuk e&#10;မင်္ဂလာပါ"></textarea>
+        <button class="btn-mini" id="loadLinesBtn" type="button">Load Timed Captions</button>
+      </div>
 
-        <div class="card output-box">
-          <div class="output-label">AUTO AI VOICE &amp; SUBTITLE</div>
-          <div class="subtitle-text" id="subtitleOutput">Zing chibai vek ule</div>
-          <div class="status-text" id="statusText">Original audio muted • Ready on phone &amp; computer</div>
-          <div class="btn-group">
-            <button class="btn-speak" id="speakLineBtn" type="button">🔊 Speak Now</button>
-            <button class="btn-stop" id="stopAllBtn" type="button">■ Stop</button>
-          </div>
+      <button class="btn-primary" id="startDubBtn" type="button">▶ PLAY MUTED VIDEO + DUB / CAPTIONS</button>
+
+      <div class="card">
+        <div class="section-head">
+          <span>▶ PLAYBACK</span>
+          <span class="pill" id="modePill">Original Muted</span>
+        </div>
+        <div class="player-wrap">
+          <video id="videoPlayer" controls playsinline muted></video>
+          <div class="video-caption-overlay hidden" id="videoOverlay"></div>
+        </div>
+      </div>
+
+      <div class="card output-box">
+        <div class="output-label">ACTIVE CAPTION &amp; VOICE</div>
+        <div class="subtitle-text" id="subtitleOutput">Zing chibai vek ule</div>
+        <div class="status-text" id="statusText">Original audio muted • Ready</div>
+        <div class="btn-group">
+          <button class="btn-speak" id="speakLineBtn" type="button">🔊 Speak Current Line</button>
+          <button class="btn-stop" id="stopAllBtn" type="button">■ Stop</button>
         </div>
       </div>
     </div>
@@ -273,10 +249,10 @@ Good morning everyone</textarea>
     const ADMIN_PW = "rising24";
 
     const STORAGE_KEYS = {
-      users: "transvid_users_v22",
-      currentUserEmail: "transvid_current_user_v22",
-      studioUnlocked: "transvid_studio_unlocked_v22",
-      paidActive: "transvid_paid_10usd_v22"
+      users: "transvid_users_v20",
+      currentUserEmail: "transvid_current_user_v20",
+      studioUnlocked: "transvid_studio_unlocked_v20",
+      paidActive: "transvid_paid_10usd_v20"
     };
 
     const planBadge = document.getElementById("planBadge");
@@ -313,9 +289,9 @@ Good morning everyone</textarea>
     const lockAdminBtn = document.getElementById("lockAdminBtn");
 
     const videoFileInput = document.getElementById("videoFile");
+    const dubAudioFileInput = document.getElementById("dubAudioFile");
     const targetLangSelect = document.getElementById("targetLang");
     const muteOriginalAudio = document.getElementById("muteOriginalAudio");
-    const autoSpeakOnCue = document.getElementById("autoSpeakOnCue");
     const srtInput = document.getElementById("srtInput");
     const loadLinesBtn = document.getElementById("loadLinesBtn");
     const startDubBtn = document.getElementById("startDubBtn");
@@ -327,20 +303,18 @@ Good morning everyone</textarea>
     const speakLineBtn = document.getElementById("speakLineBtn");
     const stopAllBtn = document.getElementById("stopAllBtn");
 
+    let dubAudio = new Audio();
+    dubAudio.playsInline = true;
     let cues = [];
     let lastCueIndex = -1;
     let trialTimerId = null;
-    let virtualClockTimer = null;
-    let virtualSec = 0;
     let isRunning = false;
     let currentSourceKey = "";
     let showAccountScreen = false;
-    let ttsAudio = new Audio();
-    ttsAudio.playsInline = true;
 
     function applyMuteState() {
       videoPlayer.muted = Boolean(muteOriginalAudio.checked);
-      modePill.textContent = videoPlayer.muted ? "Original Muted • AI Voice" : "Original Unmuted • AI Voice";
+      modePill.textContent = videoPlayer.muted ? "Original Muted" : "Original Unmuted";
     }
 
     muteOriginalAudio.addEventListener("change", applyMuteState);
@@ -369,66 +343,10 @@ Good morning everyone</textarea>
 
       const singleLines = text.split("\n").map(l => l.trim()).filter(Boolean);
       return singleLines.map((line, idx) => ({
-        start: idx * 3.5,
-        end: (idx + 1) * 3.5,
+        start: idx * 3,
+        end: (idx + 1) * 3,
         text: line
       }));
-    }
-
-    function speakAIVoice(text) {
-      const clean = (text || "").trim();
-      if (!clean) return;
-
-      try {
-        ttsAudio.pause();
-        ttsAudio.currentTime = 0;
-      } catch (_) {}
-      if ("speechSynthesis" in window) {
-        try { window.speechSynthesis.cancel(); } catch (_) {}
-      }
-
-      const langCode = targetLangSelect.value === "my-MM" ? "my" : "en";
-      const ttsUrl = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${langCode}&q=${encodeURIComponent(clean)}`;
-
-      statusText.textContent = `AI Voice speaking: "${clean}"`;
-      ttsAudio.src = ttsUrl;
-      ttsAudio.volume = 1.0;
-
-      const fallbackSpeak = () => {
-        if ("speechSynthesis" in window) {
-          try {
-            const utter = new SpeechSynthesisUtterance(clean);
-            utter.lang = targetLangSelect.value === "my-MM" ? "my-MM" : "en-US";
-            window.speechSynthesis.speak(utter);
-          } catch (_) {}
-        }
-      };
-
-      ttsAudio.onerror = fallbackSpeak;
-      const p = ttsAudio.play();
-      if (p && typeof p.catch === "function") {
-        p.catch(fallbackSpeak);
-      }
-    }
-
-    function activateCueAt(idx) {
-      if (idx < 0 || idx >= cues.length) return;
-      lastCueIndex = idx;
-      const line = cues[idx].text;
-      subtitleOutput.textContent = line;
-      videoOverlay.textContent = line;
-      videoOverlay.classList.remove("hidden");
-      if (autoSpeakOnCue.checked && isRunning) {
-        speakAIVoice(line);
-      }
-    }
-
-    function updateTimelineAt(sec) {
-      if (cues.length === 0) return;
-      const idx = cues.findIndex(c => sec >= c.start && sec <= c.end);
-      if (idx !== -1 && idx !== lastCueIndex) {
-        activateCueAt(idx);
-      }
     }
 
     function loadCaptionsFromBox() {
@@ -438,9 +356,9 @@ Good morning everyone</textarea>
         subtitleOutput.textContent = cues[0].text;
         videoOverlay.textContent = cues[0].text;
         videoOverlay.classList.remove("hidden");
-        statusText.textContent = `Loaded ${cues.length} caption line(s) • Auto AI Voice ready.`;
+        statusText.textContent = `Loaded ${cues.length} timed caption line(s).`;
       } else {
-        statusText.textContent = "Enter caption lines first.";
+        statusText.textContent = "Enter lines or SRT captions first.";
       }
     }
 
@@ -454,13 +372,43 @@ Good morning everyone</textarea>
       statusText.textContent = `Video loaded (muted): ${file.name}`;
     });
 
-    videoPlayer.addEventListener("timeupdate", () => {
-      if (!isRunning) return;
-      updateTimelineAt(videoPlayer.currentTime || 0);
+    dubAudioFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      dubAudio.src = URL.createObjectURL(file);
+      statusText.textContent = `Dubbed audio track loaded: ${file.name}`;
     });
 
+    videoPlayer.addEventListener("timeupdate", () => {
+      if (cues.length === 0) return;
+      const t = videoPlayer.currentTime || 0;
+      const idx = cues.findIndex(c => t >= c.start && t <= c.end);
+      if (idx !== -1 && idx !== lastCueIndex) {
+        lastCueIndex = idx;
+        subtitleOutput.textContent = cues[idx].text;
+        videoOverlay.textContent = cues[idx].text;
+        videoOverlay.classList.remove("hidden");
+      }
+    });
+
+    function speakText(text) {
+      const clean = (text || "").trim();
+      if (!clean) return;
+      if (!("speechSynthesis" in window)) {
+        statusText.textContent = `Caption: ${clean}`;
+        return;
+      }
+      try {
+        window.speechSynthesis.cancel();
+        const utter = new SpeechSynthesisUtterance(clean);
+        utter.lang = targetLangSelect.value === "my-MM" ? "my-MM" : "en-US";
+        window.speechSynthesis.speak(utter);
+        statusText.textContent = `Speaking (${utter.lang}): "${clean}"`;
+      } catch (_) {}
+    }
+
     speakLineBtn.addEventListener("click", () => {
-      speakAIVoice(subtitleOutput.textContent);
+      speakText(subtitleOutput.textContent);
     });
 
     function stopTrialTimer() {
@@ -468,24 +416,17 @@ Good morning everyone</textarea>
         clearInterval(trialTimerId);
         trialTimerId = null;
       }
-      if (virtualClockTimer) {
-        clearInterval(virtualClockTimer);
-        virtualClockTimer = null;
-      }
     }
 
     function stopAll(msg = "Stopped") {
       isRunning = false;
       stopTrialTimer();
       videoPlayer.pause();
-      try {
-        ttsAudio.pause();
-        ttsAudio.currentTime = 0;
-      } catch (_) {}
+      try { dubAudio.pause(); } catch (_) {}
       if ("speechSynthesis" in window) {
         try { window.speechSynthesis.cancel(); } catch (_) {}
       }
-      startDubBtn.textContent = "▶ PLAY MUTED VIDEO + AUTO AI VOICE";
+      startDubBtn.textContent = "▶ PLAY MUTED VIDEO + DUB / CAPTIONS";
       statusText.textContent = msg;
     }
 
@@ -663,16 +604,15 @@ Good morning everyone</textarea>
 
     function startTrialTimer() {
       stopTrialTimer();
-      if (!isUnlimitedUser()) {
-        trialTimerId = setInterval(() => {
-          if (!isRunning) { stopTrialTimer(); return; }
-          const nextSec = addSecondsUsed(1);
-          renderScreenState();
-          if (nextSec >= TRIAL_MAX_SECONDS || getDaysLeft() <= 0) {
-            stopAll(`Free access limit reached (${formatMMSS(TRIAL_MAX_SECONDS)}).`);
-          }
-        }, 1000);
-      }
+      if (isUnlimitedUser()) return;
+      trialTimerId = setInterval(() => {
+        if (!isRunning) { stopTrialTimer(); return; }
+        const nextSec = addSecondsUsed(1);
+        renderScreenState();
+        if (nextSec >= TRIAL_MAX_SECONDS || getDaysLeft() <= 0) {
+          stopAll(`Free access limit reached (${formatMMSS(TRIAL_MAX_SECONDS)}).`);
+        }
+      }, 1000);
     }
 
     document.getElementById("logoutBtn").addEventListener("click", () => {
@@ -800,31 +740,26 @@ Good morning everyone</textarea>
       if (cues.length === 0 && srtInput.value.trim()) {
         loadCaptionsFromBox();
       }
-
       renderScreenState();
       isRunning = true;
       lastCueIndex = -1;
-      virtualSec = 0;
       startDubBtn.textContent = "⏸ PAUSE";
       startTrialTimer();
-
-      if (cues.length > 0) {
-        activateCueAt(0);
-      }
 
       if (videoPlayer.src) {
         try { await videoPlayer.play(); } catch (_) {}
       }
-
-      virtualClockTimer = setInterval(() => {
-        if (!isRunning) return;
-        if (videoPlayer.src && !videoPlayer.paused) {
-          updateTimelineAt(videoPlayer.currentTime || 0);
-        } else {
-          virtualSec += 0.5;
-          updateTimelineAt(virtualSec);
+      if (dubAudio.src) {
+        try {
+          dubAudio.currentTime = videoPlayer.currentTime || 0;
+          await dubAudio.play();
+          statusText.textContent = "Playing muted video + dubbed audio track.";
+        } catch (_) {
+          statusText.textContent = "Playing muted video + timed captions.";
         }
-      }, 500);
+      } else {
+        statusText.textContent = "Playing muted video + timed captions.";
+      }
     });
 
     applyMuteState();
