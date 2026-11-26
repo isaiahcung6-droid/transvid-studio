@@ -73,8 +73,14 @@
     .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; font-weight: 700; }
     .pill { background: #0f2942; color: #38bdf8; font-size: 11px; padding: 4px 10px; border-radius: 999px; }
 
-    .player-wrap { width: 100%; border-radius: 12px; overflow: hidden; background: #000; min-height: 200px; }
+    .player-wrap { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; min-height: 200px; }
     video, iframe { width: 100%; height: 230px; border: none; display: block; background: #000; }
+    .video-caption-overlay {
+      position: absolute; left: 10px; right: 10px; bottom: 10px;
+      background: rgba(2, 6, 23, 0.84); color: #ffffff;
+      padding: 6px 10px; border-radius: 8px; font-size: 13px; line-height: 1.4;
+      text-align: center; pointer-events: none;
+    }
     .hidden { display: none !important; }
 
     .output-box { text-align: center; }
@@ -82,6 +88,9 @@
     .heard-text { font-size: 12px; color: #94a3b8; margin-bottom: 6px; min-height: 18px; }
     .subtitle-text { font-size: 15px; font-weight: 600; line-height: 1.5; min-height: 46px; color: #ffffff; margin-bottom: 12px; }
     .status-text { font-size: 11px; color: #38bdf8; margin-bottom: 10px; word-break: break-word; }
+
+    .manual-row { display: flex; gap: 8px; margin-bottom: 10px; }
+    .manual-row input { margin-bottom: 0; flex: 1; }
 
     .btn-group { display: flex; gap: 10px; }
     .btn-speak { flex: 1; background: #10b981; color: #042f2e; border: none; border-radius: 10px; padding: 10px; font-weight: 700; cursor: pointer; font-size: 13px; }
@@ -175,10 +184,17 @@
       <label for="socialUrl">Facebook / YouTube Link</label>
       <input type="url" id="socialUrl" placeholder="https://youtube.com/... or https://facebook.com/..." />
 
-      <label for="sourceLang">Source Spoken Language</label>
+      <label for="sourceLang">Source Spoken Language (Any Language)</label>
       <select id="sourceLang">
+        <option value="auto" selected>Auto Detect (Any Language)</option>
         <option value="en-US">English (en-US)</option>
         <option value="my-MM">Myanmar (my-MM)</option>
+        <option value="hi-IN">Hindi (hi-IN)</option>
+        <option value="es-ES">Spanish (es-ES)</option>
+        <option value="ja-JP">Japanese (ja-JP)</option>
+        <option value="ko-KR">Korean (ko-KR)</option>
+        <option value="th-TH">Thai (th-TH)</option>
+        <option value="zh-CN">Chinese (zh-CN)</option>
       </select>
     </div>
 
@@ -204,7 +220,7 @@
         <option value="female">Female Voice</option>
       </select>
       <div class="row-check">
-        <span>Auto Speak Voice</span>
+        <span>Auto Speak Voice (EN / MY)</span>
         <input type="checkbox" id="autoSpeakVoice" checked />
       </div>
     </div>
@@ -220,6 +236,7 @@
       <div class="player-wrap">
         <video id="videoPlayer" controls playsinline></video>
         <iframe id="embedPlayer" class="hidden" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+        <div class="video-caption-overlay hidden" id="videoOverlay"></div>
       </div>
     </div>
 
@@ -228,6 +245,12 @@
       <div class="heard-text" id="heardText">Heard: -</div>
       <div class="subtitle-text" id="subtitleOutput">Auto subtitles leh voice dubbing te chu tunah hian a hman theih tawh a ni.</div>
       <div class="status-text" id="statusText">Ready</div>
+
+      <div class="manual-row">
+        <input type="text" id="manualLineInput" placeholder="Paste/type any language line to subtitle..." />
+        <button class="btn-mini" id="manualTranslateBtn" type="button">Subtitle</button>
+      </div>
+
       <div class="btn-group">
         <button class="btn-speak" id="autoSpeakAllBtn" type="button">🔊 Auto Speak All</button>
         <button class="btn-stop" id="stopSpeakBtn" type="button">■ Stop</button>
@@ -289,6 +312,7 @@
     const socialUrlInput = document.getElementById("socialUrl");
     const videoPlayer = document.getElementById("videoPlayer");
     const embedPlayer = document.getElementById("embedPlayer");
+    const videoOverlay = document.getElementById("videoOverlay");
     const sourceLangSelect = document.getElementById("sourceLang");
     const targetLangSelect = document.getElementById("targetLang");
     const autoShowSubtitles = document.getElementById("autoShowSubtitles");
@@ -300,15 +324,20 @@
     const heardText = document.getElementById("heardText");
     const subtitleOutput = document.getElementById("subtitleOutput");
     const statusText = document.getElementById("statusText");
+    const manualLineInput = document.getElementById("manualLineInput");
+    const manualTranslateBtn = document.getElementById("manualTranslateBtn");
     const autoSpeakAllBtn = document.getElementById("autoSpeakAllBtn");
     const stopSpeakBtn = document.getElementById("stopSpeakBtn");
 
     let recognition = null;
     let isTranslating = false;
     let lastSpokenText = "";
-    let lastTranslatedSource = "";
+    let lastFinalTranscript = "";
+    let autoLangIndex = 0;
     let trialTimerId = null;
     let currentSourceKey = "";
+
+    const AUTO_LANG_CANDIDATES = ["en-US", "my-MM", "hi-IN", "es-ES", "ja-JP", "ko-KR", "th-TH", "zh-CN"];
 
     const WORD_DICT = {
       enToMy: {
@@ -833,9 +862,28 @@
     });
 
     targetLangSelect.addEventListener("change", updateTargetHeader);
+    autoShowSubtitles.addEventListener("change", () => {
+      if (!autoShowSubtitles.checked) {
+        videoOverlay.classList.add("hidden");
+      } else if (subtitleOutput.textContent.trim()) {
+        videoOverlay.textContent = subtitleOutput.textContent;
+        videoOverlay.classList.remove("hidden");
+      }
+    });
+
     function updateTargetHeader() {
       const langName = targetLangSelect.options[targetLangSelect.selectedIndex].text.toUpperCase();
       outputLabel.textContent = `SUBTITLE OUTPUT • ${langName}`;
+    }
+
+    function detectScriptLanguage(text) {
+      if (/[\u1000-\u109F]/.test(text)) return "my";
+      if (/[\u0900-\u097F]/.test(text)) return "hi";
+      if (/[\u3040-\u30FF]/.test(text)) return "ja";
+      if (/[\uAC00-\uD7AF]/.test(text)) return "ko";
+      if (/[\u0E00-\u0E7F]/.test(text)) return "th";
+      if (/[\u4E00-\u9FFF]/.test(text)) return "zh";
+      return "auto";
     }
 
     function dictionaryFallback(text, targetCode) {
@@ -856,9 +904,13 @@
       const clean = text.trim();
       if (!clean) return { text: "", source: "none" };
 
-      const srcMap = { "en-US": "en", "my-MM": "my" };
-      const sourceCode = srcMap[sourceLangSelect.value] || "en";
-      if (sourceCode === targetCode) {
+      const selectedSrc = sourceLangSelect.value;
+      const detectedCode = detectScriptLanguage(clean);
+      const sourceCode = selectedSrc === "auto"
+        ? (detectedCode !== "auto" ? detectedCode : "auto")
+        : selectedSrc.split("-")[0];
+
+      if (sourceCode !== "auto" && sourceCode === targetCode) {
         return { text: clean, source: "same-lang" };
       }
 
@@ -867,42 +919,58 @@
         return { text: PHRASE_DICT[lower][targetCode], source: "phrase-dict" };
       }
 
-      // 1) Try MyMemory API
+      // 1) Try Google Translate endpoint (supports auto source and many world languages)
       try {
-        const mmUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(clean)}&langpair=${sourceCode}|${targetCode}`;
-        const res = await fetch(mmUrl);
-        if (res.ok) {
-          const data = await res.json();
-          const candidate = data?.responseData?.translatedText;
-          if (candidate && !/MYMEMORY WARNING/i.test(candidate) && candidate.trim().toLowerCase() !== lower) {
-            return { text: candidate.trim(), source: "mymemory" };
+        const gtSource = sourceCode === "auto" ? "auto" : sourceCode;
+        const gtTarget = targetCode === "lus" ? "en" : targetCode;
+        const gtUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${gtSource}&tl=${gtTarget}&dt=t&q=${encodeURIComponent(clean)}`;
+        const gtRes = await fetch(gtUrl);
+        if (gtRes.ok) {
+          const gtData = await gtRes.json();
+          const detectedFromApi = Array.isArray(gtData) && typeof gtData[2] === "string" ? gtData[2] : sourceCode;
+          const segments = Array.isArray(gtData?.[0]) ? gtData[0].map(item => item?.[0] || "").join("") : "";
+
+          if (detectedFromApi === targetCode) {
+            return { text: clean, source: `auto:${detectedFromApi}` };
+          }
+          if (segments && segments.trim().toLowerCase() !== lower) {
+            if (targetCode === "lus") {
+              const mizoMapped = dictionaryFallback(segments, "lus");
+              return { text: mizoMapped, source: `gt(${detectedFromApi}->en)+mizo` };
+            }
+            return { text: segments.trim(), source: `gt(${detectedFromApi}->${gtTarget})` };
           }
         }
       } catch (_) {}
 
-      // 2) Try Google Translate public endpoint (use 'en' as fallback target when 'lus' isn't supported)
-      try {
-        const gtTarget = targetCode === "lus" ? "en" : targetCode;
-        const gtUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceCode}&tl=${gtTarget}&dt=t&q=${encodeURIComponent(clean)}`;
-        const gtRes = await fetch(gtUrl);
-        if (gtRes.ok) {
-          const gtData = await gtRes.json();
-          const segments = Array.isArray(gtData?.[0]) ? gtData[0].map(item => item?.[0] || "").join("") : "";
-          if (segments && segments.trim().toLowerCase() !== lower) {
-            if (targetCode === "lus") {
-              return { text: dictionaryFallback(segments, "lus"), source: "gt+mizo-map" };
+      // 2) Try MyMemory API when source language is known
+      if (sourceCode !== "auto") {
+        try {
+          const mmTarget = targetCode === "lus" ? "en" : targetCode;
+          const mmUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(clean)}&langpair=${sourceCode}|${mmTarget}`;
+          const res = await fetch(mmUrl);
+          if (res.ok) {
+            const data = await res.json();
+            const candidate = data?.responseData?.translatedText;
+            if (candidate && !/MYMEMORY WARNING/i.test(candidate) && candidate.trim().toLowerCase() !== lower) {
+              if (targetCode === "lus") {
+                return { text: dictionaryFallback(candidate, "lus"), source: "mymemory+mizo" };
+              }
+              return { text: candidate.trim(), source: "mymemory" };
             }
-            return { text: segments.trim(), source: "google-translate" };
           }
-        }
-      } catch (_) {}
+        } catch (_) {}
+      }
 
       // 3) Offline dictionary/word mapper fallback
       return { text: dictionaryFallback(clean, targetCode), source: "dictionary" };
     }
 
     function speakText(text) {
+      const targetCode = targetLangSelect.value;
+      if (targetCode === "lus") return;
       if (!("speechSynthesis" in window) || !text.trim()) return;
+
       try {
         window.speechSynthesis.cancel();
         const utter = new SpeechSynthesisUtterance(text);
@@ -918,7 +986,6 @@
           if (matched) utter.voice = matched;
         }
 
-        const targetCode = targetLangSelect.value;
         utter.lang = targetCode === "my" ? "my-MM" : "en-US";
         window.speechSynthesis.speak(utter);
       } catch (_) {}
@@ -928,8 +995,13 @@
       if (!activeText) return;
       heardText.textContent = "Heard: " + activeText;
 
-      if (!isFinal && activeText === lastTranslatedSource) return;
-      lastTranslatedSource = activeText;
+      if (!isFinal) {
+        statusText.textContent = "Listening...";
+        return;
+      }
+
+      if (activeText === lastFinalTranscript) return;
+      lastFinalTranscript = activeText;
 
       const targetCode = targetLangSelect.value;
       statusText.textContent = "Translating...";
@@ -937,29 +1009,41 @@
 
       if (autoShowSubtitles.checked && result.text) {
         subtitleOutput.textContent = result.text;
-        statusText.textContent = `${isFinal ? "Translated" : "Live"} (${result.source})`;
+        videoOverlay.textContent = result.text;
+        videoOverlay.classList.remove("hidden");
+        statusText.textContent = `Translated (${result.source})`;
       }
 
-      if (isFinal && autoSpeakVoice.checked && result.text && result.text !== lastSpokenText) {
+      if (autoSpeakVoice.checked && result.text && result.text !== lastSpokenText) {
         lastSpokenText = result.text;
         speakText(result.text);
       }
     }
 
+    function getActiveRecognitionLang() {
+      if (sourceLangSelect.value !== "auto") {
+        return sourceLangSelect.value;
+      }
+      const lang = AUTO_LANG_CANDIDATES[autoLangIndex % AUTO_LANG_CANDIDATES.length];
+      autoLangIndex += 1;
+      return lang;
+    }
+
     function startSpeechRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
-        statusText.textContent = "SpeechRecognition not available here. Tap 'Test Subtitle & Translation' to test.";
+        statusText.textContent = "SpeechRecognition not available here. Use manual line box or Test button.";
         return;
       }
 
       recognition = new SpeechRecognition();
-      recognition.lang = sourceLangSelect.value;
+      const activeLang = getActiveRecognitionLang();
+      recognition.lang = activeLang;
       recognition.continuous = true;
       recognition.interimResults = true;
 
       recognition.onstart = () => {
-        statusText.textContent = "Mic listening... Speak or play video audio.";
+        statusText.textContent = `Mic listening (${activeLang})... Speak or play video audio.`;
       };
 
       recognition.onresult = async (event) => {
@@ -976,17 +1060,31 @@
           }
         }
 
-        const activeText = (finalTranscript || interimTranscript).trim();
-        await processTranscript(activeText, Boolean(finalTranscript.trim()));
+        const cleanFinal = finalTranscript.trim();
+        const cleanInterim = interimTranscript.trim();
+
+        if (cleanInterim) {
+          heardText.textContent = "Heard: " + cleanInterim;
+        }
+        if (cleanFinal) {
+          await processTranscript(cleanFinal, true);
+        }
       };
 
       recognition.onerror = (event) => {
-        statusText.textContent = "Mic error: " + event.error + " (Tap 'Test Subtitle & Translation' to check output)";
+        if (sourceLangSelect.value === "auto" && (event.error === "language-not-supported" || event.error === "no-speech")) {
+          statusText.textContent = `Auto switching language probe (${event.error})...`;
+          return;
+        }
+        statusText.textContent = "Mic error: " + event.error + " (Use manual line box or Test button)";
       };
 
       recognition.onend = () => {
         if (isTranslating) {
-          try { recognition.start(); } catch (_) {}
+          try {
+            recognition.lang = getActiveRecognitionLang();
+            recognition.start();
+          } catch (_) {}
         } else {
           statusText.textContent = "Stopped";
         }
@@ -1024,7 +1122,7 @@
       renderPlanStatus(false);
       updateTargetHeader();
       isTranslating = true;
-      lastTranslatedSource = "";
+      lastFinalTranscript = "";
       startTranslateBtn.textContent = "⏹ STOP TRANSLATION";
 
       if (socialUrlInput.value.trim()) {
@@ -1044,10 +1142,35 @@
         return;
       }
       updateTargetHeader();
+      lastFinalTranscript = "";
       await processTranscript("Good morning everyone", true);
     });
 
+    manualTranslateBtn.addEventListener("click", async () => {
+      const line = manualLineInput.value.trim();
+      if (!line) return;
+      const check = checkTrialEligibility(false);
+      if (!check.allowed) {
+        statusText.textContent = check.reason;
+        return;
+      }
+      updateTargetHeader();
+      lastFinalTranscript = "";
+      await processTranscript(line, true);
+    });
+
+    manualLineInput.addEventListener("keydown", async (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        manualTranslateBtn.click();
+      }
+    });
+
     autoSpeakAllBtn.addEventListener("click", () => {
+      if (targetLangSelect.value === "lus") {
+        statusText.textContent = "Mizo voice TTS is disabled to avoid wrong English pronunciation; subtitles are shown above.";
+        return;
+      }
       speakText(subtitleOutput.textContent);
     });
 
