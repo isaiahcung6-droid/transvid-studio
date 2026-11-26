@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TransVid Studio</title>
+  <title>TransVid Studio • Mizo</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background: #090d1f; color: #f1f5f9; padding: 16px; display: flex; justify-content: center; }
@@ -133,7 +133,7 @@
       <div id="accountActionWrap" style="display: flex; gap: 6px;"></div>
     </div>
 
-    <!-- Step 1: Register & Login Page -->
+    <!-- Step 1: Register & Login Page (Always First When Not Logged In) -->
     <div class="card auth-page-card" id="authCard">
       <div class="card-title">
         <span>Register / Login Page</span>
@@ -202,7 +202,7 @@
       </div>
     </div>
 
-    <!-- Step 2: Studio Workspace (Shown only after Register / Login) -->
+    <!-- Step 2: Studio Workspace (Hidden Until Register / Login) -->
     <div id="studioWorkspace" class="hidden">
       <div class="card">
         <div class="card-title">🎬 Video Source</div>
@@ -210,9 +210,9 @@
         <label for="socialUrl">Facebook / YouTube Link</label>
         <input type="url" id="socialUrl" placeholder="https://youtube.com/... or https://facebook.com/..." />
 
-        <label for="sourceLang">Source Spoken Language (Any Language)</label>
+        <label for="sourceLang">Source Spoken Language</label>
         <select id="sourceLang">
-          <option value="auto" selected>Auto Detect (Any Language)</option>
+          <option value="auto" selected>Auto Detect</option>
           <option value="en-US">English (en-US)</option>
           <option value="my-MM">Myanmar (my-MM)</option>
           <option value="hi-IN">Hindi (hi-IN)</option>
@@ -225,15 +225,13 @@
       </div>
 
       <div class="card">
-        <div class="card-title">cc Subtitle Option</div>
+        <div class="card-title">cc Subtitle Option (Mizo Only)</div>
         <label for="targetLang">Target Language</label>
         <select id="targetLang">
           <option value="lus" selected>Mizo</option>
-          <option value="my">Myanmar</option>
-          <option value="en">English</option>
         </select>
         <div class="row-check">
-          <span>Auto Show Subtitles</span>
+          <span>Auto Show Mizo Subtitles</span>
           <input type="checkbox" id="autoShowSubtitles" checked />
         </div>
       </div>
@@ -246,18 +244,18 @@
           <option value="female">Female Voice</option>
         </select>
         <div class="row-check">
-          <span>Auto Speak Voice (EN / MY)</span>
+          <span>Auto Speak Voice</span>
           <input type="checkbox" id="autoSpeakVoice" checked />
         </div>
       </div>
 
-      <button class="btn-primary" id="startTranslateBtn" type="button">✨ START TRANSLATION</button>
-      <button class="btn-secondary" id="testTranslateBtn" type="button">🧪 Test Subtitle &amp; Translation ("Good morning everyone")</button>
+      <button class="btn-primary" id="startTranslateBtn" type="button">✨ START MIZO TRANSLATION</button>
+      <button class="btn-secondary" id="testTranslateBtn" type="button">🧪 Test Mizo ("Good morning everyone")</button>
 
       <div class="card">
         <div class="section-head">
           <span>▶ 3. PLAYBACK, SUBTITLES &amp; VOICE</span>
-          <span class="pill" id="modePill">Auto Active</span>
+          <span class="pill" id="modePill">Mizo Mode</span>
         </div>
         <div class="player-wrap">
           <video id="videoPlayer" controls playsinline></video>
@@ -269,16 +267,16 @@
       <div class="card output-box">
         <div class="output-label" id="outputLabel">SUBTITLE OUTPUT • MIZO</div>
         <div class="heard-text" id="heardText">Heard: -</div>
-        <div class="subtitle-text" id="subtitleOutput">Auto subtitles leh voice dubbing te chu tunah hian a hman theih tawh a ni.</div>
-        <div class="status-text" id="statusText">Ready</div>
+        <div class="subtitle-text" id="subtitleOutput">Mizo translation test nan "Test Mizo" emaw video/audio hmangin tan rawh le.</div>
+        <div class="status-text" id="statusText">Ready (Mizo Only)</div>
 
         <div class="manual-row">
-          <input type="text" id="manualLineInput" placeholder="Paste/type any language line to subtitle..." />
-          <button class="btn-mini" id="manualTranslateBtn" type="button">Subtitle</button>
+          <input type="text" id="manualLineInput" placeholder="Type/paste line to translate into Mizo..." />
+          <button class="btn-mini" id="manualTranslateBtn" type="button">Mizo</button>
         </div>
 
         <div class="btn-group">
-          <button class="btn-speak" id="autoSpeakAllBtn" type="button">🔊 Auto Speak All</button>
+          <button class="btn-speak" id="autoSpeakAllBtn" type="button">🔊 Speak</button>
           <button class="btn-stop" id="stopSpeakBtn" type="button">■ Stop</button>
         </div>
       </div>
@@ -294,10 +292,10 @@
     const ADMIN_PW = "rising24";
 
     const STORAGE_KEYS = {
-      users: "transvid_users_v8",
-      currentUserEmail: "transvid_current_user_v8",
-      studioUnlocked: "transvid_studio_unlocked_v8",
-      paidActive: "transvid_paid_10usd_v8"
+      users: "transvid_users_v11",
+      currentUserEmail: "transvid_current_user_v11",
+      studioUnlocked: "transvid_studio_unlocked_v11",
+      paidActive: "transvid_paid_10usd_v11"
     };
 
     const planBadge = document.getElementById("planBadge");
@@ -366,69 +364,48 @@
 
     const AUTO_LANG_CANDIDATES = ["en-US", "my-MM", "hi-IN", "es-ES", "ja-JP", "ko-KR", "th-TH", "zh-CN"];
 
-    const WORD_DICT = {
-      enToMy: {
-        "good": "ကောင်းသော",
-        "morning": "နံနက်ခင်း",
-        "everyone": "အားလုံး",
-        "hello": "မင်္ဂလာပါ",
-        "hi": "ဟိုင်း",
-        "thank": "ကျေးဇူး",
-        "you": "သင် / ခင်ဗျား",
-        "welcome": "ကြိုဆိုပါတယ်",
-        "love": "ချစ်ခြင်း",
-        "god": "ဘုရားသခင်",
-        "bless": "ကောင်းချီးပေးပါ",
-        "today": "ယနေ့",
-        "video": "ဗီဒီယို",
-        "song": "သီချင်း",
-        "music": "ဂီတ",
-        "yes": "ဟုတ်ကဲ့",
-        "no": "မဟုတ်ပါ"
-      },
-      enToLus: {
-        "good": "tha",
-        "morning": "zing",
-        "everyone": "mi zawng zawng",
-        "hello": "chibai",
-        "hi": "chibai",
-        "thank": "lawm",
-        "you": "nang / nangmah",
-        "welcome": "kan lawm a che",
-        "love": "hmangaihna",
-        "god": "pathian",
-        "bless": "malsawm",
-        "today": "vawiinah",
-        "video": "video",
-        "song": "hla",
-        "music": "music",
-        "yes": "aw",
-        "no": "ai"
-      }
+    const MIZO_WORD_DICT = {
+      "good": "tha",
+      "morning": "zing",
+      "everyone": "mi zawng zawng",
+      "hello": "chibai",
+      "hi": "chibai",
+      "thank": "lawm",
+      "thanks": "ka lawm e",
+      "you": "nang",
+      "welcome": "kan lawm a che",
+      "love": "hmangaihna",
+      "god": "Pathian",
+      "bless": "malsawm",
+      "today": "vawiinah",
+      "video": "video",
+      "song": "hla",
+      "music": "music",
+      "yes": "aw",
+      "no": "ai",
+      "please": "khawngaihin",
+      "come": "lo kal rawh",
+      "go": "kal rawh"
     };
 
-    const PHRASE_DICT = {
-      "good morning everyone": {
-        lus: "Zing chibai vek ule",
-        my: "အားလုံးပဲ မင်္ဂလာနံနက်ခင်းပါ",
-        en: "Good morning everyone"
-      },
-      "hello": {
-        lus: "Chibai le",
-        my: "မင်္ဂလာပါ",
-        en: "Hello"
-      },
-      "thank you": {
-        lus: "Ka lawm e",
-        my: "ကျေးဇူးတင်ပါတယ်",
-        en: "Thank you"
-      },
-      "god bless you": {
-        lus: "Pathian in malsawm rawh se",
-        my: "ဘုရားသခင် ကောင်းချီးပေးပါစေ",
-        en: "God bless you"
-      }
+    const MIZO_PHRASE_DICT = {
+      "good morning everyone": "Zing chibai vek ule",
+      "good morning": "Zing chibai le",
+      "hello": "Chibai le",
+      "hi": "Chibai le",
+      "thank you": "Ka lawm e",
+      "thank you so much": "Ka lawm lutuk e",
+      "god bless you": "Pathian in malsawm rawh se",
+      "how are you": "Engtin nge i awm?",
+      "i love you": "Ka hmangaih che"
     };
+
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
 
     function attachPasswordToggle(btn, input) {
       btn.addEventListener("click", () => {
@@ -629,7 +606,11 @@
       renderAccountButton();
 
       const authed = isAuthenticated();
-      if (!authed || showAccountScreen) {
+      if (!authed) {
+        showAccountScreen = false;
+        authCard.classList.remove("hidden");
+        studioWorkspace.classList.add("hidden");
+      } else if (showAccountScreen) {
         authCard.classList.remove("hidden");
         studioWorkspace.classList.add("hidden");
       } else {
@@ -702,7 +683,7 @@
     function stopSession(customStatus = "Stopped") {
       isTranslating = false;
       stopTrialTimer();
-      startTranslateBtn.textContent = "✨ START TRANSLATION";
+      startTranslateBtn.textContent = "✨ START MIZO TRANSLATION";
       if (recognition) {
         try {
           recognition.onend = null;
@@ -928,7 +909,6 @@
       }
     });
 
-    targetLangSelect.addEventListener("change", updateTargetHeader);
     autoShowSubtitles.addEventListener("change", () => {
       if (!autoShowSubtitles.checked) {
         videoOverlay.classList.add("hidden");
@@ -937,11 +917,6 @@
         videoOverlay.classList.remove("hidden");
       }
     });
-
-    function updateTargetHeader() {
-      const langName = targetLangSelect.options[targetLangSelect.selectedIndex].text.toUpperCase();
-      outputLabel.textContent = `SUBTITLE OUTPUT • ${langName}`;
-    }
 
     function detectScriptLanguage(text) {
       if (/[\u1000-\u109F]/.test(text)) return "my";
@@ -953,23 +928,26 @@
       return "auto";
     }
 
-    function dictionaryFallback(text, targetCode) {
-      const lower = text.toLowerCase().trim();
-      if (PHRASE_DICT[lower] && PHRASE_DICT[lower][targetCode]) {
-        return PHRASE_DICT[lower][targetCode];
+    function mapToMizo(text) {
+      const clean = text.trim();
+      const lower = clean.toLowerCase().replace(/[?.!,]+$/g, "").trim();
+      if (MIZO_PHRASE_DICT[lower]) {
+        return MIZO_PHRASE_DICT[lower];
       }
 
-      const mapObj = targetCode === "my" ? WORD_DICT.enToMy : (targetCode === "lus" ? WORD_DICT.enToLus : null);
-      if (!mapObj) return text;
-
       const words = lower.replace(/[^\w\s\u1000-\u109F]/g, "").split(/\s+/).filter(Boolean);
-      const mapped = words.map(w => mapObj[w] || w);
-      return mapped.join(" ");
+      if (words.length === 0) return clean;
+      return words.map(w => MIZO_WORD_DICT[w] || w).join(" ");
     }
 
-    async function translateText(text, targetCode) {
+    async function translateToMizo(text) {
       const clean = text.trim();
       if (!clean) return { text: "", source: "none" };
+
+      const lower = clean.toLowerCase().replace(/[?.!,]+$/g, "").trim();
+      if (MIZO_PHRASE_DICT[lower]) {
+        return { text: MIZO_PHRASE_DICT[lower], source: "mizo-phrase" };
+      }
 
       const selectedSrc = sourceLangSelect.value;
       const detectedCode = detectScriptLanguage(clean);
@@ -977,82 +955,68 @@
         ? (detectedCode !== "auto" ? detectedCode : "auto")
         : selectedSrc.split("-")[0];
 
-      if (sourceCode !== "auto" && sourceCode === targetCode) {
-        return { text: clean, source: "same-lang" };
-      }
-
-      const lower = clean.toLowerCase();
-      if (PHRASE_DICT[lower] && PHRASE_DICT[lower][targetCode]) {
-        return { text: PHRASE_DICT[lower][targetCode], source: "phrase-dict" };
-      }
-
       try {
-        const gtSource = sourceCode === "auto" ? "auto" : sourceCode;
-        const gtTarget = targetCode === "lus" ? "en" : targetCode;
-        const gtUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${gtSource}&tl=${gtTarget}&dt=t&q=${encodeURIComponent(clean)}`;
+        const gtUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceCode}&tl=en&dt=t&q=${encodeURIComponent(clean)}`;
         const gtRes = await fetch(gtUrl);
         if (gtRes.ok) {
           const gtData = await gtRes.json();
-          const detectedFromApi = Array.isArray(gtData) && typeof gtData[2] === "string" ? gtData[2] : sourceCode;
-          const segments = Array.isArray(gtData?.[0]) ? gtData[0].map(item => item?.[0] || "").join("") : "";
-
-          if (detectedFromApi === targetCode) {
-            return { text: clean, source: `auto:${detectedFromApi}` };
-          }
-          if (segments && segments.trim().toLowerCase() !== lower) {
-            if (targetCode === "lus") {
-              const mizoMapped = dictionaryFallback(segments, "lus");
-              return { text: mizoMapped, source: `gt(${detectedFromApi}->en)+mizo` };
+          const segments = Array.isArray(gtData?.[0]) ? gtData[0].map(item => item?.[0] || "").join("").trim() : "";
+          if (segments) {
+            const enLower = segments.toLowerCase().replace(/[?.!,]+$/g, "").trim();
+            if (MIZO_PHRASE_DICT[enLower]) {
+              return { text: MIZO_PHRASE_DICT[enLower], source: "mizo-phrase" };
             }
-            return { text: segments.trim(), source: `gt(${detectedFromApi}->${gtTarget})` };
+            const mizoMapped = mapToMizo(segments);
+            return { text: mizoMapped, source: "mizo" };
           }
         }
       } catch (_) {}
 
-      if (sourceCode !== "auto") {
-        try {
-          const mmTarget = targetCode === "lus" ? "en" : targetCode;
-          const mmUrl = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(clean)}&langpair=${sourceCode}|${mmTarget}`;
-          const res = await fetch(mmUrl);
-          if (res.ok) {
-            const data = await res.json();
-            const candidate = data?.responseData?.translatedText;
-            if (candidate && !/MYMEMORY WARNING/i.test(candidate) && candidate.trim().toLowerCase() !== lower) {
-              if (targetCode === "lus") {
-                return { text: dictionaryFallback(candidate, "lus"), source: "mymemory+mizo" };
-              }
-              return { text: candidate.trim(), source: "mymemory" };
-            }
-          }
-        } catch (_) {}
-      }
-
-      return { text: dictionaryFallback(clean, targetCode), source: "dictionary" };
+      return { text: mapToMizo(clean), source: "mizo-dict" };
     }
 
     function speakText(text) {
-      const targetCode = targetLangSelect.value;
-      if (targetCode === "lus") return;
-      if (!("speechSynthesis" in window) || !text.trim()) return;
+      const clean = (text || "").trim();
+      if (!clean) {
+        statusText.textContent = "No Mizo text to speak.";
+        return;
+      }
+      if (!("speechSynthesis" in window)) {
+        statusText.textContent = "Voice synthesis not available on this browser.";
+        return;
+      }
+
+      const gender = voiceGenderSelect.value;
 
       try {
         window.speechSynthesis.cancel();
-        const utter = new SpeechSynthesisUtterance(text);
+        const utter = new SpeechSynthesisUtterance(clean);
         const voices = window.speechSynthesis.getVoices();
-        const gender = voiceGenderSelect.value;
 
         if (voices.length > 0) {
-          const matched = voices.find(v =>
+          const enVoices = voices.filter(v => (v.lang || "").toLowerCase().startsWith("en"));
+          const pool = enVoices.length > 0 ? enVoices : voices;
+          const matched = pool.find(v =>
             gender === "female"
-              ? /female|zira|samantha|victoria|google uk english female/i.test(v.name)
-              : /male|david|mark|daniel|google uk english male/i.test(v.name)
+              ? /female|zira|samantha|victoria|google uk english female|aria|jenny/i.test(v.name)
+              : /male|david|mark|daniel|google uk english male|guy|ryan/i.test(v.name)
           );
-          if (matched) utter.voice = matched;
+          utter.voice = matched || pool[0] || null;
         }
 
-        utter.lang = targetCode === "my" ? "my-MM" : "en-US";
+        utter.lang = "en-US";
+        utter.onstart = () => {
+          statusText.textContent = `Speaking (${gender})...`;
+        };
+        utter.onerror = (ev) => {
+          statusText.textContent = `Voice notice (${ev.error || "synthesis"}) — Mizo subtitle shown.`;
+        };
+
+        window.speechSynthesis.resume();
         window.speechSynthesis.speak(utter);
-      } catch (_) {}
+      } catch (err) {
+        statusText.textContent = "Voice error: " + err.message;
+      }
     }
 
     async function processTranscript(activeText, isFinal) {
@@ -1067,15 +1031,14 @@
       if (activeText === lastFinalTranscript) return;
       lastFinalTranscript = activeText;
 
-      const targetCode = targetLangSelect.value;
-      statusText.textContent = "Translating...";
-      const result = await translateText(activeText, targetCode);
+      statusText.textContent = "Translating to Mizo...";
+      const result = await translateToMizo(activeText);
 
       if (autoShowSubtitles.checked && result.text) {
         subtitleOutput.textContent = result.text;
         videoOverlay.textContent = result.text;
         videoOverlay.classList.remove("hidden");
-        statusText.textContent = `Translated (${result.source})`;
+        statusText.textContent = `Mizo ready (${result.source})`;
       }
 
       if (autoSpeakVoice.checked && result.text && result.text !== lastSpokenText) {
@@ -1103,15 +1066,15 @@
         return "No microphone found. Check mic/audio input device.";
       }
       if (errCode === "network") {
-        return "Speech service network issue. Use manual subtitle box or Test button.";
+        return "Speech service network issue. Use manual Mizo box or Test Mizo button.";
       }
-      return `Mic notice (${errCode}). Speak clearly or use manual subtitle box.`;
+      return `Mic notice (${errCode}). Speak clearly or use manual Mizo box.`;
     }
 
     function startSpeechRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
-        statusText.textContent = "SpeechRecognition not supported in this browser. Use manual box or Test button.";
+        statusText.textContent = "SpeechRecognition not supported here. Use manual Mizo box or Test Mizo button.";
         return;
       }
 
@@ -1129,7 +1092,7 @@
       recognition.interimResults = true;
 
       recognition.onstart = () => {
-        statusText.textContent = `Listening (${activeLang})... Speak near mic or play audio on speaker.`;
+        statusText.textContent = `Listening (${activeLang}) for Mizo output...`;
       };
 
       recognition.onresult = async (event) => {
@@ -1211,11 +1174,12 @@
       }
 
       renderScreenState();
-      updateTargetHeader();
+      outputLabel.textContent = "SUBTITLE OUTPUT • MIZO";
       isTranslating = true;
       lastFinalTranscript = "";
+      lastSpokenText = "";
       lastSpeechAt = 0;
-      startTranslateBtn.textContent = "⏹ STOP TRANSLATION";
+      startTranslateBtn.textContent = "⏹ STOP MIZO TRANSLATION";
 
       if (socialUrlInput.value.trim()) {
         applyLinkSource(socialUrlInput.value);
@@ -1233,8 +1197,9 @@
         statusText.textContent = check.reason;
         return;
       }
-      updateTargetHeader();
+      outputLabel.textContent = "SUBTITLE OUTPUT • MIZO";
       lastFinalTranscript = "";
+      lastSpokenText = "";
       await processTranscript("Good morning everyone", true);
     });
 
@@ -1246,8 +1211,9 @@
         statusText.textContent = check.reason;
         return;
       }
-      updateTargetHeader();
+      outputLabel.textContent = "SUBTITLE OUTPUT • MIZO";
       lastFinalTranscript = "";
+      lastSpokenText = "";
       await processTranscript(line, true);
     });
 
@@ -1259,10 +1225,6 @@
     });
 
     autoSpeakAllBtn.addEventListener("click", () => {
-      if (targetLangSelect.value === "lus") {
-        statusText.textContent = "Mizo voice TTS is disabled to avoid wrong English pronunciation; subtitles are shown above.";
-        return;
-      }
       speakText(subtitleOutput.textContent);
     });
 
