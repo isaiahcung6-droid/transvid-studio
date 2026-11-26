@@ -161,7 +161,7 @@
         </div>
 
         <div id="loginFields" class="hidden">
-          <label for="loginEmail">Email</label>
+          <label for="loginEmail">Email or Studio ID</label>
           <input type="text" id="loginEmail" placeholder="you@example.com" />
           <label for="loginPassword">Password</label>
           <input type="password" id="loginPassword" placeholder="Enter password" />
@@ -586,8 +586,8 @@
         authStateLabel.textContent = "Active";
         loggedInBox.classList.remove("hidden");
         authFormWrap.classList.add("hidden");
-        currentUserName.textContent = "Rising Star Studio";
-        currentUserEmail.textContent = "Active Account";
+        currentUserName.textContent = ADMIN_ID;
+        currentUserEmail.textContent = "Rising Star Music Studio";
       } else {
         authStateLabel.textContent = "Step 1 of 2";
         loggedInBox.classList.add("hidden");
@@ -755,6 +755,16 @@
     loginSubmitBtn.addEventListener("click", () => {
       const inputId = loginEmail.value.trim().toLowerCase();
       const password = loginPassword.value;
+
+      if (inputId === ADMIN_ID.toLowerCase() && password === ADMIN_PW) {
+        localStorage.setItem(STORAGE_KEYS.studioUnlocked, "true");
+        loginEmail.value = "";
+        loginPassword.value = "";
+        showAccountScreen = false;
+        authMsg.textContent = "";
+        renderScreenState();
+        return;
+      }
 
       const users = getUsers();
       const matched = users.find(u => u.email.toLowerCase() === inputId && u.password === password);
