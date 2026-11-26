@@ -3,12 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TransVid Studio • Mizo AI Dubbing</title>
+  <title>TransVid Studio • Mobile & Computer</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background: #090d1f; color: #f1f5f9; padding: 16px; display: flex; justify-content: center; }
-    .app { width: 100%; max-width: 440px; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; }
+    .app { width: 100%; max-width: 460px; }
+
+    @media (min-width: 768px) {
+      body { padding: 24px; }
+      .app { max-width: 920px; }
+      .studio-grid {
+        display: grid;
+        grid-template-columns: 1fr 1.15fr;
+        gap: 16px;
+        align-items: start;
+      }
+      .studio-grid .full-span { grid-column: 1 / -1; }
+    }
+
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; flex-wrap: wrap; }
     .brand-wrap { display: flex; align-items: center; gap: 10px; }
     .logo-box { width: 38px; height: 38px; border-radius: 10px; background: #4f46e5; display: flex; align-items: center; justify-content: center; font-weight: bold; }
     .brand-title { font-size: 16px; font-weight: 700; }
@@ -29,8 +42,8 @@
     .quota-line { font-size: 11px; color: #a5b4fc; margin-top: 2px; }
     .btn-mini {
       background: #1e2952; color: #e2e8f0; border: 1px solid #334155;
-      border-radius: 8px; padding: 6px 10px; font-size: 11px; font-weight: 700; cursor: pointer;
-      white-space: nowrap;
+      border-radius: 8px; padding: 7px 11px; font-size: 11px; font-weight: 700; cursor: pointer;
+      white-space: nowrap; touch-action: manipulation;
     }
     .btn-mini.active-tab { background: #4f46e5; border-color: #818cf8; color: #ffffff; }
 
@@ -43,10 +56,11 @@
     }
     .trial-note strong { color: #93c5fd; }
     label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 6px; }
-    select, input[type="file"], input[type="url"], input[type="password"], input[type="text"], input[type="email"] {
+    select, input[type="file"], input[type="password"], input[type="text"], input[type="email"], textarea {
       width: 100%; background: #0b1026; color: #f8fafc; border: 1px solid #263366;
-      border-radius: 10px; padding: 10px; font-size: 13px; margin-bottom: 10px;
+      border-radius: 10px; padding: 10px; font-size: 14px; margin-bottom: 10px;
     }
+    textarea { min-height: 82px; resize: vertical; }
     .pw-wrap { position: relative; margin-bottom: 10px; }
     .pw-wrap input { margin-bottom: 0; padding-right: 42px; }
     .eye-btn {
@@ -55,8 +69,8 @@
       font-size: 15px; padding: 4px 6px; line-height: 1;
     }
     .eye-btn:hover { color: #f8fafc; }
-    .row-check { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 13px; }
-    input[type="checkbox"] { width: 18px; height: 18px; accent-color: #6366f1; }
+    .row-check { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; font-size: 13px; gap: 10px; }
+    input[type="checkbox"] { width: 18px; height: 18px; accent-color: #6366f1; flex-shrink: 0; }
 
     .auth-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
     .auth-msg { font-size: 12px; color: #38bdf8; margin-top: 8px; min-height: 16px; }
@@ -66,10 +80,7 @@
       font-size: 12px;
     }
 
-    .admin-box {
-      margin-top: 12px; padding-top: 10px; border-top: 1px dashed #263366;
-      display: none;
-    }
+    .admin-box { margin-top: 12px; padding-top: 10px; border-top: 1px dashed #263366; display: none; }
     .admin-box.open { display: block; }
     .admin-row { display: flex; gap: 8px; flex-wrap: wrap; }
     .admin-row input { margin-bottom: 8px; flex: 1; min-width: 130px; }
@@ -78,38 +89,32 @@
       width: 100%; padding: 14px; border: none; border-radius: 12px;
       background: linear-gradient(90deg, #6366f1, #7c3aed); color: #fff;
       font-size: 14px; font-weight: 700; cursor: pointer; margin-bottom: 10px;
+      touch-action: manipulation;
     }
-    .btn-secondary {
-      width: 100%; padding: 10px; border: 1px solid #334155; border-radius: 10px;
-      background: #172042; color: #e2e8f0;
-      font-size: 12px; font-weight: 700; cursor: pointer; margin-bottom: 14px;
-    }
-
-    .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; font-weight: 700; }
+    .section-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; font-weight: 700; gap: 8px; flex-wrap: wrap; }
     .pill { background: #0f2942; color: #38bdf8; font-size: 11px; padding: 4px 10px; border-radius: 999px; }
 
-    .player-wrap { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; min-height: 200px; }
-    video, iframe { width: 100%; height: 230px; border: none; display: block; background: #000; }
+    .player-wrap { position: relative; width: 100%; border-radius: 12px; overflow: hidden; background: #000; min-height: 210px; }
+    video { width: 100%; height: 230px; border: none; display: block; background: #000; }
+    @media (min-width: 768px) {
+      video { height: 340px; }
+    }
     .video-caption-overlay {
       position: absolute; left: 10px; right: 10px; bottom: 10px;
-      background: rgba(2, 6, 23, 0.84); color: #ffffff;
-      padding: 6px 10px; border-radius: 8px; font-size: 13px; line-height: 1.4;
+      background: rgba(2, 6, 23, 0.88); color: #ffffff;
+      padding: 7px 12px; border-radius: 8px; font-size: 14px; line-height: 1.45;
       text-align: center; pointer-events: none;
     }
     .hidden { display: none !important; }
 
     .output-box { text-align: center; }
     .output-label { font-size: 11px; letter-spacing: 1px; color: #60a5fa; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; }
-    .heard-text { font-size: 12px; color: #94a3b8; margin-bottom: 6px; min-height: 18px; }
-    .subtitle-text { font-size: 15px; font-weight: 600; line-height: 1.5; min-height: 46px; color: #ffffff; margin-bottom: 12px; }
-    .status-text { font-size: 11px; color: #38bdf8; margin-bottom: 10px; word-break: break-word; }
-
-    .manual-row { display: flex; gap: 8px; margin-bottom: 10px; }
-    .manual-row input { margin-bottom: 0; flex: 1; }
+    .subtitle-text { font-size: 16px; font-weight: 600; line-height: 1.5; min-height: 46px; color: #ffffff; margin-bottom: 10px; }
+    .status-text { font-size: 12px; color: #38bdf8; margin-bottom: 10px; word-break: break-word; }
 
     .btn-group { display: flex; gap: 10px; }
-    .btn-speak { flex: 1; background: #10b981; color: #042f2e; border: none; border-radius: 10px; padding: 10px; font-weight: 700; cursor: pointer; font-size: 13px; }
-    .btn-stop { background: #334155; color: #f8fafc; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; cursor: pointer; font-size: 13px; }
+    .btn-speak { flex: 1; background: #10b981; color: #042f2e; border: none; border-radius: 10px; padding: 10px; font-weight: 700; cursor: pointer; font-size: 13px; touch-action: manipulation; }
+    .btn-stop { background: #334155; color: #f8fafc; border: none; border-radius: 10px; padding: 10px 16px; font-weight: 700; cursor: pointer; font-size: 13px; touch-action: manipulation; }
   </style>
 </head>
 <body>
@@ -133,7 +138,6 @@
       <div id="accountActionWrap" style="display: flex; gap: 6px;"></div>
     </div>
 
-    <!-- Step 1: Register & Login Page (Always First When Not Logged In) -->
     <div class="card auth-page-card" id="authCard">
       <div class="card-title">
         <span>Register / Login Page</span>
@@ -185,11 +189,8 @@
 
       <div class="auth-msg" id="authMsg"></div>
 
-      <!-- Private URL trigger only (#tv-studio-access or ?studio=1) -->
       <div class="admin-box" id="adminPanel">
-        <div class="card-title">
-          <span>Workspace Console</span>
-        </div>
+        <div class="card-title"><span>Workspace Console</span></div>
         <div class="admin-row">
           <input type="text" id="adminUserInput" placeholder="Workspace ID" />
           <input type="password" id="adminPassInput" placeholder="Passcode" />
@@ -202,81 +203,62 @@
       </div>
     </div>
 
-    <!-- Step 2: Studio Workspace (Hidden Until Register / Login) -->
-    <div id="studioWorkspace" class="hidden">
-      <div class="card">
-        <div class="card-title">🎬 Video Source</div>
-        <input type="file" id="videoFile" accept="video/*,audio/*" />
-        <label for="socialUrl">Facebook / YouTube Link</label>
-        <input type="url" id="socialUrl" placeholder="https://youtube.com/... or https://facebook.com/..." />
+    <div id="studioWorkspace" class="studio-grid hidden">
+      <div>
+        <div class="card">
+          <div class="card-title">🎬 Muted Video &amp; Auto AI Voice</div>
+          <label for="videoFile">Select Video File (Original Audio Muted)</label>
+          <input type="file" id="videoFile" accept="video/*" />
 
-        <label for="sourceLang">Source Spoken Language</label>
-        <select id="sourceLang">
-          <option value="en-US" selected>English (en-US)</option>
-          <option value="my-MM">Myanmar (my-MM)</option>
-          <option value="auto">Auto Detect (EN / MY)</option>
-        </select>
+          <label for="targetLang">Target Language</label>
+          <select id="targetLang">
+            <option value="lus" selected>Mizo</option>
+            <option value="my-MM">Myanmar</option>
+            <option value="en-US">English</option>
+          </select>
 
-        <div class="row-check">
-          <span>Mute Original Video Audio (Dubbing Only)</span>
-          <input type="checkbox" id="muteOriginalAudio" checked />
+          <div class="row-check">
+            <span>Mute Original Video Audio</span>
+            <input type="checkbox" id="muteOriginalAudio" checked />
+          </div>
+          <div class="row-check">
+            <span>Auto Speak AI Voice on Each Caption</span>
+            <input type="checkbox" id="autoSpeakOnCue" checked />
+          </div>
         </div>
+
+        <div class="card">
+          <div class="card-title">📝 Timed Lines / SRT Captions</div>
+          <label for="srtInput">Paste SRT or lines (one line = 3.5 sec auto-timed)</label>
+          <textarea id="srtInput">Zing chibai vek ule
+Ka lawm lutuk e
+Good morning everyone</textarea>
+          <button class="btn-mini" id="loadLinesBtn" type="button">Load Timed Captions</button>
+        </div>
+
+        <button class="btn-primary" id="startDubBtn" type="button">▶ PLAY MUTED VIDEO + AUTO AI VOICE</button>
       </div>
 
-      <div class="card">
-        <div class="card-title">cc Subtitle Option (Mizo Only)</div>
-        <label for="targetLang">Target Language</label>
-        <select id="targetLang">
-          <option value="lus" selected>Mizo</option>
-        </select>
-        <div class="row-check">
-          <span>Auto Show Mizo Subtitles</span>
-          <input type="checkbox" id="autoShowSubtitles" checked />
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="card-title">🎙️ AI Speaker Option (Mizo)</div>
-        <label for="voiceGender">Voice Gender</label>
-        <select id="voiceGender">
-          <option value="male" selected>Male AI Speaker</option>
-          <option value="female">Female AI Speaker</option>
-        </select>
-        <div class="row-check">
-          <span>Auto Speak Mizo Translation</span>
-          <input type="checkbox" id="autoSpeakVoice" checked />
-        </div>
-      </div>
-
-      <button class="btn-primary" id="startTranslateBtn" type="button">✨ START MIZO AI DUBBING</button>
-      <button class="btn-secondary" id="testTranslateBtn" type="button">🧪 Test Mizo AI Speaker ("Good morning everyone")</button>
-
-      <div class="card">
-        <div class="section-head">
-          <span>▶ 3. PLAYBACK, SUBTITLES &amp; AI SPEAKER</span>
-          <span class="pill" id="modePill">Original Muted • Mizo AI</span>
-        </div>
-        <div class="player-wrap">
-          <video id="videoPlayer" controls playsinline muted></video>
-          <iframe id="embedPlayer" class="hidden" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-          <div class="video-caption-overlay hidden" id="videoOverlay"></div>
-        </div>
-      </div>
-
-      <div class="card output-box">
-        <div class="output-label" id="outputLabel">MIZO AI TRANSLATION OUTPUT</div>
-        <div class="heard-text" id="heardText">Heard: -</div>
-        <div class="subtitle-text" id="subtitleOutput">Zing chibai vek ule</div>
-        <div class="status-text" id="statusText">Original audio muted • Mizo AI Speaker ready</div>
-
-        <div class="manual-row">
-          <input type="text" id="manualLineInput" placeholder="Type/paste line to translate &amp; speak in Mizo..." />
-          <button class="btn-mini" id="manualTranslateBtn" type="button">Mizo</button>
+      <div>
+        <div class="card">
+          <div class="section-head">
+            <span>▶ PLAYBACK</span>
+            <span class="pill" id="modePill">Original Muted • AI Voice</span>
+          </div>
+          <div class="player-wrap">
+            <video id="videoPlayer" controls playsinline muted></video>
+            <div class="video-caption-overlay" id="videoOverlay">Zing chibai vek ule</div>
+          </div>
         </div>
 
-        <div class="btn-group">
-          <button class="btn-speak" id="autoSpeakAllBtn" type="button">🔊 Speak Mizo AI</button>
-          <button class="btn-stop" id="stopSpeakBtn" type="button">■ Stop</button>
+        <div class="card output-box">
+          <div class="output-label">AUTO AI VOICE &amp; SUBTITLE</div>
+          <div class="subtitle-text" id="subtitleOutput">Zing chibai vek ule</div>
+          <div class="status-text" id="statusText">Original audio muted • Ready on phone &amp; computer</div>
+          <div class="btn-group">
+            <button class="btn-speak" id="speakLineBtn" type="button">🔊 Speak Now</button>
+            <button class="btn-stop" id="stopAllBtn" type="button">■ Stop</button>
+          </div>
         </div>
       </div>
     </div>
@@ -291,10 +273,10 @@
     const ADMIN_PW = "rising24";
 
     const STORAGE_KEYS = {
-      users: "transvid_users_v19",
-      currentUserEmail: "transvid_current_user_v19",
-      studioUnlocked: "transvid_studio_unlocked_v19",
-      paidActive: "transvid_paid_10usd_v19"
+      users: "transvid_users_v22",
+      currentUserEmail: "transvid_current_user_v22",
+      studioUnlocked: "transvid_studio_unlocked_v22",
+      paidActive: "transvid_paid_10usd_v22"
     };
 
     const planBadge = document.getElementById("planBadge");
@@ -331,234 +313,183 @@
     const lockAdminBtn = document.getElementById("lockAdminBtn");
 
     const videoFileInput = document.getElementById("videoFile");
-    const socialUrlInput = document.getElementById("socialUrl");
-    const muteOriginalAudio = document.getElementById("muteOriginalAudio");
-    const videoPlayer = document.getElementById("videoPlayer");
-    const embedPlayer = document.getElementById("embedPlayer");
-    const videoOverlay = document.getElementById("videoOverlay");
-    const sourceLangSelect = document.getElementById("sourceLang");
     const targetLangSelect = document.getElementById("targetLang");
-    const autoShowSubtitles = document.getElementById("autoShowSubtitles");
-    const voiceGenderSelect = document.getElementById("voiceGender");
-    const autoSpeakVoice = document.getElementById("autoSpeakVoice");
-    const startTranslateBtn = document.getElementById("startTranslateBtn");
-    const testTranslateBtn = document.getElementById("testTranslateBtn");
+    const muteOriginalAudio = document.getElementById("muteOriginalAudio");
+    const autoSpeakOnCue = document.getElementById("autoSpeakOnCue");
+    const srtInput = document.getElementById("srtInput");
+    const loadLinesBtn = document.getElementById("loadLinesBtn");
+    const startDubBtn = document.getElementById("startDubBtn");
+    const videoPlayer = document.getElementById("videoPlayer");
+    const videoOverlay = document.getElementById("videoOverlay");
     const modePill = document.getElementById("modePill");
-    const outputLabel = document.getElementById("outputLabel");
-    const heardText = document.getElementById("heardText");
     const subtitleOutput = document.getElementById("subtitleOutput");
     const statusText = document.getElementById("statusText");
-    const manualLineInput = document.getElementById("manualLineInput");
-    const manualTranslateBtn = document.getElementById("manualTranslateBtn");
-    const autoSpeakAllBtn = document.getElementById("autoSpeakAllBtn");
-    const stopSpeakBtn = document.getElementById("stopSpeakBtn");
+    const speakLineBtn = document.getElementById("speakLineBtn");
+    const stopAllBtn = document.getElementById("stopAllBtn");
 
-    let isTranslating = false;
-    let lastSpokenText = "";
+    let cues = [];
+    let lastCueIndex = -1;
     let trialTimerId = null;
+    let virtualClockTimer = null;
+    let virtualSec = 0;
+    let isRunning = false;
     let currentSourceKey = "";
     let showAccountScreen = false;
-    let keepAliveTimer = null;
-    let audioCtx = null;
-    let aiAudioPlayer = null;
+    let ttsAudio = new Audio();
+    ttsAudio.playsInline = true;
 
-    const MIZO_WORD_DICT = {
-      "good": "tha",
-      "morning": "zing",
-      "afternoon": "chawhnu",
-      "evening": "tlai",
-      "night": "zan",
-      "everyone": "mi zawng zawng",
-      "all": "vek",
-      "hello": "chibai",
-      "hi": "chibai",
-      "hey": "chibai",
-      "thank": "lawm",
-      "thanks": "ka lawm e",
-      "you": "nang",
-      "your": "i",
-      "my": "ka",
-      "master": "pu",
-      "sorry": "pawi ka ti",
-      "just": "chiah",
-      "polishing": "nawt fai",
-      "might": "mai thei",
-      "anticipate": "lo hmu lawk",
-      "needs": "mamawhna",
-      "welcome": "kan lawm a che",
-      "love": "hmangaihna",
-      "god": "Pathian",
-      "bless": "malsawm",
-      "blessing": "malsawmna",
-      "today": "vawiinah",
-      "tomorrow": "naktukah",
-      "yesterday": "niminah",
-      "video": "video",
-      "song": "hla",
-      "music": "music",
-      "yes": "aw",
-      "no": "ai",
-      "please": "khawngaihin",
-      "come": "lo kal rawh",
-      "go": "kal rawh",
-      "listen": "ngaithla rawh",
-      "speak": "sawirawh",
-      "happy": "hlim",
-      "peace": "remna",
-      "friend": "thian",
-      "friends": "thiante"
-    };
-
-    const MIZO_PHRASE_DICT = {
-      "good morning everyone": "Zing chibai vek ule",
-      "good morning": "Zing chibai le",
-      "good afternoon": "Chawhnu chibai le",
-      "good evening": "Tlai chibai le",
-      "good night": "Muttui le",
-      "hello": "Chibai le",
-      "hi": "Chibai le",
-      "thank you": "Ka lawm e",
-      "thank you so much": "Ka lawm lutuk e",
-      "thank you everyone": "In zavai chungah ka lawm e",
-      "god bless you": "Pathian in malsawm rawh se",
-      "how are you": "Engtin nge i awm?",
-      "i love you": "Ka hmangaih che",
-      "welcome everyone": "Kan lawm vek a che",
-      "sorry master i was just polishing": "Pawi ka ti pu, ka lo nawt fai mek a",
-      "might anticipate my needs": "Ka mamawhna i lo hmu lawk mai thei"
-    };
-
-    function applyOriginalAudioMuteState() {
-      const shouldMute = Boolean(muteOriginalAudio.checked);
-      videoPlayer.muted = shouldMute;
-      modePill.textContent = shouldMute ? "Original Muted • Mizo AI" : "Original + Mizo AI";
+    function applyMuteState() {
+      videoPlayer.muted = Boolean(muteOriginalAudio.checked);
+      modePill.textContent = videoPlayer.muted ? "Original Muted • AI Voice" : "Original Unmuted • AI Voice";
     }
 
-    muteOriginalAudio.addEventListener("change", () => {
-      applyOriginalAudioMuteState();
-      statusText.textContent = muteOriginalAudio.checked
-        ? "Original video audio muted • Only Mizo AI dubbing plays."
-        : "Original video audio unmuted.";
-    });
+    muteOriginalAudio.addEventListener("change", applyMuteState);
+    videoPlayer.addEventListener("play", applyMuteState);
 
-    videoPlayer.addEventListener("play", () => {
-      applyOriginalAudioMuteState();
-    });
+    function parseCaptions(raw) {
+      const text = (raw || "").trim();
+      if (!text) return [];
+      const parsed = [];
+      const blocks = text.split(/\n\s*\n/);
+      const timeRegex = /(\d{1,2}):(\d{2}):(\d{2})[,.](\d{1,3})\s*-->\s*(\d{1,2}):(\d{2}):(\d{2})[,.](\d{1,3})/;
 
-    function unlockMobileAudio() {
-      try {
-        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-        if (AudioContextClass) {
-          if (!audioCtx) audioCtx = new AudioContextClass();
-          if (audioCtx.state === "suspended") {
-            audioCtx.resume();
-          }
+      for (const block of blocks) {
+        const lines = block.split("\n").map(l => l.trim()).filter(Boolean);
+        const timeLine = lines.find(l => timeRegex.test(l));
+        if (timeLine) {
+          const m = timeLine.match(timeRegex);
+          const start = (+m[1]) * 3600 + (+m[2]) * 60 + (+m[3]) + (+m[4]) / 1000;
+          const end = (+m[5]) * 3600 + (+m[6]) * 60 + (+m[7]) + (+m[8]) / 1000;
+          const body = lines.filter(l => l !== timeLine && !/^\d+$/.test(l)).join(" ");
+          if (body) parsed.push({ start, end, text: body });
         }
-      } catch (_) {}
-
-      if ("speechSynthesis" in window) {
-        try {
-          window.speechSynthesis.getVoices();
-          window.speechSynthesis.resume();
-        } catch (_) {}
       }
+
+      if (parsed.length > 0) return parsed;
+
+      const singleLines = text.split("\n").map(l => l.trim()).filter(Boolean);
+      return singleLines.map((line, idx) => ({
+        start: idx * 3.5,
+        end: (idx + 1) * 3.5,
+        text: line
+      }));
     }
 
-    function playSpeakerTone(gender = "male") {
+    function speakAIVoice(text) {
+      const clean = (text || "").trim();
+      if (!clean) return;
+
       try {
-        unlockMobileAudio();
-        if (!audioCtx) return;
-        const now = audioCtx.currentTime;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = "sine";
-        const baseFreq = gender === "female" ? 587.33 : 440;
-        osc.frequency.setValueAtTime(baseFreq, now);
-        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.25, now + 0.14);
-
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.exponentialRampToValueAtTime(0.14, now + 0.03);
-        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
-
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start(now);
-        osc.stop(now + 0.23);
+        ttsAudio.pause();
+        ttsAudio.currentTime = 0;
       } catch (_) {}
-    }
-
-    function stopAllAIAudio() {
-      if (aiAudioPlayer) {
-        try {
-          aiAudioPlayer.pause();
-          aiAudioPlayer.currentTime = 0;
-        } catch (_) {}
-      }
       if ("speechSynthesis" in window) {
         try { window.speechSynthesis.cancel(); } catch (_) {}
       }
-    }
 
-    function playSpeechSynthesisFallback(clean, gender) {
-      if (!("speechSynthesis" in window)) {
-        statusText.textContent = `Mizo Dubbing text ready: "${clean}"`;
-        return;
-      }
+      const langCode = targetLangSelect.value === "my-MM" ? "my" : "en";
+      const ttsUrl = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${langCode}&q=${encodeURIComponent(clean)}`;
 
-      try {
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.resume();
+      statusText.textContent = `AI Voice speaking: "${clean}"`;
+      ttsAudio.src = ttsUrl;
+      ttsAudio.volume = 1.0;
 
-        const utter = new SpeechSynthesisUtterance(clean);
-        const voices = window.speechSynthesis.getVoices();
-
-        if (voices && voices.length > 0) {
-          const enVoices = voices.filter(v => (v.lang || "").toLowerCase().startsWith("en"));
-          const pool = enVoices.length > 0 ? enVoices : voices;
-          const matched = pool.find(v =>
-            gender === "female"
-              ? /female|zira|samantha|victoria|google uk english female|aria|jenny/i.test(v.name)
-              : /male|david|mark|daniel|google uk english male|guy|ryan/i.test(v.name)
-          );
-          utter.voice = matched || pool[0] || null;
+      const fallbackSpeak = () => {
+        if ("speechSynthesis" in window) {
+          try {
+            const utter = new SpeechSynthesisUtterance(clean);
+            utter.lang = targetLangSelect.value === "my-MM" ? "my-MM" : "en-US";
+            window.speechSynthesis.speak(utter);
+          } catch (_) {}
         }
-
-        utter.lang = "en-US";
-        utter.rate = 0.96;
-        utter.pitch = gender === "female" ? 1.12 : 0.92;
-        utter.volume = 1.0;
-
-        utter.onstart = () => {
-          statusText.textContent = `AI Dubbing (${gender}) speaking: "${clean}"`;
-        };
-        utter.onend = () => {
-          statusText.textContent = `AI Dubbing finished: "${clean}"`;
-        };
-        utter.onerror = () => {
-          statusText.textContent = `Check phone Media Volume • Mizo text: "${clean}"`;
-        };
-
-        window.speechSynthesis.speak(utter);
-
-        if (keepAliveTimer) clearInterval(keepAliveTimer);
-        keepAliveTimer = setInterval(() => {
-          if (!window.speechSynthesis.speaking) {
-            clearInterval(keepAliveTimer);
-            keepAliveTimer = null;
-            return;
-          }
-          window.speechSynthesis.resume();
-        }, 500);
-      } catch (_) {}
-    }
-
-    unlockMobileAudio();
-    applyOriginalAudioMuteState();
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.onvoiceschanged = () => {
-        window.speechSynthesis.getVoices();
       };
+
+      ttsAudio.onerror = fallbackSpeak;
+      const p = ttsAudio.play();
+      if (p && typeof p.catch === "function") {
+        p.catch(fallbackSpeak);
+      }
     }
+
+    function activateCueAt(idx) {
+      if (idx < 0 || idx >= cues.length) return;
+      lastCueIndex = idx;
+      const line = cues[idx].text;
+      subtitleOutput.textContent = line;
+      videoOverlay.textContent = line;
+      videoOverlay.classList.remove("hidden");
+      if (autoSpeakOnCue.checked && isRunning) {
+        speakAIVoice(line);
+      }
+    }
+
+    function updateTimelineAt(sec) {
+      if (cues.length === 0) return;
+      const idx = cues.findIndex(c => sec >= c.start && sec <= c.end);
+      if (idx !== -1 && idx !== lastCueIndex) {
+        activateCueAt(idx);
+      }
+    }
+
+    function loadCaptionsFromBox() {
+      cues = parseCaptions(srtInput.value);
+      lastCueIndex = -1;
+      if (cues.length > 0) {
+        subtitleOutput.textContent = cues[0].text;
+        videoOverlay.textContent = cues[0].text;
+        videoOverlay.classList.remove("hidden");
+        statusText.textContent = `Loaded ${cues.length} caption line(s) • Auto AI Voice ready.`;
+      } else {
+        statusText.textContent = "Enter caption lines first.";
+      }
+    }
+
+    loadLinesBtn.addEventListener("click", loadCaptionsFromBox);
+
+    videoFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      videoPlayer.src = URL.createObjectURL(file);
+      applyMuteState();
+      statusText.textContent = `Video loaded (muted): ${file.name}`;
+    });
+
+    videoPlayer.addEventListener("timeupdate", () => {
+      if (!isRunning) return;
+      updateTimelineAt(videoPlayer.currentTime || 0);
+    });
+
+    speakLineBtn.addEventListener("click", () => {
+      speakAIVoice(subtitleOutput.textContent);
+    });
+
+    function stopTrialTimer() {
+      if (trialTimerId) {
+        clearInterval(trialTimerId);
+        trialTimerId = null;
+      }
+      if (virtualClockTimer) {
+        clearInterval(virtualClockTimer);
+        virtualClockTimer = null;
+      }
+    }
+
+    function stopAll(msg = "Stopped") {
+      isRunning = false;
+      stopTrialTimer();
+      videoPlayer.pause();
+      try {
+        ttsAudio.pause();
+        ttsAudio.currentTime = 0;
+      } catch (_) {}
+      if ("speechSynthesis" in window) {
+        try { window.speechSynthesis.cancel(); } catch (_) {}
+      }
+      startDubBtn.textContent = "▶ PLAY MUTED VIDEO + AUTO AI VOICE";
+      statusText.textContent = msg;
+    }
+
+    stopAllBtn.addEventListener("click", () => stopAll("Stopped"));
 
     function attachPasswordToggle(btn, input) {
       btn.addEventListener("click", () => {
@@ -567,160 +498,91 @@
         btn.textContent = isHidden ? "🙈" : "👁️";
       });
     }
-
     attachPasswordToggle(toggleLoginEye, loginPassword);
     attachPasswordToggle(toggleRegEye, regPassword);
 
     function hasPrivateAccessTrigger() {
-      const hashMatch = window.location.hash === "#tv-studio-access";
-      const queryMatch = new URLSearchParams(window.location.search).get("studio") === "1";
-      return hashMatch || queryMatch;
+      return window.location.hash === "#tv-studio-access" || new URLSearchParams(window.location.search).get("studio") === "1";
     }
-
     function syncPrivatePanel() {
-      if (hasPrivateAccessTrigger()) {
-        adminPanel.classList.add("open");
-      } else {
-        adminPanel.classList.remove("open");
-      }
+      adminPanel.classList.toggle("open", hasPrivateAccessTrigger());
     }
-
     function formatMMSS(totalSec) {
       const sec = Math.max(0, Math.floor(totalSec));
-      const m = Math.floor(sec / 60);
-      const s = sec % 60;
-      return `${m}:${String(s).padStart(2, "0")}`;
+      return `${Math.floor(sec / 60)}:${String(sec % 60).padStart(2, "0")}`;
     }
-
     function getUsers() {
-      try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || "[]");
-      } catch (_) {
-        return [];
-      }
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || "[]"); } catch (_) { return []; }
     }
-
     function saveUsers(users) {
       localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users));
     }
-
     function getCurrentUser() {
       const email = localStorage.getItem(STORAGE_KEYS.currentUserEmail);
       if (!email) return null;
       return getUsers().find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
     }
-
     function isStudioUnlocked() {
       return localStorage.getItem(STORAGE_KEYS.studioUnlocked) === "true";
     }
-
     function isAuthenticated() {
       return Boolean(getCurrentUser()) || isStudioUnlocked();
     }
-
     function isPaidActive() {
       if (isStudioUnlocked()) return true;
       const user = getCurrentUser();
-      if (user && user.paidActive) return true;
-      return localStorage.getItem(STORAGE_KEYS.paidActive) === "true";
+      return Boolean(user && user.paidActive) || localStorage.getItem(STORAGE_KEYS.paidActive) === "true";
     }
-
     function isUnlimitedUser() {
       return isStudioUnlocked() || isPaidActive();
     }
-
     function getTrialStartMs() {
       const user = getCurrentUser();
-      if (user && user.trialStart) return Number(user.trialStart);
-      return Date.now();
+      return user && user.trialStart ? Number(user.trialStart) : Date.now();
     }
-
     function getDaysLeft() {
       if (!isAuthenticated()) return 0;
       if (isUnlimitedUser()) return 9999;
-      const elapsedDays = (Date.now() - getTrialStartMs()) / (1000 * 60 * 60 * 24);
-      return Math.max(0, Math.ceil(TRIAL_DAYS - elapsedDays));
+      return Math.max(0, Math.ceil(TRIAL_DAYS - (Date.now() - getTrialStartMs()) / 86400000));
     }
-
     function getVideosUsed() {
       const user = getCurrentUser();
-      if (user) return Number(user.videosUsed || 0);
-      return 0;
+      return user ? Number(user.videosUsed || 0) : 0;
     }
-
     function setVideosUsed(count) {
       if (isUnlimitedUser()) return;
       const user = getCurrentUser();
       if (!user) return;
-      const users = getUsers().map(u =>
-        u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, videosUsed: count } : u
-      );
-      saveUsers(users);
+      saveUsers(getUsers().map(u => u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, videosUsed: count } : u));
     }
-
     function getSecondsUsed() {
       const user = getCurrentUser();
-      if (user) return Number(user.secondsUsed || 0);
-      return 0;
+      return user ? Number(user.secondsUsed || 0) : 0;
     }
-
     function addSecondsUsed(deltaSec) {
       if (isUnlimitedUser()) return 0;
       const user = getCurrentUser();
       if (!user) return 0;
       const next = Math.min(TRIAL_MAX_SECONDS, getSecondsUsed() + deltaSec);
-      const users = getUsers().map(u =>
-        u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, secondsUsed: next } : u
-      );
-      saveUsers(users);
+      saveUsers(getUsers().map(u => u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, secondsUsed: next } : u));
       return next;
     }
-
     function getCurrentSourceKey() {
-      if (socialUrlInput.value.trim()) return "url:" + socialUrlInput.value.trim();
       const file = videoFileInput.files && videoFileInput.files[0];
-      if (file) return `file:${file.name}:${file.size}`;
-      return "default:session";
+      return file ? `file:${file.name}:${file.size}` : "default:session";
     }
-
     function checkTrialEligibility(forNewSource = false) {
-      if (!isAuthenticated()) {
-        return {
-          allowed: false,
-          reason: "Please register or log in first to start your 14-day free access (5 videos / 5:00 min)."
-        };
-      }
-      if (isUnlimitedUser()) {
-        return { allowed: true, reason: "" };
-      }
-      if (getDaysLeft() <= 0) {
-        return {
-          allowed: false,
-          reason: `14-day free access ended. Please upgrade to the $${MONTHLY_PRICE_USD}/mo USD plan.`
-        };
-      }
-      const videosUsed = getVideosUsed();
-      const secondsUsed = getSecondsUsed();
-
-      if (secondsUsed >= TRIAL_MAX_SECONDS) {
-        return {
-          allowed: false,
-          reason: `Free access 5-minute limit reached (${formatMMSS(TRIAL_MAX_SECONDS)}). Please upgrade to the $${MONTHLY_PRICE_USD}/mo USD plan.`
-        };
-      }
-      if (forNewSource && videosUsed >= TRIAL_MAX_VIDEOS) {
-        return {
-          allowed: false,
-          reason: `Free access 5-video limit reached (${TRIAL_MAX_VIDEOS}/${TRIAL_MAX_VIDEOS} videos). Please upgrade to the $${MONTHLY_PRICE_USD}/mo USD plan.`
-        };
-      }
+      if (!isAuthenticated()) return { allowed: false, reason: "Please register or log in first." };
+      if (isUnlimitedUser()) return { allowed: true, reason: "" };
+      if (getDaysLeft() <= 0) return { allowed: false, reason: `14-day free access ended. Plan: $${MONTHLY_PRICE_USD}/mo USD.` };
+      if (getSecondsUsed() >= TRIAL_MAX_SECONDS) return { allowed: false, reason: "5:00 minute free limit reached." };
+      if (forNewSource && getVideosUsed() >= TRIAL_MAX_VIDEOS) return { allowed: false, reason: "5-video free limit reached." };
       return { allowed: true, reason: "" };
     }
 
     function renderAccountButton() {
       accountActionWrap.innerHTML = "";
       if (!isAuthenticated()) return;
-
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "btn-mini";
@@ -759,11 +621,8 @@
       renderAccountButton();
 
       const authed = isAuthenticated();
-      if (!authed) {
-        showAccountScreen = false;
-        authCard.classList.remove("hidden");
-        studioWorkspace.classList.add("hidden");
-      } else if (showAccountScreen) {
+      if (!authed || showAccountScreen) {
+        if (!authed) showAccountScreen = false;
         authCard.classList.remove("hidden");
         studioWorkspace.classList.add("hidden");
       } else {
@@ -772,7 +631,6 @@
       }
 
       planBadge.classList.remove("pro", "expired", "locked");
-
       if (!authed) {
         planBadge.textContent = "Login Required";
         planBadge.classList.add("locked");
@@ -780,85 +638,51 @@
         quotaText.textContent = `Free Access: 14 days • ${TRIAL_MAX_VIDEOS} videos • ${formatMMSS(TRIAL_MAX_SECONDS)} min`;
         return;
       }
-
       const user = getCurrentUser();
       const acctSuffix = user ? ` (${user.name})` : "";
-
       if (isUnlimitedUser()) {
         planBadge.textContent = "PRO ACTIVE";
         planBadge.classList.add("pro");
-        planInfo.innerHTML = `<strong>Pro Access</strong>${acctSuffix} • Unlimited videos &amp; translation`;
+        planInfo.innerHTML = `<strong>Pro Access</strong>${acctSuffix} • Unlimited videos`;
         quotaText.textContent = "Videos: Unlimited • Time: Unlimited";
         return;
       }
-
       const daysLeft = getDaysLeft();
       const videosLeft = Math.max(0, TRIAL_MAX_VIDEOS - getVideosUsed());
       const secLeft = Math.max(0, TRIAL_MAX_SECONDS - getSecondsUsed());
-
       if (daysLeft > 0) {
         planBadge.textContent = `${daysLeft}d Free Left`;
         planInfo.innerHTML = `<strong>14-Day Free Access</strong>${acctSuffix} (${daysLeft}d left) • After: <strong>$${MONTHLY_PRICE_USD}/mo USD</strong>`;
-        quotaText.textContent = `Free Left: ${videosLeft}/${TRIAL_MAX_VIDEOS} videos • ${formatMMSS(secLeft)} / ${formatMMSS(TRIAL_MAX_SECONDS)} min`;
       } else {
         planBadge.textContent = "Trial Ended";
         planBadge.classList.add("expired");
         planInfo.innerHTML = `14-day free access ended${acctSuffix} • Plan: <strong>$${MONTHLY_PRICE_USD}/mo USD</strong>`;
-        quotaText.textContent = `Free Left: ${videosLeft}/${TRIAL_MAX_VIDEOS} videos • ${formatMMSS(secLeft)} / ${formatMMSS(TRIAL_MAX_SECONDS)} min`;
       }
-    }
-
-    function stopTrialTimer() {
-      if (trialTimerId) {
-        clearInterval(trialTimerId);
-        trialTimerId = null;
-      }
+      quotaText.textContent = `Free Left: ${videosLeft}/${TRIAL_MAX_VIDEOS} videos • ${formatMMSS(secLeft)} / ${formatMMSS(TRIAL_MAX_SECONDS)} min`;
     }
 
     function startTrialTimer() {
       stopTrialTimer();
-      if (isUnlimitedUser()) return;
-
-      trialTimerId = setInterval(() => {
-        if (!isTranslating) {
-          stopTrialTimer();
-          return;
-        }
-        const nextSec = addSecondsUsed(1);
-        renderScreenState();
-
-        if (nextSec >= TRIAL_MAX_SECONDS || getDaysLeft() <= 0) {
-          stopSession(`14-day free access limit reached (max 5 videos / 5:00 min). Please upgrade to the $${MONTHLY_PRICE_USD}/mo USD plan.`);
-        }
-      }, 1000);
-    }
-
-    function stopSession(customStatus = "Stopped") {
-      isTranslating = false;
-      stopTrialTimer();
-      if (keepAliveTimer) {
-        clearInterval(keepAliveTimer);
-        keepAliveTimer = null;
+      if (!isUnlimitedUser()) {
+        trialTimerId = setInterval(() => {
+          if (!isRunning) { stopTrialTimer(); return; }
+          const nextSec = addSecondsUsed(1);
+          renderScreenState();
+          if (nextSec >= TRIAL_MAX_SECONDS || getDaysLeft() <= 0) {
+            stopAll(`Free access limit reached (${formatMMSS(TRIAL_MAX_SECONDS)}).`);
+          }
+        }, 1000);
       }
-      startTranslateBtn.textContent = "✨ START MIZO AI DUBBING";
-      stopAllAIAudio();
-      statusText.textContent = customStatus;
     }
 
-    function bindLogoutHandler() {
-      const logoutBtn = document.getElementById("logoutBtn");
-      if (!logoutBtn) return;
-      logoutBtn.addEventListener("click", () => {
-        stopSession("Logged out");
-        localStorage.removeItem(STORAGE_KEYS.currentUserEmail);
-        localStorage.removeItem(STORAGE_KEYS.studioUnlocked);
-        showAccountScreen = false;
-        authMsg.textContent = "Logged out. Please register or log in to continue.";
-        renderScreenState();
-      });
-    }
-
-    bindLogoutHandler();
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      stopAll("Logged out");
+      localStorage.removeItem(STORAGE_KEYS.currentUserEmail);
+      localStorage.removeItem(STORAGE_KEYS.studioUnlocked);
+      showAccountScreen = false;
+      authMsg.textContent = "Logged out.";
+      renderScreenState();
+    });
 
     tabRegisterBtn.addEventListener("click", () => {
       tabRegisterBtn.classList.add("active-tab");
@@ -880,36 +704,19 @@
       const name = regName.value.trim();
       const email = regEmail.value.trim().toLowerCase();
       const password = regPassword.value;
-
       if (!name || !email || password.length < 6) {
-        authMsg.textContent = "Please enter name, valid email, and password (6+ chars).";
+        authMsg.textContent = "Enter name, valid email, and password (6+ chars).";
         return;
       }
-
       const users = getUsers();
       if (users.some(u => u.email.toLowerCase() === email)) {
-        authMsg.textContent = "Email already registered. Please switch to Login.";
+        authMsg.textContent = "Email already registered. Switch to Login.";
         return;
       }
-
-      const newUser = {
-        name,
-        email,
-        password,
-        trialStart: Date.now(),
-        videosUsed: 0,
-        secondsUsed: 0,
-        paidActive: false
-      };
-      users.push(newUser);
+      users.push({ name, email, password, trialStart: Date.now(), videosUsed: 0, secondsUsed: 0, paidActive: false });
       saveUsers(users);
       localStorage.setItem(STORAGE_KEYS.currentUserEmail, email);
-
-      regName.value = "";
-      regEmail.value = "";
-      regPassword.value = "";
-      regPassword.type = "password";
-      toggleRegEye.textContent = "👁️";
+      regName.value = ""; regEmail.value = ""; regPassword.value = "";
       showAccountScreen = false;
       authMsg.textContent = "";
       renderScreenState();
@@ -918,49 +725,32 @@
     loginSubmitBtn.addEventListener("click", () => {
       const inputId = loginEmail.value.trim().toLowerCase();
       const password = loginPassword.value;
-
       if (inputId === ADMIN_ID.toLowerCase() && password === ADMIN_PW) {
         localStorage.setItem(STORAGE_KEYS.studioUnlocked, "true");
-        loginEmail.value = "";
-        loginPassword.value = "";
-        loginPassword.type = "password";
-        toggleLoginEye.textContent = "👁️";
+        loginEmail.value = ""; loginPassword.value = "";
         showAccountScreen = false;
         authMsg.textContent = "";
         renderScreenState();
         return;
       }
-
-      const users = getUsers();
-      const matched = users.find(u => u.email.toLowerCase() === inputId && u.password === password);
-
+      const matched = getUsers().find(u => u.email.toLowerCase() === inputId && u.password === password);
       if (!matched) {
         authMsg.textContent = "Invalid email or password.";
         return;
       }
-
       localStorage.setItem(STORAGE_KEYS.currentUserEmail, matched.email);
-      loginEmail.value = "";
-      loginPassword.value = "";
-      loginPassword.type = "password";
-      toggleLoginEye.textContent = "👁️";
+      loginEmail.value = ""; loginPassword.value = "";
       showAccountScreen = false;
       authMsg.textContent = "";
       renderScreenState();
     });
 
     unlockAdminBtn.addEventListener("click", () => {
-      const idVal = adminUserInput.value.trim().toLowerCase();
-      const pwVal = adminPassInput.value;
-
-      if (idVal === ADMIN_ID.toLowerCase() && pwVal === ADMIN_PW) {
+      if (adminUserInput.value.trim().toLowerCase() === ADMIN_ID.toLowerCase() && adminPassInput.value === ADMIN_PW) {
         localStorage.setItem(STORAGE_KEYS.studioUnlocked, "true");
-        adminUserInput.value = "";
-        adminPassInput.value = "";
+        adminUserInput.value = ""; adminPassInput.value = "";
         showAccountScreen = false;
-        authMsg.textContent = "";
         renderScreenState();
-        statusText.textContent = "Studio workspace active.";
       } else {
         authMsg.textContent = "Invalid credentials.";
       }
@@ -969,16 +759,12 @@
     activateSubBtn.addEventListener("click", () => {
       const user = getCurrentUser();
       if (user) {
-        const users = getUsers().map(u =>
-          u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, paidActive: true } : u
-        );
-        saveUsers(users);
+        saveUsers(getUsers().map(u => u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, paidActive: true } : u));
       } else {
         localStorage.setItem(STORAGE_KEYS.paidActive, "true");
       }
       showAccountScreen = false;
       renderScreenState();
-      statusText.textContent = `$${MONTHLY_PRICE_USD}/mo USD plan activated.`;
     });
 
     lockAdminBtn.addEventListener("click", () => {
@@ -986,281 +772,62 @@
       localStorage.removeItem(STORAGE_KEYS.paidActive);
       const user = getCurrentUser();
       if (user) {
-        const users = getUsers().map(u =>
-          u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, paidActive: false, videosUsed: 0, secondsUsed: 0, trialStart: Date.now() } : u
-        );
-        saveUsers(users);
+        saveUsers(getUsers().map(u => u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, paidActive: false, videosUsed: 0, secondsUsed: 0, trialStart: Date.now() } : u));
       }
       renderScreenState();
-      statusText.textContent = "14-day free access reset.";
     });
 
     window.addEventListener("hashchange", renderScreenState);
 
-    function extractYouTubeId(url) {
-      const match = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-      return match ? match[1] : null;
-    }
-
-    function applyLinkSource(rawUrl) {
-      const url = rawUrl.trim();
-      if (!url) return false;
-
-      const ytId = extractYouTubeId(url);
-      if (ytId) {
-        videoPlayer.pause();
-        videoPlayer.removeAttribute("src");
-        videoPlayer.load();
-        videoPlayer.classList.add("hidden");
-
-        embedPlayer.classList.remove("hidden");
-        embedPlayer.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=${muteOriginalAudio.checked ? 1 : 0}`;
-        statusText.textContent = "YouTube loaded with original audio muted for Mizo dubbing.";
-        return true;
-      }
-
-      if (/facebook\.com|fb\.watch/i.test(url)) {
-        videoPlayer.pause();
-        videoPlayer.removeAttribute("src");
-        videoPlayer.load();
-        videoPlayer.classList.add("hidden");
-
-        embedPlayer.classList.remove("hidden");
-        embedPlayer.src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true&mute=${muteOriginalAudio.checked ? 1 : 0}`;
-        statusText.textContent = "Facebook loaded with original audio muted for Mizo dubbing.";
-        return true;
-      }
-
-      embedPlayer.classList.add("hidden");
-      embedPlayer.src = "";
-      videoPlayer.classList.remove("hidden");
-      videoPlayer.src = url;
-      applyOriginalAudioMuteState();
-      statusText.textContent = "Direct video link loaded (original audio muted).";
-      return true;
-    }
-
-    videoFileInput.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        socialUrlInput.value = "";
-        embedPlayer.classList.add("hidden");
-        embedPlayer.src = "";
-        videoPlayer.classList.remove("hidden");
-        videoPlayer.src = URL.createObjectURL(file);
-        applyOriginalAudioMuteState();
-        statusText.textContent = "Video loaded (original audio muted): " + file.name;
-      }
-    });
-
-    socialUrlInput.addEventListener("change", () => {
-      if (socialUrlInput.value.trim()) {
-        videoFileInput.value = "";
-        applyLinkSource(socialUrlInput.value);
-      }
-    });
-
-    autoShowSubtitles.addEventListener("change", () => {
-      if (!autoShowSubtitles.checked) {
-        videoOverlay.classList.add("hidden");
-      } else if (subtitleOutput.textContent.trim()) {
-        videoOverlay.textContent = subtitleOutput.textContent;
-        videoOverlay.classList.remove("hidden");
-      }
-    });
-
-    function mapToMizo(text) {
-      const clean = text.trim();
-      const lower = clean.toLowerCase().replace(/[?.!,]+$/g, "").trim();
-      if (MIZO_PHRASE_DICT[lower]) {
-        return MIZO_PHRASE_DICT[lower];
-      }
-
-      const words = lower.replace(/[^\w\s]/g, "").split(/\s+/).filter(Boolean);
-      if (words.length === 0) return "Chibai le";
-
-      const mapped = words.map(w => MIZO_WORD_DICT[w] || "tha");
-      return mapped.join(" ");
-    }
-
-    async function translateToMizo(text) {
-      const clean = text.trim();
-      if (!clean) return { text: "", source: "none" };
-
-      const lower = clean.toLowerCase().replace(/[?.!,]+$/g, "").trim();
-      if (MIZO_PHRASE_DICT[lower]) {
-        return { text: MIZO_PHRASE_DICT[lower], source: "mizo-phrase" };
-      }
-
-      const selectedSrc = sourceLangSelect.value;
-      const sourceCode = selectedSrc === "auto" ? "auto" : selectedSrc.split("-")[0];
-
-      try {
-        const gtUrl = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sourceCode}&tl=en&dt=t&q=${encodeURIComponent(clean)}`;
-        const gtRes = await fetch(gtUrl);
-        if (gtRes.ok) {
-          const gtData = await gtRes.json();
-          const segments = Array.isArray(gtData?.[0]) ? gtData[0].map(item => item?.[0] || "").join("").trim() : "";
-          if (segments) {
-            const enLower = segments.toLowerCase().replace(/[?.!,]+$/g, "").trim();
-            if (MIZO_PHRASE_DICT[enLower]) {
-              return { text: MIZO_PHRASE_DICT[enLower], source: "mizo-phrase" };
-            }
-            return { text: mapToMizo(segments), source: "mizo" };
-          }
-        }
-      } catch (_) {}
-
-      return { text: mapToMizo(clean), source: "mizo-dict" };
-    }
-
-    function speakMizoAI(text) {
-      const clean = (text || "").trim();
-      if (!clean) {
-        statusText.textContent = "No Mizo translation text to speak.";
+    startDubBtn.addEventListener("click", async () => {
+      applyMuteState();
+      if (isRunning) {
+        stopAll("Paused");
         return;
       }
-
-      const gender = voiceGenderSelect.value;
-      stopAllAIAudio();
-      playSpeakerTone(gender);
-
-      try {
-        if (!aiAudioPlayer) {
-          aiAudioPlayer = new Audio();
-          aiAudioPlayer.playsInline = true;
-        }
-        const ttsUrl = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=${encodeURIComponent(clean)}`;
-        aiAudioPlayer.src = ttsUrl;
-        aiAudioPlayer.playbackRate = gender === "female" ? 1.05 : 0.94;
-        aiAudioPlayer.volume = 1.0;
-
-        statusText.textContent = `Original muted • AI Dubbing (${gender}) playing: "${clean}"`;
-
-        aiAudioPlayer.onended = () => {
-          statusText.textContent = `AI Dubbing finished: "${clean}"`;
-        };
-
-        aiAudioPlayer.onerror = () => {
-          playSpeechSynthesisFallback(clean, gender);
-        };
-
-        const playPromise = aiAudioPlayer.play();
-        if (playPromise && typeof playPromise.catch === "function") {
-          playPromise.catch(() => {
-            playSpeechSynthesisFallback(clean, gender);
-          });
-        }
-      } catch (_) {
-        playSpeechSynthesisFallback(clean, gender);
-      }
-    }
-
-    startTranslateBtn.addEventListener("click", async () => {
-      unlockMobileAudio();
-      applyOriginalAudioMuteState();
-
-      if (isTranslating) {
-        stopSession("Dubbing stopped");
-        return;
-      }
-
-      const nextSourceKey = getCurrentSourceKey();
-      const isNewSource = nextSourceKey !== currentSourceKey;
-      const check = checkTrialEligibility(isNewSource);
-
+      const nextKey = getCurrentSourceKey();
+      const check = checkTrialEligibility(nextKey !== currentSourceKey);
       if (!check.allowed) {
         statusText.textContent = check.reason;
         return;
       }
-
-      if (!isUnlimitedUser() && isNewSource) {
-        currentSourceKey = nextSourceKey;
+      if (!isUnlimitedUser() && nextKey !== currentSourceKey) {
+        currentSourceKey = nextKey;
         setVideosUsed(getVideosUsed() + 1);
       } else if (!currentSourceKey) {
-        currentSourceKey = nextSourceKey;
+        currentSourceKey = nextKey;
+      }
+      if (cues.length === 0 && srtInput.value.trim()) {
+        loadCaptionsFromBox();
       }
 
       renderScreenState();
-      outputLabel.textContent = "MIZO AI DUBBING OUTPUT";
-      isTranslating = true;
-      lastSpokenText = "";
-      startTranslateBtn.textContent = "⏹ STOP MIZO AI DUBBING";
+      isRunning = true;
+      lastCueIndex = -1;
+      virtualSec = 0;
+      startDubBtn.textContent = "⏸ PAUSE";
+      startTrialTimer();
 
-      if (socialUrlInput.value.trim()) {
-        applyLinkSource(socialUrlInput.value);
-      } else if (!videoPlayer.classList.contains("hidden") && videoPlayer.src) {
+      if (cues.length > 0) {
+        activateCueAt(0);
+      }
+
+      if (videoPlayer.src) {
         try { await videoPlayer.play(); } catch (_) {}
       }
 
-      startTrialTimer();
-      statusText.textContent = "Original audio muted. Enter/select a line in Mizo box to play dubbed voice.";
+      virtualClockTimer = setInterval(() => {
+        if (!isRunning) return;
+        if (videoPlayer.src && !videoPlayer.paused) {
+          updateTimelineAt(videoPlayer.currentTime || 0);
+        } else {
+          virtualSec += 0.5;
+          updateTimelineAt(virtualSec);
+        }
+      }, 500);
     });
 
-    testTranslateBtn.addEventListener("click", async () => {
-      unlockMobileAudio();
-      applyOriginalAudioMuteState();
-      const check = checkTrialEligibility(false);
-      if (!check.allowed) {
-        statusText.textContent = check.reason;
-        return;
-      }
-      outputLabel.textContent = "MIZO AI DUBBING OUTPUT";
-      lastSpokenText = "";
-      const translated = await translateToMizo("Good morning everyone");
-      heardText.textContent = "Original: Good morning everyone (Muted)";
-      if (autoShowSubtitles.checked && translated.text) {
-        subtitleOutput.textContent = translated.text;
-        videoOverlay.textContent = translated.text;
-        videoOverlay.classList.remove("hidden");
-      }
-      if (autoSpeakVoice.checked) {
-        speakMizoAI(translated.text);
-      }
-    });
-
-    manualTranslateBtn.addEventListener("click", async () => {
-      unlockMobileAudio();
-      applyOriginalAudioMuteState();
-      const line = manualLineInput.value.trim();
-      if (!line) return;
-      const check = checkTrialEligibility(false);
-      if (!check.allowed) {
-        statusText.textContent = check.reason;
-        return;
-      }
-      outputLabel.textContent = "MIZO AI DUBBING OUTPUT";
-      lastSpokenText = "";
-      const translated = await translateToMizo(line);
-      heardText.textContent = "Original: " + line + " (Muted)";
-      if (autoShowSubtitles.checked && translated.text) {
-        subtitleOutput.textContent = translated.text;
-        videoOverlay.textContent = translated.text;
-        videoOverlay.classList.remove("hidden");
-      }
-      if (autoSpeakVoice.checked) {
-        speakMizoAI(translated.text);
-      }
-    });
-
-    manualLineInput.addEventListener("keydown", async (e) => {
-      if (e.key === "Enter") {
-        e.preventDefault();
-        manualTranslateBtn.click();
-      }
-    });
-
-    autoSpeakAllBtn.addEventListener("click", () => {
-      unlockMobileAudio();
-      applyOriginalAudioMuteState();
-      lastSpokenText = "";
-      speakMizoAI(subtitleOutput.textContent);
-    });
-
-    stopSpeakBtn.addEventListener("click", () => {
-      stopSession("Dubbing stopped");
-    });
-
+    applyMuteState();
     renderScreenState();
   </script>
 </body>
