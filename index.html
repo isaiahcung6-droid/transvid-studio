@@ -47,6 +47,14 @@
       width: 100%; background: #0b1026; color: #f8fafc; border: 1px solid #263366;
       border-radius: 10px; padding: 10px; font-size: 13px; margin-bottom: 10px;
     }
+    .pw-wrap { position: relative; margin-bottom: 10px; }
+    .pw-wrap input { margin-bottom: 0; padding-right: 42px; }
+    .eye-btn {
+      position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+      background: transparent; border: none; color: #94a3b8; cursor: pointer;
+      font-size: 15px; padding: 4px 6px; line-height: 1;
+    }
+    .eye-btn:hover { color: #f8fafc; }
     .row-check { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 13px; }
     input[type="checkbox"] { width: 18px; height: 18px; accent-color: #6366f1; }
 
@@ -156,7 +164,10 @@
           <label for="regEmail">Email</label>
           <input type="email" id="regEmail" placeholder="you@example.com" />
           <label for="regPassword">Password (min 6 chars)</label>
-          <input type="password" id="regPassword" placeholder="Create password" />
+          <div class="pw-wrap">
+            <input type="password" id="regPassword" placeholder="Create password" />
+            <button class="eye-btn" id="toggleRegEye" type="button" aria-label="Show or hide password">👁️</button>
+          </div>
           <button class="btn-mini" id="registerSubmitBtn" type="button" style="width:100%; padding:10px;">Register &amp; Start 14-Day Free Access</button>
         </div>
 
@@ -164,7 +175,10 @@
           <label for="loginEmail">Email or Studio ID</label>
           <input type="text" id="loginEmail" placeholder="you@example.com" />
           <label for="loginPassword">Password</label>
-          <input type="password" id="loginPassword" placeholder="Enter password" />
+          <div class="pw-wrap">
+            <input type="password" id="loginPassword" placeholder="Enter password" />
+            <button class="eye-btn" id="toggleLoginEye" type="button" aria-label="Show or hide password">👁️</button>
+          </div>
           <button class="btn-mini" id="loginSubmitBtn" type="button" style="width:100%; padding:10px;">Login to Continue</button>
         </div>
       </div>
@@ -303,10 +317,12 @@
     const registerFields = document.getElementById("registerFields");
     const loginEmail = document.getElementById("loginEmail");
     const loginPassword = document.getElementById("loginPassword");
+    const toggleLoginEye = document.getElementById("toggleLoginEye");
     const loginSubmitBtn = document.getElementById("loginSubmitBtn");
     const regName = document.getElementById("regName");
     const regEmail = document.getElementById("regEmail");
     const regPassword = document.getElementById("regPassword");
+    const toggleRegEye = document.getElementById("toggleRegEye");
     const registerSubmitBtn = document.getElementById("registerSubmitBtn");
     const authMsg = document.getElementById("authMsg");
 
@@ -412,6 +428,17 @@
         en: "God bless you"
       }
     };
+
+    function attachPasswordToggle(btn, input) {
+      btn.addEventListener("click", () => {
+        const isHidden = input.type === "password";
+        input.type = isHidden ? "text" : "password";
+        btn.textContent = isHidden ? "🙈" : "👁️";
+      });
+    }
+
+    attachPasswordToggle(toggleLoginEye, loginPassword);
+    attachPasswordToggle(toggleRegEye, regPassword);
 
     function hasPrivateAccessTrigger() {
       const hashMatch = window.location.hash === "#tv-studio-access";
@@ -747,6 +774,8 @@
       regName.value = "";
       regEmail.value = "";
       regPassword.value = "";
+      regPassword.type = "password";
+      toggleRegEye.textContent = "👁️";
       showAccountScreen = false;
       authMsg.textContent = "";
       renderScreenState();
@@ -760,6 +789,8 @@
         localStorage.setItem(STORAGE_KEYS.studioUnlocked, "true");
         loginEmail.value = "";
         loginPassword.value = "";
+        loginPassword.type = "password";
+        toggleLoginEye.textContent = "👁️";
         showAccountScreen = false;
         authMsg.textContent = "";
         renderScreenState();
@@ -777,6 +808,8 @@
       localStorage.setItem(STORAGE_KEYS.currentUserEmail, matched.email);
       loginEmail.value = "";
       loginPassword.value = "";
+      loginPassword.type = "password";
+      toggleLoginEye.textContent = "👁️";
       showAccountScreen = false;
       authMsg.textContent = "";
       renderScreenState();
