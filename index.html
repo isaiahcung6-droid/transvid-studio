@@ -359,6 +359,7 @@
     let lastSpokenText = "";
     let lastFinalTranscript = "";
     let autoLangIndex = 0;
+    let lastSpeechAt = 0;
     let trialTimerId = null;
     let currentSourceKey = "";
     let showAccountScreen = false;
@@ -703,7 +704,10 @@
       stopTrialTimer();
       startTranslateBtn.textContent = "✨ START TRANSLATION";
       if (recognition) {
-        try { recognition.stop(); } catch (_) {}
+        try {
+          recognition.onend = null;
+          recognition.stop();
+        } catch (_) {}
       }
       if ("speechSynthesis" in window) {
         window.speechSynthesis.cancel();
@@ -1084,16 +1088,38 @@
       if (sourceLangSelect.value !== "auto") {
         return sourceLangSelect.value;
       }
-      const lang = AUTO_LANG_CANDIDATES[autoLangIndex % AUTO_LANG_CANDIDATES.length];
-      autoLangIndex += 1;
-      return lang;
+      const current = AUTO_LANG_CANDIDATES[autoLangIndex % AUTO_LANG_CANDIDATES.length];
+      if (!lastSpeechAt || Date.now() - lastSpeechAt > 8000) {
+        autoLangIndex = (autoLangIndex + 1) % AUTO_LANG_CANDIDATES.length;
+      }
+      return current;
+    }
+
+    function formatMicError(errCode) {
+      if (errCode === "not-allowed" || errCode === "service-not-allowed") {
+        return "Mic permission blocked. Allow Microphone in browser site settings.";
+      }
+      if (errCode === "audio-capture") {
+        return "No microphone found. Check mic/audio input device.";
+      }
+      if (errCode === "network") {
+        return "Speech service network issue. Use manual subtitle box or Test button.";
+      }
+      return `Mic notice (${errCode}). Speak clearly or use manual subtitle box.`;
     }
 
     function startSpeechRecognition() {
       const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SpeechRecognition) {
-        statusText.textContent = "SpeechRecognition not available here. Use manual line box or Test button.";
+        statusText.textContent = "SpeechRecognition not supported in this browser. Use manual box or Test button.";
         return;
+      }
+
+      if (recognition) {
+        try {
+          recognition.onend = null;
+          recognition.stop();
+        } catch (_) {}
       }
 
       recognition = new SpeechRecognition();
@@ -1103,11 +1129,12 @@
       recognition.interimResults = true;
 
       recognition.onstart = () => {
-        statusText.textContent = `Mic listening (${activeLang})... Speak or play video audio.`;
+        statusText.textContent = `Listening (${activeLang})... Speak near mic or play audio on speaker.`;
       };
 
       recognition.onresult = async (event) => {
         if (!isTranslating) return;
+        lastSpeechAt = Date.now();
         let finalTranscript = "";
         let interimTranscript = "";
 
@@ -1132,22 +1159,26 @@
       };
 
       recognition.onerror = (event) => {
-        if (sourceLangSelect.value === "auto" && (event.error === "language-not-supported" || event.error === "no-speech")) {
-          statusText.textContent = `Auto switching language probe (${event.error})...`;
+        if (!isTranslating) return;
+        if (event.error === "no-speech" || event.error === "aborted") {
+          statusText.textContent = `Listening (${recognition.lang})... Waiting for speech.`;
           return;
         }
-        statusText.textContent = "Mic error: " + event.error + " (Use manual line box or Test button)";
+        statusText.textContent = formatMicError(event.error);
       };
 
       recognition.onend = () => {
-        if (isTranslating) {
+        if (!isTranslating) {
+          statusText.textContent = "Stopped";
+          return;
+        }
+        setTimeout(() => {
+          if (!isTranslating) return;
           try {
             recognition.lang = getActiveRecognitionLang();
             recognition.start();
           } catch (_) {}
-        } else {
-          statusText.textContent = "Stopped";
-        }
+        }, 250);
       };
 
       try {
@@ -1183,6 +1214,7 @@
       updateTargetHeader();
       isTranslating = true;
       lastFinalTranscript = "";
+      lastSpeechAt = 0;
       startTranslateBtn.textContent = "⏹ STOP TRANSLATION";
 
       if (socialUrlInput.value.trim()) {
