@@ -215,12 +215,6 @@
           <option value="en-US" selected>English (en-US)</option>
           <option value="my-MM">Myanmar (my-MM)</option>
           <option value="auto">Auto Detect (EN / MY)</option>
-          <option value="hi-IN">Hindi (hi-IN)</option>
-          <option value="es-ES">Spanish (es-ES)</option>
-          <option value="ja-JP">Japanese (ja-JP)</option>
-          <option value="ko-KR">Korean (ko-KR)</option>
-          <option value="th-TH">Thai (th-TH)</option>
-          <option value="zh-CN">Chinese (zh-CN)</option>
         </select>
       </div>
 
@@ -292,10 +286,10 @@
     const ADMIN_PW = "rising24";
 
     const STORAGE_KEYS = {
-      users: "transvid_users_v15",
-      currentUserEmail: "transvid_current_user_v15",
-      studioUnlocked: "transvid_studio_unlocked_v15",
-      paidActive: "transvid_paid_10usd_v15"
+      users: "transvid_users_v16",
+      currentUserEmail: "transvid_current_user_v16",
+      studioUnlocked: "transvid_studio_unlocked_v16",
+      paidActive: "transvid_paid_10usd_v16"
     };
 
     const planBadge = document.getElementById("planBadge");
@@ -362,6 +356,7 @@
     let currentSourceKey = "";
     let showAccountScreen = false;
     let keepAliveTimer = null;
+    let audioCtx = null;
 
     const AUTO_LANG_CANDIDATES = ["en-US", "my-MM"];
 
@@ -420,17 +415,54 @@
       "welcome everyone": "Kan lawm vek a che"
     };
 
-    function warmupAISpeaker() {
-      if (!("speechSynthesis" in window)) return;
+    function unlockMobileAudio() {
       try {
-        window.speechSynthesis.getVoices();
-        window.speechSynthesis.onvoiceschanged = () => {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          if (!audioCtx) audioCtx = new AudioContextClass();
+          if (audioCtx.state === "suspended") {
+            audioCtx.resume();
+          }
+        }
+      } catch (_) {}
+
+      if ("speechSynthesis" in window) {
+        try {
           window.speechSynthesis.getVoices();
-        };
+          window.speechSynthesis.resume();
+        } catch (_) {}
+      }
+    }
+
+    function playSpeakerTone(gender = "male") {
+      try {
+        unlockMobileAudio();
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        const baseFreq = gender === "female" ? 587.33 : 440;
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.25, now + 0.14);
+
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.exponentialRampToValueAtTime(0.12, now + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.22);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now);
+        osc.stop(now + 0.23);
       } catch (_) {}
     }
 
-    warmupAISpeaker();
+    unlockMobileAudio();
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.onvoiceschanged = () => {
+        window.speechSynthesis.getVoices();
+      };
+    }
 
     function attachPasswordToggle(btn, input) {
       btn.addEventListener("click", () => {
@@ -998,12 +1030,14 @@
         statusText.textContent = "No Mizo translation text to speak.";
         return;
       }
-      if (!("speechSynthesis" in window)) {
-        statusText.textContent = "AI Speaker not supported on this browser.";
-        return;
-      }
 
       const gender = voiceGenderSelect.value;
+      playSpeakerTone(gender);
+
+      if (!("speechSynthesis" in window)) {
+        statusText.textContent = `AI Speaker tone played • Mizo text: "${clean}"`;
+        return;
+      }
 
       try {
         window.speechSynthesis.cancel();
@@ -1028,17 +1062,25 @@
         utter.pitch = gender === "female" ? 1.12 : 0.92;
         utter.volume = 1.0;
 
+        let didStart = false;
         utter.onstart = () => {
+          didStart = true;
           statusText.textContent = `AI Speaker (${gender}) speaking Mizo: "${clean}"`;
         };
         utter.onend = () => {
           statusText.textContent = `AI Speaker finished Mizo: "${clean}"`;
         };
         utter.onerror = (ev) => {
-          statusText.textContent = `AI Speaker issue (${ev.error || "audio"}) — Mizo text: "${clean}"`;
+          statusText.textContent = `Phone silent/TTS notice (${ev.error || "muted"}) • Mizo text: "${clean}"`;
         };
 
         window.speechSynthesis.speak(utter);
+
+        setTimeout(() => {
+          if (!didStart && !window.speechSynthesis.speaking) {
+            statusText.textContent = `Check phone Media Volume / Silent switch • Mizo text: "${clean}"`;
+          }
+        }, 700);
 
         if (keepAliveTimer) clearInterval(keepAliveTimer);
         keepAliveTimer = setInterval(() => {
@@ -1188,7 +1230,7 @@
     }
 
     startTranslateBtn.addEventListener("click", async () => {
-      warmupAISpeaker();
+      unlockMobileAudio();
 
       if (isTranslating) {
         stopSession("Stopped");
@@ -1230,6 +1272,7 @@
     });
 
     testTranslateBtn.addEventListener("click", async () => {
+      unlockMobileAudio();
       const check = checkTrialEligibility(false);
       if (!check.allowed) {
         statusText.textContent = check.reason;
@@ -1249,6 +1292,7 @@
     });
 
     manualTranslateBtn.addEventListener("click", async () => {
+      unlockMobileAudio();
       const line = manualLineInput.value.trim();
       if (!line) return;
       const check = checkTrialEligibility(false);
@@ -1277,6 +1321,7 @@
     });
 
     autoSpeakAllBtn.addEventListener("click", () => {
+      unlockMobileAudio();
       lastSpokenText = "";
       speakMizoAI(subtitleOutput.textContent);
     });
