@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>TransVid Studio • Mizo AI Speaker</title>
+  <title>TransVid Studio • Mizo AI Dubbing</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
     body { background: #090d1f; color: #f1f5f9; padding: 16px; display: flex; justify-content: center; }
@@ -55,7 +55,7 @@
       font-size: 15px; padding: 4px 6px; line-height: 1;
     }
     .eye-btn:hover { color: #f8fafc; }
-    .row-check { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; font-size: 13px; }
+    .row-check { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; font-size: 13px; }
     input[type="checkbox"] { width: 18px; height: 18px; accent-color: #6366f1; }
 
     .auth-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
@@ -216,6 +216,11 @@
           <option value="my-MM">Myanmar (my-MM)</option>
           <option value="auto">Auto Detect (EN / MY)</option>
         </select>
+
+        <div class="row-check">
+          <span>Mute Original Video Audio (Dubbing Only)</span>
+          <input type="checkbox" id="muteOriginalAudio" checked />
+        </div>
       </div>
 
       <div class="card">
@@ -243,16 +248,16 @@
         </div>
       </div>
 
-      <button class="btn-primary" id="startTranslateBtn" type="button">✨ START MIZO AI TRANSLATION</button>
+      <button class="btn-primary" id="startTranslateBtn" type="button">✨ START MIZO AI DUBBING</button>
       <button class="btn-secondary" id="testTranslateBtn" type="button">🧪 Test Mizo AI Speaker ("Good morning everyone")</button>
 
       <div class="card">
         <div class="section-head">
           <span>▶ 3. PLAYBACK, SUBTITLES &amp; AI SPEAKER</span>
-          <span class="pill" id="modePill">Mizo AI</span>
+          <span class="pill" id="modePill">Original Muted • Mizo AI</span>
         </div>
         <div class="player-wrap">
-          <video id="videoPlayer" controls playsinline></video>
+          <video id="videoPlayer" controls playsinline muted></video>
           <iframe id="embedPlayer" class="hidden" allow="autoplay; encrypted-media" allowfullscreen></iframe>
           <div class="video-caption-overlay hidden" id="videoOverlay"></div>
         </div>
@@ -262,7 +267,7 @@
         <div class="output-label" id="outputLabel">MIZO AI TRANSLATION OUTPUT</div>
         <div class="heard-text" id="heardText">Heard: -</div>
         <div class="subtitle-text" id="subtitleOutput">Zing chibai vek ule</div>
-        <div class="status-text" id="statusText">Ready • Mizo AI Speaker</div>
+        <div class="status-text" id="statusText">Original audio muted • Mizo AI Speaker ready</div>
 
         <div class="manual-row">
           <input type="text" id="manualLineInput" placeholder="Type/paste line to translate &amp; speak in Mizo..." />
@@ -286,10 +291,10 @@
     const ADMIN_PW = "rising24";
 
     const STORAGE_KEYS = {
-      users: "transvid_users_v18",
-      currentUserEmail: "transvid_current_user_v18",
-      studioUnlocked: "transvid_studio_unlocked_v18",
-      paidActive: "transvid_paid_10usd_v18"
+      users: "transvid_users_v19",
+      currentUserEmail: "transvid_current_user_v19",
+      studioUnlocked: "transvid_studio_unlocked_v19",
+      paidActive: "transvid_paid_10usd_v19"
     };
 
     const planBadge = document.getElementById("planBadge");
@@ -327,6 +332,7 @@
 
     const videoFileInput = document.getElementById("videoFile");
     const socialUrlInput = document.getElementById("socialUrl");
+    const muteOriginalAudio = document.getElementById("muteOriginalAudio");
     const videoPlayer = document.getElementById("videoPlayer");
     const embedPlayer = document.getElementById("embedPlayer");
     const videoOverlay = document.getElementById("videoOverlay");
@@ -337,6 +343,7 @@
     const autoSpeakVoice = document.getElementById("autoSpeakVoice");
     const startTranslateBtn = document.getElementById("startTranslateBtn");
     const testTranslateBtn = document.getElementById("testTranslateBtn");
+    const modePill = document.getElementById("modePill");
     const outputLabel = document.getElementById("outputLabel");
     const heardText = document.getElementById("heardText");
     const subtitleOutput = document.getElementById("subtitleOutput");
@@ -346,20 +353,14 @@
     const autoSpeakAllBtn = document.getElementById("autoSpeakAllBtn");
     const stopSpeakBtn = document.getElementById("stopSpeakBtn");
 
-    let recognition = null;
     let isTranslating = false;
     let lastSpokenText = "";
-    let lastFinalTranscript = "";
-    let autoLangIndex = 0;
-    let lastSpeechAt = 0;
     let trialTimerId = null;
     let currentSourceKey = "";
     let showAccountScreen = false;
     let keepAliveTimer = null;
     let audioCtx = null;
     let aiAudioPlayer = null;
-
-    const AUTO_LANG_CANDIDATES = ["en-US", "my-MM"];
 
     const MIZO_WORD_DICT = {
       "good": "tha",
@@ -427,6 +428,23 @@
       "might anticipate my needs": "Ka mamawhna i lo hmu lawk mai thei"
     };
 
+    function applyOriginalAudioMuteState() {
+      const shouldMute = Boolean(muteOriginalAudio.checked);
+      videoPlayer.muted = shouldMute;
+      modePill.textContent = shouldMute ? "Original Muted • Mizo AI" : "Original + Mizo AI";
+    }
+
+    muteOriginalAudio.addEventListener("change", () => {
+      applyOriginalAudioMuteState();
+      statusText.textContent = muteOriginalAudio.checked
+        ? "Original video audio muted • Only Mizo AI dubbing plays."
+        : "Original video audio unmuted.";
+    });
+
+    videoPlayer.addEventListener("play", () => {
+      applyOriginalAudioMuteState();
+    });
+
     function unlockMobileAudio() {
       try {
         const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -483,7 +501,7 @@
 
     function playSpeechSynthesisFallback(clean, gender) {
       if (!("speechSynthesis" in window)) {
-        statusText.textContent = `AI Speaker ready • Mizo text: "${clean}"`;
+        statusText.textContent = `Mizo Dubbing text ready: "${clean}"`;
         return;
       }
 
@@ -511,13 +529,13 @@
         utter.volume = 1.0;
 
         utter.onstart = () => {
-          statusText.textContent = `AI Speaker (${gender}) speaking Mizo: "${clean}"`;
+          statusText.textContent = `AI Dubbing (${gender}) speaking: "${clean}"`;
         };
         utter.onend = () => {
-          statusText.textContent = `AI Speaker finished Mizo: "${clean}"`;
+          statusText.textContent = `AI Dubbing finished: "${clean}"`;
         };
         utter.onerror = () => {
-          statusText.textContent = `Check phone Ringer/Media Volume • Mizo text: "${clean}"`;
+          statusText.textContent = `Check phone Media Volume • Mizo text: "${clean}"`;
         };
 
         window.speechSynthesis.speak(utter);
@@ -535,6 +553,7 @@
     }
 
     unlockMobileAudio();
+    applyOriginalAudioMuteState();
     if ("speechSynthesis" in window) {
       window.speechSynthesis.onvoiceschanged = () => {
         window.speechSynthesis.getVoices();
@@ -821,13 +840,7 @@
         clearInterval(keepAliveTimer);
         keepAliveTimer = null;
       }
-      startTranslateBtn.textContent = "✨ START MIZO AI TRANSLATION";
-      if (recognition) {
-        try {
-          recognition.onend = null;
-          recognition.stop();
-        } catch (_) {}
-      }
+      startTranslateBtn.textContent = "✨ START MIZO AI DUBBING";
       stopAllAIAudio();
       statusText.textContent = customStatus;
     }
@@ -1001,8 +1014,8 @@
         videoPlayer.classList.add("hidden");
 
         embedPlayer.classList.remove("hidden");
-        embedPlayer.src = `https://www.youtube.com/embed/${ytId}?autoplay=1`;
-        statusText.textContent = "YouTube loaded. Turn speaker volume UP so mic can hear speech.";
+        embedPlayer.src = `https://www.youtube.com/embed/${ytId}?autoplay=1&mute=${muteOriginalAudio.checked ? 1 : 0}`;
+        statusText.textContent = "YouTube loaded with original audio muted for Mizo dubbing.";
         return true;
       }
 
@@ -1013,8 +1026,8 @@
         videoPlayer.classList.add("hidden");
 
         embedPlayer.classList.remove("hidden");
-        embedPlayer.src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true`;
-        statusText.textContent = "Facebook loaded. Turn speaker volume UP so mic can hear speech.";
+        embedPlayer.src = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&autoplay=true&mute=${muteOriginalAudio.checked ? 1 : 0}`;
+        statusText.textContent = "Facebook loaded with original audio muted for Mizo dubbing.";
         return true;
       }
 
@@ -1022,7 +1035,8 @@
       embedPlayer.src = "";
       videoPlayer.classList.remove("hidden");
       videoPlayer.src = url;
-      statusText.textContent = "Direct video link loaded.";
+      applyOriginalAudioMuteState();
+      statusText.textContent = "Direct video link loaded (original audio muted).";
       return true;
     }
 
@@ -1034,7 +1048,8 @@
         embedPlayer.src = "";
         videoPlayer.classList.remove("hidden");
         videoPlayer.src = URL.createObjectURL(file);
-        statusText.textContent = "Video loaded: " + file.name;
+        applyOriginalAudioMuteState();
+        statusText.textContent = "Video loaded (original audio muted): " + file.name;
       }
     });
 
@@ -1120,10 +1135,10 @@
         aiAudioPlayer.playbackRate = gender === "female" ? 1.05 : 0.94;
         aiAudioPlayer.volume = 1.0;
 
-        statusText.textContent = `AI Speaker (${gender}) playing Mizo: "${clean}"`;
+        statusText.textContent = `Original muted • AI Dubbing (${gender}) playing: "${clean}"`;
 
         aiAudioPlayer.onended = () => {
-          statusText.textContent = `AI Speaker finished Mizo: "${clean}"`;
+          statusText.textContent = `AI Dubbing finished: "${clean}"`;
         };
 
         aiAudioPlayer.onerror = () => {
@@ -1141,144 +1156,12 @@
       }
     }
 
-    async function processTranscript(activeText, isFinal) {
-      if (!activeText) return;
-      heardText.textContent = "Heard: " + activeText;
-
-      if (!isFinal) {
-        statusText.textContent = "Listening...";
-        return;
-      }
-
-      if (activeText === lastFinalTranscript) return;
-      lastFinalTranscript = activeText;
-
-      statusText.textContent = "Translating to Mizo...";
-      const result = await translateToMizo(activeText);
-
-      if (autoShowSubtitles.checked && result.text) {
-        subtitleOutput.textContent = result.text;
-        videoOverlay.textContent = result.text;
-        videoOverlay.classList.remove("hidden");
-      }
-
-      if (autoSpeakVoice.checked && result.text && result.text !== lastSpokenText) {
-        lastSpokenText = result.text;
-        speakMizoAI(result.text);
-      } else if (result.text) {
-        statusText.textContent = `Mizo ready (${result.source}): "${result.text}"`;
-      }
-    }
-
-    function getActiveRecognitionLang() {
-      if (sourceLangSelect.value !== "auto") {
-        return sourceLangSelect.value;
-      }
-      const current = AUTO_LANG_CANDIDATES[autoLangIndex % AUTO_LANG_CANDIDATES.length];
-      if (!lastSpeechAt || Date.now() - lastSpeechAt > 8000) {
-        autoLangIndex = (autoLangIndex + 1) % AUTO_LANG_CANDIDATES.length;
-      }
-      return current;
-    }
-
-    function formatMicError(errCode) {
-      if (errCode === "not-allowed" || errCode === "service-not-allowed") {
-        return "Mic permission blocked. Allow Microphone in browser site settings.";
-      }
-      if (errCode === "audio-capture") {
-        return "No microphone found. Check mic/audio input device.";
-      }
-      if (errCode === "network") {
-        return "Speech service network issue. Use manual Mizo box or Test Mizo AI Speaker button.";
-      }
-      return `Mic notice (${errCode}). Speak clearly or use manual Mizo box.`;
-    }
-
-    function startSpeechRecognition() {
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SpeechRecognition) {
-        statusText.textContent = "SpeechRecognition not supported here. Use manual box or Test button.";
-        return;
-      }
-
-      if (recognition) {
-        try {
-          recognition.onend = null;
-          recognition.stop();
-        } catch (_) {}
-      }
-
-      recognition = new SpeechRecognition();
-      const activeLang = getActiveRecognitionLang();
-      recognition.lang = activeLang;
-      recognition.continuous = true;
-      recognition.interimResults = true;
-
-      recognition.onstart = () => {
-        statusText.textContent = `Listening (${activeLang}) → Mizo AI Speaker...`;
-      };
-
-      recognition.onresult = async (event) => {
-        if (!isTranslating) return;
-        lastSpeechAt = Date.now();
-        let finalTranscript = "";
-        let interimTranscript = "";
-
-        for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-            finalTranscript += transcript + " ";
-          } else {
-            interimTranscript += transcript;
-          }
-        }
-
-        const cleanFinal = finalTranscript.trim();
-        const cleanInterim = interimTranscript.trim();
-
-        if (cleanInterim) {
-          heardText.textContent = "Heard: " + cleanInterim;
-        }
-        if (cleanFinal) {
-          await processTranscript(cleanFinal, true);
-        }
-      };
-
-      recognition.onerror = (event) => {
-        if (!isTranslating) return;
-        if (event.error === "no-speech" || event.error === "aborted") {
-          statusText.textContent = `Listening (${recognition.lang})... Waiting for speech.`;
-          return;
-        }
-        statusText.textContent = formatMicError(event.error);
-      };
-
-      recognition.onend = () => {
-        if (!isTranslating) {
-          statusText.textContent = "Stopped";
-          return;
-        }
-        setTimeout(() => {
-          if (!isTranslating) return;
-          try {
-            recognition.lang = getActiveRecognitionLang();
-            recognition.start();
-          } catch (_) {}
-        }, 250);
-      };
-
-      try {
-        recognition.start();
-      } catch (err) {
-        statusText.textContent = "Mic start error: " + err.message;
-      }
-    }
-
     startTranslateBtn.addEventListener("click", async () => {
       unlockMobileAudio();
+      applyOriginalAudioMuteState();
 
       if (isTranslating) {
-        stopSession("Stopped");
+        stopSession("Dubbing stopped");
         return;
       }
 
@@ -1299,12 +1182,10 @@
       }
 
       renderScreenState();
-      outputLabel.textContent = "MIZO AI TRANSLATION OUTPUT";
+      outputLabel.textContent = "MIZO AI DUBBING OUTPUT";
       isTranslating = true;
-      lastFinalTranscript = "";
       lastSpokenText = "";
-      lastSpeechAt = 0;
-      startTranslateBtn.textContent = "⏹ STOP MIZO AI TRANSLATION";
+      startTranslateBtn.textContent = "⏹ STOP MIZO AI DUBBING";
 
       if (socialUrlInput.value.trim()) {
         applyLinkSource(socialUrlInput.value);
@@ -1313,31 +1194,34 @@
       }
 
       startTrialTimer();
-      startSpeechRecognition();
+      statusText.textContent = "Original audio muted. Enter/select a line in Mizo box to play dubbed voice.";
     });
 
     testTranslateBtn.addEventListener("click", async () => {
       unlockMobileAudio();
+      applyOriginalAudioMuteState();
       const check = checkTrialEligibility(false);
       if (!check.allowed) {
         statusText.textContent = check.reason;
         return;
       }
-      outputLabel.textContent = "MIZO AI TRANSLATION OUTPUT";
-      lastFinalTranscript = "";
+      outputLabel.textContent = "MIZO AI DUBBING OUTPUT";
       lastSpokenText = "";
       const translated = await translateToMizo("Good morning everyone");
-      heardText.textContent = "Heard: Good morning everyone";
+      heardText.textContent = "Original: Good morning everyone (Muted)";
       if (autoShowSubtitles.checked && translated.text) {
         subtitleOutput.textContent = translated.text;
         videoOverlay.textContent = translated.text;
         videoOverlay.classList.remove("hidden");
       }
-      speakMizoAI(translated.text);
+      if (autoSpeakVoice.checked) {
+        speakMizoAI(translated.text);
+      }
     });
 
     manualTranslateBtn.addEventListener("click", async () => {
       unlockMobileAudio();
+      applyOriginalAudioMuteState();
       const line = manualLineInput.value.trim();
       if (!line) return;
       const check = checkTrialEligibility(false);
@@ -1345,17 +1229,18 @@
         statusText.textContent = check.reason;
         return;
       }
-      outputLabel.textContent = "MIZO AI TRANSLATION OUTPUT";
-      lastFinalTranscript = "";
+      outputLabel.textContent = "MIZO AI DUBBING OUTPUT";
       lastSpokenText = "";
       const translated = await translateToMizo(line);
-      heardText.textContent = "Heard: " + line;
+      heardText.textContent = "Original: " + line + " (Muted)";
       if (autoShowSubtitles.checked && translated.text) {
         subtitleOutput.textContent = translated.text;
         videoOverlay.textContent = translated.text;
         videoOverlay.classList.remove("hidden");
       }
-      speakMizoAI(translated.text);
+      if (autoSpeakVoice.checked) {
+        speakMizoAI(translated.text);
+      }
     });
 
     manualLineInput.addEventListener("keydown", async (e) => {
@@ -1367,12 +1252,13 @@
 
     autoSpeakAllBtn.addEventListener("click", () => {
       unlockMobileAudio();
+      applyOriginalAudioMuteState();
       lastSpokenText = "";
       speakMizoAI(subtitleOutput.textContent);
     });
 
     stopSpeakBtn.addEventListener("click", () => {
-      stopSession("Stopped");
+      stopSession("Dubbing stopped");
     });
 
     renderScreenState();
