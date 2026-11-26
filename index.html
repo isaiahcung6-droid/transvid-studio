@@ -15,8 +15,9 @@
     .brand-sub { font-size: 11px; color: #818cf8; }
 
     .badge { background: #064e3b; color: #34d399; border: 1px solid #10b981; padding: 5px 10px; border-radius: 999px; font-size: 11px; font-weight: 700; white-space: nowrap; }
-    .badge.admin { background: #312e81; color: #c7d2fe; border-color: #818cf8; }
+    .badge.pro { background: #1e3a8a; color: #93c5fd; border-color: #3b82f6; }
     .badge.expired { background: #450a0a; color: #fca5a5; border-color: #ef4444; }
+    .badge.locked { background: #1e293b; color: #cbd5e1; border-color: #475569; }
 
     .plan-bar {
       background: #111833; border: 1px solid #1e2952; border-radius: 12px;
@@ -34,7 +35,13 @@
     .btn-mini.active-tab { background: #4f46e5; border-color: #818cf8; color: #ffffff; }
 
     .card { background: #111833; border: 1px solid #1e2952; border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+    .auth-page-card { border-color: #4f46e5; }
     .card-title { font-size: 13px; font-weight: 700; color: #93c5fd; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .trial-note {
+      background: #0b1026; border: 1px solid #263366; border-radius: 10px;
+      padding: 10px; font-size: 12px; color: #cbd5e1; line-height: 1.5; margin-bottom: 12px;
+    }
+    .trial-note strong { color: #93c5fd; }
     label { display: block; font-size: 12px; color: #cbd5e1; margin-bottom: 6px; }
     select, input[type="file"], input[type="url"], input[type="password"], input[type="text"], input[type="email"] {
       width: 100%; background: #0b1026; color: #f8fafc; border: 1px solid #263366;
@@ -44,7 +51,7 @@
     input[type="checkbox"] { width: 18px; height: 18px; accent-color: #6366f1; }
 
     .auth-tabs { display: flex; gap: 8px; margin-bottom: 12px; }
-    .auth-msg { font-size: 12px; color: #38bdf8; margin-top: 6px; min-height: 16px; }
+    .auth-msg { font-size: 12px; color: #38bdf8; margin-top: 8px; min-height: 16px; }
     .user-pill {
       background: #0b1026; border: 1px solid #263366; border-radius: 10px;
       padding: 10px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
@@ -52,7 +59,7 @@
     }
 
     .admin-box {
-      margin-top: 10px; padding-top: 10px; border-top: 1px dashed #263366;
+      margin-top: 12px; padding-top: 10px; border-top: 1px dashed #263366;
       display: none;
     }
     .admin-box.open { display: block; }
@@ -107,24 +114,26 @@
           <div class="brand-sub">Powered By @Rising Star Music Studio</div>
         </div>
       </div>
-      <div class="badge" id="planBadge">14-Day Trial</div>
+      <div class="badge locked" id="planBadge">Login Required</div>
     </div>
 
     <div class="plan-bar">
       <div class="plan-meta" id="planInfo">
-        <strong>14-Day Free Trial</strong> • After trial: <strong>$10/mo USD</strong>
-        <div class="quota-line" id="quotaText">Free Trial Limit: 5 videos • 5:00 total</div>
+        <strong>Register or Login First</strong> to unlock <strong>14-Day Free Access</strong>
+        <div class="quota-line" id="quotaText">Free Access after login: 14 days • 5 videos • 5:00 min</div>
       </div>
-      <div style="display: flex; gap: 6px;">
-        <button class="btn-mini" id="toggleAuthBtn" type="button">👤 Account</button>
-        <button class="btn-mini" id="toggleAdminBtn" type="button">🔐 Admin</button>
-      </div>
+      <div id="accountActionWrap" style="display: flex; gap: 6px;"></div>
     </div>
 
-    <div class="card hidden" id="authCard">
+    <!-- Step 1: Register & Login Page -->
+    <div class="card auth-page-card" id="authCard">
       <div class="card-title">
-        <span>👤 Account Access</span>
-        <span id="authStateLabel" style="font-size:11px; color:#94a3b8;">Guest</span>
+        <span>Register / Login Page</span>
+        <span id="authStateLabel" style="font-size:11px; color:#94a3b8;">Step 1 of 2</span>
+      </div>
+
+      <div class="trial-note">
+        <strong>14-Day Free Access</strong> unlocks after you register or log in: up to <strong>5 videos</strong> and <strong>5:00 minutes</strong> total. Afterward: <strong>$10/mo USD</strong>.
       </div>
 
       <div id="loggedInBox" class="user-pill hidden">
@@ -137,123 +146,127 @@
 
       <div id="authFormWrap">
         <div class="auth-tabs">
-          <button class="btn-mini active-tab" id="tabLoginBtn" type="button">Login</button>
-          <button class="btn-mini" id="tabRegisterBtn" type="button">Register</button>
+          <button class="btn-mini active-tab" id="tabRegisterBtn" type="button">Register</button>
+          <button class="btn-mini" id="tabLoginBtn" type="button">Login</button>
         </div>
 
-        <div id="loginFields">
-          <label for="loginEmail">Email or Admin ID</label>
-          <input type="text" id="loginEmail" placeholder="you@example.com or Risingstar" />
-          <label for="loginPassword">Password</label>
-          <input type="password" id="loginPassword" placeholder="Enter password" />
-          <button class="btn-mini" id="loginSubmitBtn" type="button" style="width:100%; padding:9px;">Login</button>
-        </div>
-
-        <div id="registerFields" class="hidden">
+        <div id="registerFields">
           <label for="regName">Full Name</label>
-          <input type="text" id="regName" placeholder="Your name" />
+          <input type="text" id="regName" placeholder="Your full name" />
           <label for="regEmail">Email</label>
           <input type="email" id="regEmail" placeholder="you@example.com" />
           <label for="regPassword">Password (min 6 chars)</label>
           <input type="password" id="regPassword" placeholder="Create password" />
-          <button class="btn-mini" id="registerSubmitBtn" type="button" style="width:100%; padding:9px;">Register (14d Free: 5 Videos / 5 Min)</button>
+          <button class="btn-mini" id="registerSubmitBtn" type="button" style="width:100%; padding:10px;">Register &amp; Start 14-Day Free Access</button>
+        </div>
+
+        <div id="loginFields" class="hidden">
+          <label for="loginEmail">Email</label>
+          <input type="text" id="loginEmail" placeholder="you@example.com" />
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter password" />
+          <button class="btn-mini" id="loginSubmitBtn" type="button" style="width:100%; padding:10px;">Login to Continue</button>
         </div>
       </div>
 
       <div class="auth-msg" id="authMsg"></div>
 
+      <!-- Private URL trigger only (#tv-studio-access or ?studio=1) -->
       <div class="admin-box" id="adminPanel">
         <div class="card-title">
-          <span>🛡️ Admin Access (All Free &amp; Unlimited)</span>
+          <span>Workspace Console</span>
         </div>
         <div class="admin-row">
-          <input type="text" id="adminUserInput" placeholder="Admin ID (Risingstar)" />
-          <input type="password" id="adminPassInput" placeholder="Password (rising24)" />
+          <input type="text" id="adminUserInput" placeholder="Workspace ID" />
+          <input type="password" id="adminPassInput" placeholder="Passcode" />
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button class="btn-mini" id="unlockAdminBtn" type="button">Unlock All Free</button>
-          <button class="btn-mini" id="activateSubBtn" type="button">Mark $10/mo Active</button>
-          <button class="btn-mini" id="lockAdminBtn" type="button">Lock Admin</button>
+          <button class="btn-mini" id="unlockAdminBtn" type="button">Enable Studio Mode</button>
+          <button class="btn-mini" id="activateSubBtn" type="button">Activate $10/mo Plan</button>
+          <button class="btn-mini" id="lockAdminBtn" type="button">Reset Trial</button>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-title">🎬 Video Source</div>
-      <input type="file" id="videoFile" accept="video/*,audio/*" />
-      <label for="socialUrl">Facebook / YouTube Link</label>
-      <input type="url" id="socialUrl" placeholder="https://youtube.com/... or https://facebook.com/..." />
+    <!-- Step 2: Studio Workspace (Shown only after Register / Login) -->
+    <div id="studioWorkspace" class="hidden">
+      <div class="card">
+        <div class="card-title">🎬 Video Source</div>
+        <input type="file" id="videoFile" accept="video/*,audio/*" />
+        <label for="socialUrl">Facebook / YouTube Link</label>
+        <input type="url" id="socialUrl" placeholder="https://youtube.com/... or https://facebook.com/..." />
 
-      <label for="sourceLang">Source Spoken Language (Any Language)</label>
-      <select id="sourceLang">
-        <option value="auto" selected>Auto Detect (Any Language)</option>
-        <option value="en-US">English (en-US)</option>
-        <option value="my-MM">Myanmar (my-MM)</option>
-        <option value="hi-IN">Hindi (hi-IN)</option>
-        <option value="es-ES">Spanish (es-ES)</option>
-        <option value="ja-JP">Japanese (ja-JP)</option>
-        <option value="ko-KR">Korean (ko-KR)</option>
-        <option value="th-TH">Thai (th-TH)</option>
-        <option value="zh-CN">Chinese (zh-CN)</option>
-      </select>
-    </div>
-
-    <div class="card">
-      <div class="card-title">cc Subtitle Option</div>
-      <label for="targetLang">Target Language</label>
-      <select id="targetLang">
-        <option value="lus" selected>Mizo</option>
-        <option value="my">Myanmar</option>
-        <option value="en">English</option>
-      </select>
-      <div class="row-check">
-        <span>Auto Show Subtitles</span>
-        <input type="checkbox" id="autoShowSubtitles" checked />
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">🎙️ Voice Option</div>
-      <label for="voiceGender">Voice Gender</label>
-      <select id="voiceGender">
-        <option value="male" selected>Male Voice</option>
-        <option value="female">Female Voice</option>
-      </select>
-      <div class="row-check">
-        <span>Auto Speak Voice (EN / MY)</span>
-        <input type="checkbox" id="autoSpeakVoice" checked />
-      </div>
-    </div>
-
-    <button class="btn-primary" id="startTranslateBtn" type="button">✨ START TRANSLATION</button>
-    <button class="btn-secondary" id="testTranslateBtn" type="button">🧪 Test Subtitle &amp; Translation ("Good morning everyone")</button>
-
-    <div class="card">
-      <div class="section-head">
-        <span>▶ 3. PLAYBACK, SUBTITLES &amp; VOICE</span>
-        <span class="pill" id="modePill">Auto Active</span>
-      </div>
-      <div class="player-wrap">
-        <video id="videoPlayer" controls playsinline></video>
-        <iframe id="embedPlayer" class="hidden" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-        <div class="video-caption-overlay hidden" id="videoOverlay"></div>
-      </div>
-    </div>
-
-    <div class="card output-box">
-      <div class="output-label" id="outputLabel">SUBTITLE OUTPUT • MIZO</div>
-      <div class="heard-text" id="heardText">Heard: -</div>
-      <div class="subtitle-text" id="subtitleOutput">Auto subtitles leh voice dubbing te chu tunah hian a hman theih tawh a ni.</div>
-      <div class="status-text" id="statusText">Ready</div>
-
-      <div class="manual-row">
-        <input type="text" id="manualLineInput" placeholder="Paste/type any language line to subtitle..." />
-        <button class="btn-mini" id="manualTranslateBtn" type="button">Subtitle</button>
+        <label for="sourceLang">Source Spoken Language (Any Language)</label>
+        <select id="sourceLang">
+          <option value="auto" selected>Auto Detect (Any Language)</option>
+          <option value="en-US">English (en-US)</option>
+          <option value="my-MM">Myanmar (my-MM)</option>
+          <option value="hi-IN">Hindi (hi-IN)</option>
+          <option value="es-ES">Spanish (es-ES)</option>
+          <option value="ja-JP">Japanese (ja-JP)</option>
+          <option value="ko-KR">Korean (ko-KR)</option>
+          <option value="th-TH">Thai (th-TH)</option>
+          <option value="zh-CN">Chinese (zh-CN)</option>
+        </select>
       </div>
 
-      <div class="btn-group">
-        <button class="btn-speak" id="autoSpeakAllBtn" type="button">🔊 Auto Speak All</button>
-        <button class="btn-stop" id="stopSpeakBtn" type="button">■ Stop</button>
+      <div class="card">
+        <div class="card-title">cc Subtitle Option</div>
+        <label for="targetLang">Target Language</label>
+        <select id="targetLang">
+          <option value="lus" selected>Mizo</option>
+          <option value="my">Myanmar</option>
+          <option value="en">English</option>
+        </select>
+        <div class="row-check">
+          <span>Auto Show Subtitles</span>
+          <input type="checkbox" id="autoShowSubtitles" checked />
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">🎙️ Voice Option</div>
+        <label for="voiceGender">Voice Gender</label>
+        <select id="voiceGender">
+          <option value="male" selected>Male Voice</option>
+          <option value="female">Female Voice</option>
+        </select>
+        <div class="row-check">
+          <span>Auto Speak Voice (EN / MY)</span>
+          <input type="checkbox" id="autoSpeakVoice" checked />
+        </div>
+      </div>
+
+      <button class="btn-primary" id="startTranslateBtn" type="button">✨ START TRANSLATION</button>
+      <button class="btn-secondary" id="testTranslateBtn" type="button">🧪 Test Subtitle &amp; Translation ("Good morning everyone")</button>
+
+      <div class="card">
+        <div class="section-head">
+          <span>▶ 3. PLAYBACK, SUBTITLES &amp; VOICE</span>
+          <span class="pill" id="modePill">Auto Active</span>
+        </div>
+        <div class="player-wrap">
+          <video id="videoPlayer" controls playsinline></video>
+          <iframe id="embedPlayer" class="hidden" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+          <div class="video-caption-overlay hidden" id="videoOverlay"></div>
+        </div>
+      </div>
+
+      <div class="card output-box">
+        <div class="output-label" id="outputLabel">SUBTITLE OUTPUT • MIZO</div>
+        <div class="heard-text" id="heardText">Heard: -</div>
+        <div class="subtitle-text" id="subtitleOutput">Auto subtitles leh voice dubbing te chu tunah hian a hman theih tawh a ni.</div>
+        <div class="status-text" id="statusText">Ready</div>
+
+        <div class="manual-row">
+          <input type="text" id="manualLineInput" placeholder="Paste/type any language line to subtitle..." />
+          <button class="btn-mini" id="manualTranslateBtn" type="button">Subtitle</button>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn-speak" id="autoSpeakAllBtn" type="button">🔊 Auto Speak All</button>
+          <button class="btn-stop" id="stopSpeakBtn" type="button">■ Stop</button>
+        </div>
       </div>
     </div>
   </div>
@@ -267,25 +280,22 @@
     const ADMIN_PW = "rising24";
 
     const STORAGE_KEYS = {
-      users: "transvid_users_v7",
-      currentUserEmail: "transvid_current_user_v7",
-      guestTrialStart: "transvid_guest_trial_start_v7",
-      guestVideosUsed: "transvid_guest_videos_used_v7",
-      guestSecondsUsed: "transvid_guest_seconds_used_v7",
-      adminAllFree: "transvid_admin_all_free_v7",
-      paidActive: "transvid_paid_10usd_v7"
+      users: "transvid_users_v8",
+      currentUserEmail: "transvid_current_user_v8",
+      studioUnlocked: "transvid_studio_unlocked_v8",
+      paidActive: "transvid_paid_10usd_v8"
     };
 
     const planBadge = document.getElementById("planBadge");
     const planInfo = document.getElementById("planInfo");
     const quotaText = document.getElementById("quotaText");
-    const toggleAuthBtn = document.getElementById("toggleAuthBtn");
+    const accountActionWrap = document.getElementById("accountActionWrap");
     const authCard = document.getElementById("authCard");
+    const studioWorkspace = document.getElementById("studioWorkspace");
     const authStateLabel = document.getElementById("authStateLabel");
     const loggedInBox = document.getElementById("loggedInBox");
     const currentUserName = document.getElementById("currentUserName");
     const currentUserEmail = document.getElementById("currentUserEmail");
-    const logoutBtn = document.getElementById("logoutBtn");
     const authFormWrap = document.getElementById("authFormWrap");
     const tabLoginBtn = document.getElementById("tabLoginBtn");
     const tabRegisterBtn = document.getElementById("tabRegisterBtn");
@@ -300,7 +310,6 @@
     const registerSubmitBtn = document.getElementById("registerSubmitBtn");
     const authMsg = document.getElementById("authMsg");
 
-    const toggleAdminBtn = document.getElementById("toggleAdminBtn");
     const adminPanel = document.getElementById("adminPanel");
     const adminUserInput = document.getElementById("adminUserInput");
     const adminPassInput = document.getElementById("adminPassInput");
@@ -336,6 +345,7 @@
     let autoLangIndex = 0;
     let trialTimerId = null;
     let currentSourceKey = "";
+    let showAccountScreen = false;
 
     const AUTO_LANG_CANDIDATES = ["en-US", "my-MM", "hi-IN", "es-ES", "ja-JP", "ko-KR", "th-TH", "zh-CN"];
 
@@ -403,6 +413,20 @@
       }
     };
 
+    function hasPrivateAccessTrigger() {
+      const hashMatch = window.location.hash === "#tv-studio-access";
+      const queryMatch = new URLSearchParams(window.location.search).get("studio") === "1";
+      return hashMatch || queryMatch;
+    }
+
+    function syncPrivatePanel() {
+      if (hasPrivateAccessTrigger()) {
+        adminPanel.classList.add("open");
+      } else {
+        adminPanel.classList.remove("open");
+      }
+    }
+
     function formatMMSS(totalSec) {
       const sec = Math.max(0, Math.floor(totalSec));
       const m = Math.floor(sec / 60);
@@ -428,37 +452,34 @@
       return getUsers().find(u => u.email.toLowerCase() === email.toLowerCase()) || null;
     }
 
-    function isAdminAllFree() {
-      if (localStorage.getItem(STORAGE_KEYS.adminAllFree) === "true") return true;
-      const user = getCurrentUser();
-      return Boolean(user && user.role === "admin");
+    function isStudioUnlocked() {
+      return localStorage.getItem(STORAGE_KEYS.studioUnlocked) === "true";
+    }
+
+    function isAuthenticated() {
+      return Boolean(getCurrentUser()) || isStudioUnlocked();
     }
 
     function isPaidActive() {
-      if (isAdminAllFree()) return true;
+      if (isStudioUnlocked()) return true;
       const user = getCurrentUser();
       if (user && user.paidActive) return true;
       return localStorage.getItem(STORAGE_KEYS.paidActive) === "true";
     }
 
     function isUnlimitedUser() {
-      return isAdminAllFree() || isPaidActive();
+      return isStudioUnlocked() || isPaidActive();
     }
 
     function getTrialStartMs() {
       const user = getCurrentUser();
       if (user && user.trialStart) return Number(user.trialStart);
-
-      let guestStart = Number(localStorage.getItem(STORAGE_KEYS.guestTrialStart));
-      if (!guestStart) {
-        guestStart = Date.now();
-        localStorage.setItem(STORAGE_KEYS.guestTrialStart, String(guestStart));
-      }
-      return guestStart;
+      return Date.now();
     }
 
     function getDaysLeft() {
-      if (isAdminAllFree()) return 9999;
+      if (!isAuthenticated()) return 0;
+      if (isUnlimitedUser()) return 9999;
       const elapsedDays = (Date.now() - getTrialStartMs()) / (1000 * 60 * 60 * 24);
       return Math.max(0, Math.ceil(TRIAL_DAYS - elapsedDays));
     }
@@ -466,40 +487,34 @@
     function getVideosUsed() {
       const user = getCurrentUser();
       if (user) return Number(user.videosUsed || 0);
-      return Number(localStorage.getItem(STORAGE_KEYS.guestVideosUsed) || 0);
+      return 0;
     }
 
     function setVideosUsed(count) {
-      if (isAdminAllFree()) return;
+      if (isUnlimitedUser()) return;
       const user = getCurrentUser();
-      if (user) {
-        const users = getUsers().map(u =>
-          u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, videosUsed: count } : u
-        );
-        saveUsers(users);
-      } else {
-        localStorage.setItem(STORAGE_KEYS.guestVideosUsed, String(count));
-      }
+      if (!user) return;
+      const users = getUsers().map(u =>
+        u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, videosUsed: count } : u
+      );
+      saveUsers(users);
     }
 
     function getSecondsUsed() {
       const user = getCurrentUser();
       if (user) return Number(user.secondsUsed || 0);
-      return Number(localStorage.getItem(STORAGE_KEYS.guestSecondsUsed) || 0);
+      return 0;
     }
 
     function addSecondsUsed(deltaSec) {
-      if (isAdminAllFree()) return 0;
-      const next = Math.min(TRIAL_MAX_SECONDS, getSecondsUsed() + deltaSec);
+      if (isUnlimitedUser()) return 0;
       const user = getCurrentUser();
-      if (user) {
-        const users = getUsers().map(u =>
-          u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, secondsUsed: next } : u
-        );
-        saveUsers(users);
-      } else {
-        localStorage.setItem(STORAGE_KEYS.guestSecondsUsed, String(next));
-      }
+      if (!user) return 0;
+      const next = Math.min(TRIAL_MAX_SECONDS, getSecondsUsed() + deltaSec);
+      const users = getUsers().map(u =>
+        u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, secondsUsed: next } : u
+      );
+      saveUsers(users);
       return next;
     }
 
@@ -511,13 +526,19 @@
     }
 
     function checkTrialEligibility(forNewSource = false) {
-      if (isAdminAllFree() || isUnlimitedUser()) {
+      if (!isAuthenticated()) {
+        return {
+          allowed: false,
+          reason: "Please register or log in first to start your 14-day free access (5 videos / 5:00 min)."
+        };
+      }
+      if (isUnlimitedUser()) {
         return { allowed: true, reason: "" };
       }
       if (getDaysLeft() <= 0) {
         return {
           allowed: false,
-          reason: `14-day free trial ended. $${MONTHLY_PRICE_USD}/mo USD plan or Admin Free Access required.`
+          reason: `14-day free access ended. Please upgrade to the $${MONTHLY_PRICE_USD}/mo USD plan.`
         };
       }
       const videosUsed = getVideosUsed();
@@ -526,68 +547,85 @@
       if (secondsUsed >= TRIAL_MAX_SECONDS) {
         return {
           allowed: false,
-          reason: `Free trial 5-minute limit reached (${formatMMSS(TRIAL_MAX_SECONDS)}). Upgrade to $${MONTHLY_PRICE_USD}/mo USD or Admin Free Access.`
+          reason: `Free access 5-minute limit reached (${formatMMSS(TRIAL_MAX_SECONDS)}). Please upgrade to the $${MONTHLY_PRICE_USD}/mo USD plan.`
         };
       }
       if (forNewSource && videosUsed >= TRIAL_MAX_VIDEOS) {
         return {
           allowed: false,
-          reason: `Free trial 5-video limit reached (${TRIAL_MAX_VIDEOS}/${TRIAL_MAX_VIDEOS} videos). Upgrade to $${MONTHLY_PRICE_USD}/mo USD or Admin Free Access.`
+          reason: `Free access 5-video limit reached (${TRIAL_MAX_VIDEOS}/${TRIAL_MAX_VIDEOS} videos). Please upgrade to the $${MONTHLY_PRICE_USD}/mo USD plan.`
         };
       }
       return { allowed: true, reason: "" };
     }
 
-    function syncAuthCardVisibility(forceOpen = false) {
-      const user = getCurrentUser();
-      if (forceOpen) {
-        authCard.classList.remove("hidden");
-        return;
-      }
-      if (user || isAdminAllFree()) {
-        authCard.classList.add("hidden");
-      }
+    function renderAccountButton() {
+      accountActionWrap.innerHTML = "";
+      if (!isAuthenticated()) return;
+
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "btn-mini";
+      btn.textContent = showAccountScreen ? "← Studio" : "Account";
+      btn.addEventListener("click", () => {
+        showAccountScreen = !showAccountScreen;
+        renderScreenState();
+      });
+      accountActionWrap.appendChild(btn);
     }
 
     function renderAuthUI() {
       const user = getCurrentUser();
       if (user) {
-        authStateLabel.textContent = isAdminAllFree() ? "Admin" : "Logged In";
+        authStateLabel.textContent = "Logged In";
         loggedInBox.classList.remove("hidden");
         authFormWrap.classList.add("hidden");
         currentUserName.textContent = user.name;
         currentUserEmail.textContent = user.email;
-      } else if (isAdminAllFree()) {
-        authStateLabel.textContent = "Admin";
+      } else if (isStudioUnlocked()) {
+        authStateLabel.textContent = "Active";
         loggedInBox.classList.remove("hidden");
         authFormWrap.classList.add("hidden");
-        currentUserName.textContent = ADMIN_ID;
-        currentUserEmail.textContent = "Admin All Free Access";
+        currentUserName.textContent = "Rising Star Studio";
+        currentUserEmail.textContent = "Active Account";
       } else {
-        authStateLabel.textContent = "Guest";
+        authStateLabel.textContent = "Step 1 of 2";
         loggedInBox.classList.add("hidden");
         authFormWrap.classList.remove("hidden");
       }
     }
 
-    function renderPlanStatus(forceOpenAuth = false) {
+    function renderScreenState() {
+      syncPrivatePanel();
       renderAuthUI();
-      syncAuthCardVisibility(forceOpenAuth);
-      planBadge.classList.remove("admin", "expired");
-      const user = getCurrentUser();
-      const acctSuffix = user ? ` (${user.name})` : (isAdminAllFree() ? ` (${ADMIN_ID})` : "");
+      renderAccountButton();
 
-      if (isAdminAllFree()) {
-        planBadge.textContent = "ADMIN FREE ACCESS";
-        planBadge.classList.add("admin");
-        planInfo.innerHTML = `<strong>Admin All Free Access</strong>${acctSuffix} • Unlimited videos, time &amp; features`;
-        quotaText.textContent = "Admin Mode: All Free • No trial, video, or 5-min limit";
+      const authed = isAuthenticated();
+      if (!authed || showAccountScreen) {
+        authCard.classList.remove("hidden");
+        studioWorkspace.classList.add("hidden");
+      } else {
+        authCard.classList.add("hidden");
+        studioWorkspace.classList.remove("hidden");
+      }
+
+      planBadge.classList.remove("pro", "expired", "locked");
+
+      if (!authed) {
+        planBadge.textContent = "Login Required";
+        planBadge.classList.add("locked");
+        planInfo.innerHTML = `<strong>Register / Login First</strong> • 14-day free access after login`;
+        quotaText.textContent = `Free Access: 14 days • ${TRIAL_MAX_VIDEOS} videos • ${formatMMSS(TRIAL_MAX_SECONDS)} min`;
         return;
       }
 
-      if (isPaidActive()) {
-        planBadge.textContent = `$${MONTHLY_PRICE_USD}/mo Active`;
-        planInfo.innerHTML = `<strong>Pro Monthly ($${MONTHLY_PRICE_USD}/mo USD)</strong>${acctSuffix} • Unlimited translation`;
+      const user = getCurrentUser();
+      const acctSuffix = user ? ` (${user.name})` : "";
+
+      if (isUnlimitedUser()) {
+        planBadge.textContent = "PRO ACTIVE";
+        planBadge.classList.add("pro");
+        planInfo.innerHTML = `<strong>Pro Access</strong>${acctSuffix} • Unlimited videos &amp; translation`;
         quotaText.textContent = "Videos: Unlimited • Time: Unlimited";
         return;
       }
@@ -597,13 +635,13 @@
       const secLeft = Math.max(0, TRIAL_MAX_SECONDS - getSecondsUsed());
 
       if (daysLeft > 0) {
-        planBadge.textContent = `${daysLeft}d Trial Left`;
-        planInfo.innerHTML = `<strong>14-Day Free Trial</strong>${acctSuffix} (${daysLeft}d left) • After: <strong>$${MONTHLY_PRICE_USD}/mo USD</strong>`;
+        planBadge.textContent = `${daysLeft}d Free Left`;
+        planInfo.innerHTML = `<strong>14-Day Free Access</strong>${acctSuffix} (${daysLeft}d left) • After: <strong>$${MONTHLY_PRICE_USD}/mo USD</strong>`;
         quotaText.textContent = `Free Left: ${videosLeft}/${TRIAL_MAX_VIDEOS} videos • ${formatMMSS(secLeft)} / ${formatMMSS(TRIAL_MAX_SECONDS)} min`;
       } else {
         planBadge.textContent = "Trial Ended";
         planBadge.classList.add("expired");
-        planInfo.innerHTML = `14-day trial ended${acctSuffix} • Plan: <strong>$${MONTHLY_PRICE_USD}/mo USD</strong> or <strong>Admin Free</strong>`;
+        planInfo.innerHTML = `14-day free access ended${acctSuffix} • Plan: <strong>$${MONTHLY_PRICE_USD}/mo USD</strong>`;
         quotaText.textContent = `Free Left: ${videosLeft}/${TRIAL_MAX_VIDEOS} videos • ${formatMMSS(secLeft)} / ${formatMMSS(TRIAL_MAX_SECONDS)} min`;
       }
     }
@@ -617,7 +655,7 @@
 
     function startTrialTimer() {
       stopTrialTimer();
-      if (isAdminAllFree() || isUnlimitedUser()) return;
+      if (isUnlimitedUser()) return;
 
       trialTimerId = setInterval(() => {
         if (!isTranslating) {
@@ -625,10 +663,10 @@
           return;
         }
         const nextSec = addSecondsUsed(1);
-        renderPlanStatus();
+        renderScreenState();
 
         if (nextSec >= TRIAL_MAX_SECONDS || getDaysLeft() <= 0) {
-          stopSession(`Free trial limit reached (max 5 videos / 5:00 min). Upgrade to $${MONTHLY_PRICE_USD}/mo USD or Admin Free Access.`);
+          stopSession(`14-day free access limit reached (max 5 videos / 5:00 min). Please upgrade to the $${MONTHLY_PRICE_USD}/mo USD plan.`);
         }
       }, 1000);
     }
@@ -646,11 +684,27 @@
       statusText.textContent = customStatus;
     }
 
-    toggleAuthBtn.addEventListener("click", () => {
-      authCard.classList.toggle("hidden");
-      if (!authCard.classList.contains("hidden")) {
-        authCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
+    function bindLogoutHandler() {
+      const logoutBtn = document.getElementById("logoutBtn");
+      if (!logoutBtn) return;
+      logoutBtn.addEventListener("click", () => {
+        stopSession("Logged out");
+        localStorage.removeItem(STORAGE_KEYS.currentUserEmail);
+        localStorage.removeItem(STORAGE_KEYS.studioUnlocked);
+        showAccountScreen = false;
+        authMsg.textContent = "Logged out. Please register or log in to continue.";
+        renderScreenState();
+      });
+    }
+
+    bindLogoutHandler();
+
+    tabRegisterBtn.addEventListener("click", () => {
+      tabRegisterBtn.classList.add("active-tab");
+      tabLoginBtn.classList.remove("active-tab");
+      registerFields.classList.remove("hidden");
+      loginFields.classList.add("hidden");
+      authMsg.textContent = "";
     });
 
     tabLoginBtn.addEventListener("click", () => {
@@ -658,14 +712,6 @@
       tabRegisterBtn.classList.remove("active-tab");
       loginFields.classList.remove("hidden");
       registerFields.classList.add("hidden");
-      authMsg.textContent = "";
-    });
-
-    tabRegisterBtn.addEventListener("click", () => {
-      tabRegisterBtn.classList.add("active-tab");
-      tabLoginBtn.classList.remove("active-tab");
-      registerFields.classList.remove("hidden");
-      loginFields.classList.add("hidden");
       authMsg.textContent = "";
     });
 
@@ -681,7 +727,7 @@
 
       const users = getUsers();
       if (users.some(u => u.email.toLowerCase() === email)) {
-        authMsg.textContent = "Email already registered. Please login.";
+        authMsg.textContent = "Email already registered. Please switch to Login.";
         return;
       }
 
@@ -689,7 +735,6 @@
         name,
         email,
         password,
-        role: "user",
         trialStart: Date.now(),
         videosUsed: 0,
         secondsUsed: 0,
@@ -702,23 +747,14 @@
       regName.value = "";
       regEmail.value = "";
       regPassword.value = "";
-      authMsg.textContent = "Registered! 14-day free trial (5 videos / 5 min) started.";
-      renderPlanStatus(false);
+      showAccountScreen = false;
+      authMsg.textContent = "";
+      renderScreenState();
     });
 
     loginSubmitBtn.addEventListener("click", () => {
       const inputId = loginEmail.value.trim().toLowerCase();
       const password = loginPassword.value;
-
-      if (inputId === ADMIN_ID.toLowerCase() && password === ADMIN_PW) {
-        localStorage.setItem(STORAGE_KEYS.adminAllFree, "true");
-        loginEmail.value = "";
-        loginPassword.value = "";
-        authMsg.textContent = "Admin All Free Access enabled.";
-        statusText.textContent = "Admin All Free Access enabled (Risingstar).";
-        renderPlanStatus(false);
-        return;
-      }
 
       const users = getUsers();
       const matched = users.find(u => u.email.toLowerCase() === inputId && u.password === password);
@@ -731,22 +767,9 @@
       localStorage.setItem(STORAGE_KEYS.currentUserEmail, matched.email);
       loginEmail.value = "";
       loginPassword.value = "";
-      authMsg.textContent = "Logged in as " + matched.name + ".";
-      renderPlanStatus(false);
-    });
-
-    logoutBtn.addEventListener("click", () => {
-      stopSession("Logged out");
-      localStorage.removeItem(STORAGE_KEYS.currentUserEmail);
-      localStorage.removeItem(STORAGE_KEYS.adminAllFree);
-      authMsg.textContent = "Logged out.";
-      renderPlanStatus(true);
-    });
-
-    toggleAdminBtn.addEventListener("click", () => {
-      authCard.classList.remove("hidden");
-      adminPanel.classList.toggle("open");
-      adminPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      showAccountScreen = false;
+      authMsg.textContent = "";
+      renderScreenState();
     });
 
     unlockAdminBtn.addEventListener("click", () => {
@@ -754,21 +777,15 @@
       const pwVal = adminPassInput.value;
 
       if (idVal === ADMIN_ID.toLowerCase() && pwVal === ADMIN_PW) {
-        localStorage.setItem(STORAGE_KEYS.adminAllFree, "true");
-        const user = getCurrentUser();
-        if (user) {
-          const users = getUsers().map(u =>
-            u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, role: "admin" } : u
-          );
-          saveUsers(users);
-        }
+        localStorage.setItem(STORAGE_KEYS.studioUnlocked, "true");
         adminUserInput.value = "";
         adminPassInput.value = "";
-        adminPanel.classList.remove("open");
-        renderPlanStatus(false);
-        statusText.textContent = "Admin All Free Access enabled (Risingstar).";
+        showAccountScreen = false;
+        authMsg.textContent = "";
+        renderScreenState();
+        statusText.textContent = "Studio workspace active.";
       } else {
-        statusText.textContent = "Invalid Admin ID or password.";
+        authMsg.textContent = "Invalid credentials.";
       }
     });
 
@@ -782,23 +799,26 @@
       } else {
         localStorage.setItem(STORAGE_KEYS.paidActive, "true");
       }
-      renderPlanStatus(false);
+      showAccountScreen = false;
+      renderScreenState();
       statusText.textContent = `$${MONTHLY_PRICE_USD}/mo USD plan activated.`;
     });
 
     lockAdminBtn.addEventListener("click", () => {
-      localStorage.removeItem(STORAGE_KEYS.adminAllFree);
+      localStorage.removeItem(STORAGE_KEYS.studioUnlocked);
       localStorage.removeItem(STORAGE_KEYS.paidActive);
       const user = getCurrentUser();
       if (user) {
         const users = getUsers().map(u =>
-          u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, role: "user", paidActive: false } : u
+          u.email.toLowerCase() === user.email.toLowerCase() ? { ...u, paidActive: false, videosUsed: 0, secondsUsed: 0, trialStart: Date.now() } : u
         );
         saveUsers(users);
       }
-      renderPlanStatus(true);
-      statusText.textContent = "Reverted to 14-day free trial (5 videos / 5 min).";
+      renderScreenState();
+      statusText.textContent = "14-day free access reset.";
     });
+
+    window.addEventListener("hashchange", renderScreenState);
 
     function extractYouTubeId(url) {
       const match = url.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
@@ -919,7 +939,6 @@
         return { text: PHRASE_DICT[lower][targetCode], source: "phrase-dict" };
       }
 
-      // 1) Try Google Translate endpoint (supports auto source and many world languages)
       try {
         const gtSource = sourceCode === "auto" ? "auto" : sourceCode;
         const gtTarget = targetCode === "lus" ? "en" : targetCode;
@@ -943,7 +962,6 @@
         }
       } catch (_) {}
 
-      // 2) Try MyMemory API when source language is known
       if (sourceCode !== "auto") {
         try {
           const mmTarget = targetCode === "lus" ? "en" : targetCode;
@@ -962,7 +980,6 @@
         } catch (_) {}
       }
 
-      // 3) Offline dictionary/word mapper fallback
       return { text: dictionaryFallback(clean, targetCode), source: "dictionary" };
     }
 
@@ -1112,14 +1129,14 @@
         return;
       }
 
-      if (!isAdminAllFree() && !isUnlimitedUser() && isNewSource) {
+      if (!isUnlimitedUser() && isNewSource) {
         currentSourceKey = nextSourceKey;
         setVideosUsed(getVideosUsed() + 1);
       } else if (!currentSourceKey) {
         currentSourceKey = nextSourceKey;
       }
 
-      renderPlanStatus(false);
+      renderScreenState();
       updateTargetHeader();
       isTranslating = true;
       lastFinalTranscript = "";
@@ -1178,7 +1195,7 @@
       stopSession("Stopped");
     });
 
-    renderPlanStatus(false);
+    renderScreenState();
   </script>
 </body>
 </html>
