@@ -358,9 +358,9 @@
     let trialTimerId = null;
     let currentSourceKey = "";
     let showAccountScreen = false;
-    let keepAliveTimer = null;
     let audioCtx = null;
-    let aiAudioPlayer = null;
+    let activeUtterance = null;
+    let speechEndTimer = null;
 
     const MIZO_WORD_DICT = {
       "good": "tha",
@@ -459,7 +459,9 @@
       if ("speechSynthesis" in window) {
         try {
           window.speechSynthesis.getVoices();
-          window.speechSynthesis.resume();
+          if (window.speechSynthesis.paused) {
+            window.speechSynthesis.resume();
+          }
         } catch (_) {}
       }
     }
@@ -488,29 +490,39 @@
     }
 
     function stopAllAIAudio() {
-      if (aiAudioPlayer) {
-        try {
-          aiAudioPlayer.pause();
-          aiAudioPlayer.currentTime = 0;
-        } catch (_) {}
+      if (speechEndTimer) {
+        clearTimeout(speechEndTimer);
+        speechEndTimer = null;
       }
+      activeUtterance = null;
       if ("speechSynthesis" in window) {
         try { window.speechSynthesis.cancel(); } catch (_) {}
       }
     }
 
-    function playSpeechSynthesisFallback(clean, gender) {
+    function speakMizoAI(text) {
+      const clean = (text || "").trim();
+      if (!clean) {
+        statusText.textContent = "No Mizo translation text to speak.";
+        return;
+      }
+
+      const gender = voiceGenderSelect.value;
+      stopAllAIAudio();
+      playSpeakerTone(gender);
+
       if (!("speechSynthesis" in window)) {
         statusText.textContent = `Mizo Dubbing text ready: "${clean}"`;
         return;
       }
 
       try {
-        window.speechSynthesis.cancel();
-        window.speechSynthesis.resume();
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
+        }
 
         const utter = new SpeechSynthesisUtterance(clean);
-        const voices = window.speechSynthesis.getVoices();
+        const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
 
         if (voices && voices.length > 0) {
           const enVoices = voices.filter(v => (v.lang || "").toLowerCase().startsWith("en"));
@@ -520,36 +532,46 @@
               ? /female|zira|samantha|victoria|google uk english female|aria|jenny/i.test(v.name)
               : /male|david|mark|daniel|google uk english male|guy|ryan/i.test(v.name)
           );
-          utter.voice = matched || pool[0] || null;
+          if (matched) {
+            utter.voice = matched;
+          }
         }
 
-        utter.lang = "en-US";
-        utter.rate = 0.96;
+        utter.rate = 0.92;
         utter.pitch = gender === "female" ? 1.12 : 0.92;
         utter.volume = 1.0;
+
+        activeUtterance = utter;
+
+        const finishSpeech = (msgText) => {
+          if (speechEndTimer) {
+            clearTimeout(speechEndTimer);
+            speechEndTimer = null;
+          }
+          if (activeUtterance === utter) {
+            activeUtterance = null;
+          }
+          statusText.textContent = msgText;
+        };
 
         utter.onstart = () => {
           statusText.textContent = `AI Dubbing (${gender}) speaking: "${clean}"`;
         };
         utter.onend = () => {
-          statusText.textContent = `AI Dubbing finished: "${clean}"`;
+          finishSpeech(`AI Dubbing finished: "${clean}"`);
         };
         utter.onerror = () => {
-          statusText.textContent = `Check phone Media Volume • Mizo text: "${clean}"`;
+          finishSpeech(`Check phone volume / Silent mode • Mizo text: "${clean}"`);
         };
 
-        window.speechSynthesis.speak(utter);
+        speechEndTimer = setTimeout(() => {
+          finishSpeech(`Mizo AI Dubbing: "${clean}"`);
+        }, 7000);
 
-        if (keepAliveTimer) clearInterval(keepAliveTimer);
-        keepAliveTimer = setInterval(() => {
-          if (!window.speechSynthesis.speaking) {
-            clearInterval(keepAliveTimer);
-            keepAliveTimer = null;
-            return;
-          }
-          window.speechSynthesis.resume();
-        }, 500);
-      } catch (_) {}
+        window.speechSynthesis.speak(utter);
+      } catch (_) {
+        statusText.textContent = `Mizo Dubbing text ready: "${clean}"`;
+      }
     }
 
     unlockMobileAudio();
@@ -836,10 +858,6 @@
     function stopSession(customStatus = "Stopped") {
       isTranslating = false;
       stopTrialTimer();
-      if (keepAliveTimer) {
-        clearInterval(keepAliveTimer);
-        keepAliveTimer = null;
-      }
       startTranslateBtn.textContent = "✨ START MIZO AI DUBBING";
       stopAllAIAudio();
       statusText.textContent = customStatus;
@@ -1125,34 +1143,66 @@
       stopAllAIAudio();
       playSpeakerTone(gender);
 
+      if (!("speechSynthesis" in window)) {
+        statusText.textContent = `Mizo Dubbing text ready: "${clean}"`;
+        return;
+      }
+
       try {
-        if (!aiAudioPlayer) {
-          aiAudioPlayer = new Audio();
-          aiAudioPlayer.playsInline = true;
+        if (window.speechSynthesis.paused) {
+          window.speechSynthesis.resume();
         }
-        const ttsUrl = `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=tw-ob&tl=en&q=${encodeURIComponent(clean)}`;
-        aiAudioPlayer.src = ttsUrl;
-        aiAudioPlayer.playbackRate = gender === "female" ? 1.05 : 0.94;
-        aiAudioPlayer.volume = 1.0;
 
-        statusText.textContent = `Original muted • AI Dubbing (${gender}) playing: "${clean}"`;
+        const utter = new SpeechSynthesisUtterance(clean);
+        const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
 
-        aiAudioPlayer.onended = () => {
-          statusText.textContent = `AI Dubbing finished: "${clean}"`;
+        if (voices && voices.length > 0) {
+          const enVoices = voices.filter(v => (v.lang || "").toLowerCase().startsWith("en"));
+          const pool = enVoices.length > 0 ? enVoices : voices;
+          const matched = pool.find(v =>
+            gender === "female"
+              ? /female|zira|samantha|victoria|google uk english female|aria|jenny/i.test(v.name)
+              : /male|david|mark|daniel|google uk english male|guy|ryan/i.test(v.name)
+          );
+          if (matched) {
+            utter.voice = matched;
+          }
+        }
+
+        utter.rate = 0.92;
+        utter.pitch = gender === "female" ? 1.12 : 0.92;
+        utter.volume = 1.0;
+
+        activeUtterance = utter;
+
+        const finishSpeech = (msgText) => {
+          if (speechEndTimer) {
+            clearTimeout(speechEndTimer);
+            speechEndTimer = null;
+          }
+          if (activeUtterance === utter) {
+            activeUtterance = null;
+          }
+          statusText.textContent = msgText;
         };
 
-        aiAudioPlayer.onerror = () => {
-          playSpeechSynthesisFallback(clean, gender);
+        utter.onstart = () => {
+          statusText.textContent = `AI Dubbing (${gender}) speaking: "${clean}"`;
+        };
+        utter.onend = () => {
+          finishSpeech(`AI Dubbing finished: "${clean}"`);
+        };
+        utter.onerror = () => {
+          finishSpeech(`Check phone volume / Silent mode • Mizo text: "${clean}"`);
         };
 
-        const playPromise = aiAudioPlayer.play();
-        if (playPromise && typeof playPromise.catch === "function") {
-          playPromise.catch(() => {
-            playSpeechSynthesisFallback(clean, gender);
-          });
-        }
+        speechEndTimer = setTimeout(() => {
+          finishSpeech(`Mizo AI Dubbing: "${clean}"`);
+        }, 7000);
+
+        window.speechSynthesis.speak(utter);
       } catch (_) {
-        playSpeechSynthesisFallback(clean, gender);
+        statusText.textContent = `Mizo Dubbing text ready: "${clean}"`;
       }
     }
 
