@@ -361,6 +361,7 @@
     let audioCtx = null;
     let activeUtterance = null;
     let speechEndTimer = null;
+    let speechRecognizer = null;
 
     const MIZO_WORD_DICT = {
       "good": "tha",
@@ -489,6 +490,18 @@
       } catch (_) {}
     }
 
+    function stopSpeechRecognition() {
+      if (speechRecognizer) {
+        try {
+          speechRecognizer.onresult = null;
+          speechRecognizer.onerror = null;
+          speechRecognizer.onend = null;
+          speechRecognizer.stop();
+        } catch (_) {}
+        speechRecognizer = null;
+      }
+    }
+
     function stopAllAIAudio() {
       if (speechEndTimer) {
         clearTimeout(speechEndTimer);
@@ -571,6 +584,70 @@
         window.speechSynthesis.speak(utter);
       } catch (_) {
         statusText.textContent = `Mizo Dubbing text ready: "${clean}"`;
+      }
+    }
+
+    async function handleSpokenLineFromVideo(spokenLine) {
+      const cleanLine = (spokenLine || "").trim();
+      if (!cleanLine || cleanLine === lastSpokenText) return;
+      lastSpokenText = cleanLine;
+
+      heardText.textContent = "Heard: " + cleanLine;
+      const translated = await translateToMizo(cleanLine);
+      if (translated.text) {
+        subtitleOutput.textContent = translated.text;
+        if (autoShowSubtitles.checked) {
+          videoOverlay.textContent = translated.text;
+          videoOverlay.classList.remove("hidden");
+        }
+        if (autoSpeakVoice.checked) {
+          speakMizoAI(translated.text);
+        }
+      }
+    }
+
+    function startVideoSpeechAutoTranslate() {
+      stopSpeechRecognition();
+      const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRec) {
+        statusText.textContent = "Video playing • Browser live speech capture unavailable; use Mizo box or Speak Mizo AI.";
+        return;
+      }
+
+      try {
+        const rec = new SpeechRec();
+        const srcVal = sourceLangSelect.value;
+        rec.lang = srcVal === "auto" ? "en-US" : srcVal;
+        rec.continuous = true;
+        rec.interimResults = false;
+
+        rec.onresult = (event) => {
+          if (!isTranslating) return;
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const res = event.results[i];
+            if (res.isFinal && res[0] && res[0].transcript) {
+              handleSpokenLineFromVideo(res[0].transcript);
+            }
+          }
+        };
+
+        rec.onerror = () => {
+          if (isTranslating) {
+            statusText.textContent = "Video playing • Type/paste line in Mizo box or tap Speak Mizo AI.";
+          }
+        };
+
+        rec.onend = () => {
+          if (isTranslating && !videoPlayer.paused && !videoPlayer.ended) {
+            try { rec.start(); } catch (_) {}
+          }
+        };
+
+        speechRecognizer = rec;
+        rec.start();
+        statusText.textContent = "Video AI Translate & Speak listening...";
+      } catch (_) {
+        statusText.textContent = "Video playing • Type/paste line in Mizo box or tap Speak Mizo AI.";
       }
     }
 
@@ -858,6 +935,7 @@
     function stopSession(customStatus = "Stopped") {
       isTranslating = false;
       stopTrialTimer();
+      stopSpeechRecognition();
       startTranslateBtn.textContent = "✨ START MIZO AI DUBBING";
       stopAllAIAudio();
       statusText.textContent = customStatus;
@@ -1239,12 +1317,19 @@
 
       if (socialUrlInput.value.trim()) {
         applyLinkSource(socialUrlInput.value);
-      } else if (!videoPlayer.classList.contains("hidden") && videoPlayer.src) {
+        startTrialTimer();
+        statusText.textContent = "Embed video loaded • Enter/paste line in Mizo box or tap Speak Mizo AI.";
+        return;
+      }
+
+      if (!videoPlayer.classList.contains("hidden") && videoPlayer.src) {
         try { await videoPlayer.play(); } catch (_) {}
+        startVideoSpeechAutoTranslate();
+      } else {
+        statusText.textContent = "Original audio muted. Enter/select a line in Mizo box to play dubbed voice.";
       }
 
       startTrialTimer();
-      statusText.textContent = "Original audio muted. Enter/select a line in Mizo box to play dubbed voice.";
     });
 
     testTranslateBtn.addEventListener("click", async () => {
